@@ -49,16 +49,24 @@ class Bnb extends BaseController
         $userId = session()->get('userId');
         $model = new BnbSettingModel();
 
+        // Calculate weighted average occupancy rate
+        $highSeasonPercentage = $this->request->getPost('high_season_percentage') ?: 80;
+        $highSeasonMonths = $this->request->getPost('high_season_months') ?: 4;
+        $lowSeasonPercentage = $this->request->getPost('low_season_percentage') ?: 40;
+        $lowSeasonMonths = $this->request->getPost('low_season_months') ?: 8;
+        
+        $occupancyRate = (($highSeasonPercentage * $highSeasonMonths) + ($lowSeasonPercentage * $lowSeasonMonths)) / 12;
+
         $postData = [
             'user_id' => $userId,
             'enabled' => $this->request->getPost('enabled') ? 1 : 0,
             'number_of_rooms' => $this->request->getPost('number_of_rooms'),
             'price_per_room_per_night' => $this->request->getPost('price_per_room_per_night'),
-            'occupancy_rate' => $this->request->getPost('occupancy_rate'),
-            'high_season_percentage' => $this->request->getPost('high_season_percentage'),
-            'low_season_percentage' => $this->request->getPost('low_season_percentage'),
-            'high_season_months' => $this->request->getPost('high_season_months'),
-            'low_season_months' => $this->request->getPost('low_season_months'),
+            'occupancy_rate' => $occupancyRate,
+            'high_season_percentage' => $highSeasonPercentage,
+            'low_season_percentage' => $lowSeasonPercentage,
+            'high_season_months' => $highSeasonMonths,
+            'low_season_months' => $lowSeasonMonths,
         ];
 
         $existing = $model->getByUserId($userId);
