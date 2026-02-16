@@ -744,7 +744,7 @@ document.addEventListener('DOMContentLoaded', function() {
         doc.setFontSize(14);
         doc.setFont(undefined, 'bold');
         doc.setTextColor(40, 167, 69);
-        doc.text('\\u20AC ' + formatNumber(<?= $calculations['total_monthly_income'] ?? 0 ?>), margin + 3, yPos + 14);
+        doc.text('\ ' + formatNumber(<?= $calculations['total_monthly_income'] ?? 0 ?>), margin + 3, yPos + 14);
         
         // Expenses box
         doc.setTextColor(0, 0, 0);
@@ -756,7 +756,7 @@ document.addEventListener('DOMContentLoaded', function() {
         doc.setFontSize(14);
         doc.setFont(undefined, 'bold');
         doc.setTextColor(220, 53, 69);
-        doc.text('\\u20AC ' + formatNumber(<?= ($calculations['monthly_expenses'] ?? 0) + ($calculations['monthly_taxes'] ?? 0) ?>), margin + boxWidth + 6, yPos + 14);
+        doc.text('\ ' + formatNumber(<?= ($calculations['monthly_expenses'] ?? 0) + ($calculations['monthly_taxes'] ?? 0) ?>), margin + boxWidth + 6, yPos + 14);
         
         // Net box
         doc.setTextColor(0, 0, 0);
@@ -769,7 +769,7 @@ document.addEventListener('DOMContentLoaded', function() {
         doc.setFontSize(14);
         doc.setFont(undefined, 'bold');
         doc.setTextColor(netValue >= 0 ? 40 : 220, netValue >= 0 ? 167 : 53, netValue >= 0 ? 69 : 69);
-        doc.text('\\u20AC ' + formatNumber(netValue), margin + (boxWidth * 2) + 9, yPos + 14);
+        doc.text('\ ' + formatNumber(netValue), margin + (boxWidth * 2) + 9, yPos + 14);
         doc.setTextColor(0, 0, 0);
         
         yPos += 25;
@@ -785,30 +785,30 @@ document.addEventListener('DOMContentLoaded', function() {
         
         const incomeData = [];
         <?php if (($income['own_income'] ?? 0) > 0): ?>
-        incomeData.push(['Eigen inkomen', '\\u20AC ' + formatNumber(<?= $income['own_income'] ?>)]);
+        incomeData.push(['Eigen inkomen', '\ ' + formatNumber(<?= $income['own_income'] ?>)]);
         <?php endif; ?>
         <?php if (($income['wia_wife'] ?? 0) > 0): ?>
-        incomeData.push(['WIA <?= esc($profile['partner_name'] ?? 'Partner') ?>', '\\u20AC ' + formatNumber(<?= $income['wia_wife'] ?>)]);
+        incomeData.push(['WIA <?= esc($profile['partner_name'] ?? 'Partner') ?>', '\ ' + formatNumber(<?= $income['wia_wife'] ?>)]);
         <?php endif; ?>
         <?php if (($income['wao_future'] ?? 0) > 0): ?>
-        incomeData.push(['WaO <?= esc($profile['partner_name'] ?? 'Partner') ?> (met reductie)', '\\u20AC ' + formatNumber(<?= ($income['wao_future'] ?? 0) * (calculate_wao_percentage($profile['emigration_date'] ?? date('Y-m-d'), $profile['partner_date_of_birth'] ?? date('Y-m-d'), $profile['partner_retirement_age'] ?? 67) / 100) ?>)]);
+        incomeData.push(['WaO <?= esc($profile['partner_name'] ?? 'Partner') ?> (met reductie)', '\ ' + formatNumber(<?= ($income['wao_future'] ?? 0) * (calculate_wao_percentage($profile['emigration_date'] ?? date('Y-m-d'), $profile['partner_date_of_birth'] ?? date('Y-m-d'), $profile['partner_retirement_age'] ?? 67) / 100) ?>)]);
         <?php endif; ?>
         <?php if (($income['pension'] ?? 0) > 0): ?>
-        incomeData.push(['Pensioen', '\\u20AC ' + formatNumber(<?= $income['pension'] ?>)]);
+        incomeData.push(['Pensioen', '\ ' + formatNumber(<?= $income['pension'] ?>)]);
         <?php endif; ?>
         <?php if (($income['own_wao'] ?? 0) > 0): ?>
-        incomeData.push(['Eigen WaO (met reductie)', '\\u20AC ' + formatNumber(<?= ($income['own_wao'] ?? 0) * (calculate_wao_percentage($profile['emigration_date'] ?? date('Y-m-d'), $profile['date_of_birth'] ?? date('Y-m-d'), $profile['retirement_age'] ?? 67) / 100) ?>)]);
+        incomeData.push(['Eigen WaO (met reductie)', '\ ' + formatNumber(<?= ($income['own_wao'] ?? 0) * (calculate_wao_percentage($profile['emigration_date'] ?? date('Y-m-d'), $profile['date_of_birth'] ?? date('Y-m-d'), $profile['retirement_age'] ?? 67) / 100) ?>)]);
         <?php endif; ?>
         <?php if (($income['other_income'] ?? 0) > 0): ?>
-        incomeData.push(['Overig inkomen', '\\u20AC ' + formatNumber(<?= $income['other_income'] ?>)]);
+        incomeData.push(['Overig inkomen', '\ ' + formatNumber(<?= $income['other_income'] ?>)]);
         <?php endif; ?>
         <?php if (($calculations['bnb_net_income'] ?? 0) > 0): ?>
-        incomeData.push(['B&B netto inkomen', '\\u20AC ' + formatNumber(<?= $calculations['bnb_net_income'] ?>)]);
+        incomeData.push(['B&B netto inkomen', '\ ' + formatNumber(<?= $calculations['bnb_net_income'] ?>)]);
         <?php endif; ?>
         <?php if (($startPosition['interest_rate'] ?? 0) > 0): ?>
         const yearlyInterest = <?= $startPosition['total_starting_capital'] ?? 0 ?> * (<?= $startPosition['interest_rate'] ?? 2 ?> / 100);
         const monthlyInterest = yearlyInterest / 12;
-        incomeData.push(['Spaarrente (<?= $startPosition['interest_rate'] ?? 2 ?>%)', '\\u20AC ' + formatNumber(monthlyInterest)]);
+        incomeData.push(['Spaarrente (<?= $startPosition['interest_rate'] ?? 2 ?>%)', '\ ' + formatNumber(monthlyInterest)]);
         <?php endif; ?>
         
         if (incomeData.length > 0) {
@@ -834,7 +834,7 @@ document.addEventListener('DOMContentLoaded', function() {
         doc.setFont(undefined, 'bold');
         doc.setFontSize(11);
         doc.text('Totaal Inkomen', margin + 3, yPos + 5.5);
-        doc.text('\\u20AC ' + formatNumber(<?= $calculations['total_monthly_income'] ?? 0 ?>), pageWidth - margin - 3, yPos + 5.5, { align: 'right' });
+        doc.text('\ ' + formatNumber(<?= $calculations['total_monthly_income'] ?? 0 ?>), pageWidth - margin - 3, yPos + 5.5, { align: 'right' });
         doc.setTextColor(0, 0, 0);
         
         yPos += 15;
@@ -850,40 +850,40 @@ document.addEventListener('DOMContentLoaded', function() {
         
         const expenseData = [];
         <?php if (!empty($expenses)): ?>
-        <?php if (($expenses['energy'] ?? 0) > 0): ?>expenseData.push(['Energie', '\\u20AC ' + formatNumber(<?= $expenses['energy'] ?>)]);<?php endif; ?>
-        <?php if (($expenses['water'] ?? 0) > 0): ?>expenseData.push(['Water', '\\u20AC ' + formatNumber(<?= $expenses['water'] ?>)]);<?php endif; ?>
-        <?php if (($expenses['internet'] ?? 0) > 0): ?>expenseData.push(['Internet', '\\u20AC ' + formatNumber(<?= $expenses['internet'] ?>)]);<?php endif; ?>
-        <?php if (($expenses['health_insurance'] ?? 0) > 0): ?>expenseData.push(['Zorgverzekering', '\\u20AC ' + formatNumber(<?= $expenses['health_insurance'] ?>)]);<?php endif; ?>
-        <?php if (($expenses['car_insurance'] ?? 0) > 0): ?>expenseData.push(['Autoverzekering', '\\u20AC ' + formatNumber(<?= $expenses['car_insurance'] ?>)]);<?php endif; ?>
-        <?php if (($expenses['car_fuel'] ?? 0) > 0): ?>expenseData.push(['Brandstof', '\\u20AC ' + formatNumber(<?= $expenses['car_fuel'] ?>)]);<?php endif; ?>
-        <?php if (($expenses['car_maintenance'] ?? 0) > 0): ?>expenseData.push(['Auto onderhoud', '\\u20AC ' + formatNumber(<?= $expenses['car_maintenance'] ?>)]);<?php endif; ?>
-        <?php if (($expenses['groceries'] ?? 0) > 0): ?>expenseData.push(['Boodschappen', '\\u20AC ' + formatNumber(<?= $expenses['groceries'] ?>)]);<?php endif; ?>
-        <?php if (($expenses['leisure'] ?? 0) > 0): ?>expenseData.push(['Vrije tijd', '\\u20AC ' + formatNumber(<?= $expenses['leisure'] ?>)]);<?php endif; ?>
-        <?php if (($expenses['unforeseen'] ?? 0) > 0): ?>expenseData.push(['Onvoorzien', '\\u20AC ' + formatNumber(<?= $expenses['unforeseen'] ?>)]);<?php endif; ?>
-        <?php if (($expenses['other'] ?? 0) > 0): ?>expenseData.push(['Overige kosten', '\\u20AC ' + formatNumber(<?= $expenses['other'] ?>)]);<?php endif; ?>
+        <?php if (($expenses['energy'] ?? 0) > 0): ?>expenseData.push(['Energie', '\ ' + formatNumber(<?= $expenses['energy'] ?>)]);<?php endif; ?>
+        <?php if (($expenses['water'] ?? 0) > 0): ?>expenseData.push(['Water', '\ ' + formatNumber(<?= $expenses['water'] ?>)]);<?php endif; ?>
+        <?php if (($expenses['internet'] ?? 0) > 0): ?>expenseData.push(['Internet', '\ ' + formatNumber(<?= $expenses['internet'] ?>)]);<?php endif; ?>
+        <?php if (($expenses['health_insurance'] ?? 0) > 0): ?>expenseData.push(['Zorgverzekering', '\ ' + formatNumber(<?= $expenses['health_insurance'] ?>)]);<?php endif; ?>
+        <?php if (($expenses['car_insurance'] ?? 0) > 0): ?>expenseData.push(['Autoverzekering', '\ ' + formatNumber(<?= $expenses['car_insurance'] ?>)]);<?php endif; ?>
+        <?php if (($expenses['car_fuel'] ?? 0) > 0): ?>expenseData.push(['Brandstof', '\ ' + formatNumber(<?= $expenses['car_fuel'] ?>)]);<?php endif; ?>
+        <?php if (($expenses['car_maintenance'] ?? 0) > 0): ?>expenseData.push(['Auto onderhoud', '\ ' + formatNumber(<?= $expenses['car_maintenance'] ?>)]);<?php endif; ?>
+        <?php if (($expenses['groceries'] ?? 0) > 0): ?>expenseData.push(['Boodschappen', '\ ' + formatNumber(<?= $expenses['groceries'] ?>)]);<?php endif; ?>
+        <?php if (($expenses['leisure'] ?? 0) > 0): ?>expenseData.push(['Vrije tijd', '\ ' + formatNumber(<?= $expenses['leisure'] ?>)]);<?php endif; ?>
+        <?php if (($expenses['unforeseen'] ?? 0) > 0): ?>expenseData.push(['Onvoorzien', '\ ' + formatNumber(<?= $expenses['unforeseen'] ?>)]);<?php endif; ?>
+        <?php if (($expenses['other'] ?? 0) > 0): ?>expenseData.push(['Overige kosten', '\ ' + formatNumber(<?= $expenses['other'] ?>)]);<?php endif; ?>
         <?php endif; ?>
         
         <?php if (!empty($mainProperty)): ?>
         <?php if (($mainProperty['annual_costs'] ?? 0) > 0): ?>
-        expenseData.push(['Hoofdwoning vaste lasten (jaar)', '\\u20AC ' + formatNumber(<?= ($mainProperty['annual_costs'] ?? 0) / 12 ?>)]);
+        expenseData.push(['Hoofdwoning vaste lasten (jaar)', '\ ' + formatNumber(<?= ($mainProperty['annual_costs'] ?? 0) / 12 ?>)]);
         <?php endif; ?>
         <?php if (($mainProperty['maintenance_yearly'] ?? 0) > 0): ?>
-        expenseData.push(['Hoofdwoning onderhoud (jaar)', '\\u20AC ' + formatNumber(<?= ($mainProperty['maintenance_yearly'] ?? 0) / 12 ?>)]);
+        expenseData.push(['Hoofdwoning onderhoud (jaar)', '\ ' + formatNumber(<?= ($mainProperty['maintenance_yearly'] ?? 0) / 12 ?>)]);
         <?php endif; ?>
         <?php endif; ?>
         
         <?php if (!empty($secondProperty)): ?>
         <?php if (($secondProperty['annual_costs'] ?? 0) > 0): ?>
-        expenseData.push(['2e woning vaste lasten (jaar)', '\\u20AC ' + formatNumber(<?= ($secondProperty['annual_costs'] ?? 0) / 12 ?>)]);
+        expenseData.push(['2e woning vaste lasten (jaar)', '\ ' + formatNumber(<?= ($secondProperty['annual_costs'] ?? 0) / 12 ?>)]);
         <?php endif; ?>
         <?php if (($secondProperty['maintenance_yearly'] ?? 0) > 0): ?>
-        expenseData.push(['2e woning onderhoud (jaar)', '\\u20AC ' + formatNumber(<?= ($secondProperty['maintenance_yearly'] ?? 0) / 12 ?>)]);
+        expenseData.push(['2e woning onderhoud (jaar)', '\ ' + formatNumber(<?= ($secondProperty['maintenance_yearly'] ?? 0) / 12 ?>)]);
         <?php endif; ?>
         <?php if (($secondProperty['energy_monthly'] ?? 0) > 0): ?>
-        expenseData.push(['2e woning energie', '\\u20AC ' + formatNumber(<?= $secondProperty['energy_monthly'] ?>)]);
+        expenseData.push(['2e woning energie', '\ ' + formatNumber(<?= $secondProperty['energy_monthly'] ?>)]);
         <?php endif; ?>
         <?php if (($secondProperty['other_monthly_costs'] ?? 0) > 0): ?>
-        expenseData.push(['2e woning overige kosten', '\\u20AC ' + formatNumber(<?= $secondProperty['other_monthly_costs'] ?>)]);
+        expenseData.push(['2e woning overige kosten', '\ ' + formatNumber(<?= $secondProperty['other_monthly_costs'] ?>)]);
         <?php endif; ?>
         <?php endif; ?>
         
@@ -906,7 +906,7 @@ document.addEventListener('DOMContentLoaded', function() {
         doc.setFont(undefined, 'bold');
         doc.setFontSize(10);
         doc.text('Subtotaal Uitgaven:', margin + 3, yPos + 5);
-        doc.text('\\u20AC ' + formatNumber(<?= $calculations['monthly_expenses'] ?? 0 ?>), pageWidth - margin - 3, yPos + 5, { align: 'right' });
+        doc.text('\ ' + formatNumber(<?= $calculations['monthly_expenses'] ?? 0 ?>), pageWidth - margin - 3, yPos + 5, { align: 'right' });
         
         yPos += 12;
         checkNewPage(50);
@@ -922,25 +922,25 @@ document.addEventListener('DOMContentLoaded', function() {
         const taxData = [];
         <?php if (!empty($taxes)): ?>
         <?php if (($taxes['tari_yearly'] ?? 0) > 0): ?>
-        taxData.push(['TARI hoofdwoning', '\\u20AC ' + formatNumber(<?= ($taxes['tari_yearly'] ?? 0) / 12 ?>)]);
+        taxData.push(['TARI hoofdwoning', '\ ' + formatNumber(<?= ($taxes['tari_yearly'] ?? 0) / 12 ?>)]);
         <?php endif; ?>
         <?php if (($taxes['social_contributions'] ?? 0) > 0): ?>
-        taxData.push(['Sociale bijdragen (INPS)', '\\u20AC ' + formatNumber(<?= $taxes['social_contributions'] ?>)]);
+        taxData.push(['Sociale bijdragen (INPS)', '\ ' + formatNumber(<?= $taxes['social_contributions'] ?>)]);
         <?php endif; ?>
         <?php if (($taxes['road_tax_yearly'] ?? 0) > 0): ?>
-        taxData.push(['Wegenbelasting (Bollo auto)', '\\u20AC ' + formatNumber(<?= ($taxes['road_tax_yearly'] ?? 0) / 12 ?>)]);
+        taxData.push(['Wegenbelasting (Bollo auto)', '\ ' + formatNumber(<?= ($taxes['road_tax_yearly'] ?? 0) / 12 ?>)]);
         <?php endif; ?>
         <?php endif; ?>
         <?php if (!empty($secondProperty)): ?>
         <?php if (($secondProperty['tari_yearly'] ?? 0) > 0): ?>
-        taxData.push(['TARI 2e woning', '\\u20AC ' + formatNumber(<?= ($secondProperty['tari_yearly'] ?? 0) / 12 ?>)]);
+        taxData.push(['TARI 2e woning', '\ ' + formatNumber(<?= ($secondProperty['tari_yearly'] ?? 0) / 12 ?>)]);
         <?php endif; ?>
         <?php if (($secondProperty['imu_tax'] ?? 0) > 0): ?>
-        taxData.push(['IMU 2e woning', '\\u20AC ' + formatNumber(<?= ($secondProperty['imu_tax'] ?? 0) / 12 ?>)]);
+        taxData.push(['IMU 2e woning', '\ ' + formatNumber(<?= ($secondProperty['imu_tax'] ?? 0) / 12 ?>)]);
         <?php endif; ?>
         <?php endif; ?>
         <?php if (($calculations['bnb_net_income'] ?? 0) > 0 && !empty($taxes) && ($taxes['forfettario_enabled'] ?? 0)): ?>
-        taxData.push(['B&B belasting (Forfettario)', '\\u20AC ' + formatNumber((<?= $calculations['bnb_revenue'] ?? 0 ?> * <?= $taxes['forfettario_percentage'] ?? 15 ?>) / 100)]);
+        taxData.push(['B&B belasting (Forfettario)', '\ ' + formatNumber((<?= $calculations['bnb_revenue'] ?? 0 ?> * <?= $taxes['forfettario_percentage'] ?? 15 ?>) / 100)]);
         <?php endif; ?>
         
         if (taxData.length > 0) {
@@ -966,7 +966,7 @@ document.addEventListener('DOMContentLoaded', function() {
         doc.setFont(undefined, 'bold');
         doc.setFontSize(11);
         doc.text('Totaal Uitgaven + Belastingen', margin + 3, yPos + 5.5);
-        doc.text('\\u20AC ' + formatNumber(<?= ($calculations['monthly_expenses'] ?? 0) + ($calculations['monthly_taxes'] ?? 0) ?>), pageWidth - margin - 3, yPos + 5.5, { align: 'right' });
+        doc.text('\ ' + formatNumber(<?= ($calculations['monthly_expenses'] ?? 0) + ($calculations['monthly_taxes'] ?? 0) ?>), pageWidth - margin - 3, yPos + 5.5, { align: 'right' });
         doc.setTextColor(0, 0, 0);
         
         yPos += 15;
@@ -986,19 +986,19 @@ document.addEventListener('DOMContentLoaded', function() {
         doc.setTextColor(255, 255, 255);
         doc.setFontSize(12);
         doc.text('Netto per maand:', margin + 3, yPos + 7);
-        doc.text('\\u20AC ' + formatNumber(netValue), pageWidth - margin - 3, yPos + 7, { align: 'right' });
+        doc.text('\ ' + formatNumber(netValue), pageWidth - margin - 3, yPos + 7, { align: 'right' });
         yPos += 12;
         
         doc.setFillColor(netColor[0], netColor[1], netColor[2]);
         doc.rect(margin, yPos, pageWidth - (margin * 2), 10, 'F');
         doc.text('Netto per jaar:', margin + 3, yPos + 7);
-        doc.text('\\u20AC ' + formatNumber(netValue * 12), pageWidth - margin - 3, yPos + 7, { align: 'right' });
+        doc.text('\ ' + formatNumber(netValue * 12), pageWidth - margin - 3, yPos + 7, { align: 'right' });
         yPos += 12;
         
         doc.setFillColor(0, 102, 204);
         doc.rect(margin, yPos, pageWidth - (margin * 2), 10, 'F');
         doc.text('Huidig vermogen:', margin + 3, yPos + 7);
-        doc.text('\\u20AC ' + formatNumber(<?= $calculations['remaining_capital'] ?? 0 ?>), pageWidth - margin - 3, yPos + 7, { align: 'right' });
+        doc.text('\ ' + formatNumber(<?= $calculations['remaining_capital'] ?? 0 ?>), pageWidth - margin - 3, yPos + 7, { align: 'right' });
         
         yPos += 20;
         checkNewPage(80);
@@ -1016,11 +1016,11 @@ document.addEventListener('DOMContentLoaded', function() {
         projectionData.push([
             '<?= $projection['year'] ?>',
             '<?= $projection['user_age'] ?? '-' ?>',
-            '\\u20AC ' + formatNumber(<?= $projection['monthly_income'] ?>),
-            '\\u20AC ' + formatNumber(<?= $projection['yearly_expenses'] / 12 ?>),
-            '\\u20AC ' + formatNumber(<?= $projection['yearly_taxes'] / 12 ?>),
-            '\\u20AC ' + formatNumber(<?= $projection['monthly_net'] ?>),
-            '\\u20AC ' + formatNumber(<?= $projection['capital'] ?>)
+            '\ ' + formatNumber(<?= $projection['monthly_income'] ?>),
+            '\ ' + formatNumber(<?= $projection['yearly_expenses'] / 12 ?>),
+            '\ ' + formatNumber(<?= $projection['yearly_taxes'] / 12 ?>),
+            '\ ' + formatNumber(<?= $projection['monthly_net'] ?>),
+            '\ ' + formatNumber(<?= $projection['capital'] ?>)
         ]);
         <?php endforeach; ?>
         
