@@ -256,17 +256,30 @@ class Dashboard extends BaseController
         }
         
         // Calculate how many years to project
-        // Project until partner reaches 68 (or at least 15 years)
-        $yearsToProject = 15; // minimum
+        // Project until partner reaches 68 (or at least 15 years from current year)
+        $yearsToProject = 15; // minimum from current year
         if ($currentPartnerAge && $currentPartnerAge < 68) {
             $yearsToProject = max(15, 68 - $currentPartnerAge);
+        }
+        
+        // Calculate emigration year and years since emigration
+        $currentYear = date('Y');
+        $emigrationYear = $currentYear; // default to current year
+        $yearsSinceEmigration = 0;
+        if (!empty($profile['emigration_date'])) {
+            $emigrationYear = (int)substr($profile['emigration_date'], 0, 4);
+            $yearsSinceEmigration = $currentYear - $emigrationYear;
         }
         
         // Starting capital
         $currentCapital = $baseCalculations['remaining_capital'];
         
-        // Project for calculated years
-        for ($year = 0; $year <= $yearsToProject; $year++) {
+        // Project from emigration year to future
+        // Start from emigration year (negative offset for past years)
+        $startYear = -$yearsSinceEmigration;
+        $endYear = $yearsToProject;
+        
+        for ($year = $startYear; $year <= $endYear; $year++) {
             $userAge = $currentUserAge ? $currentUserAge + $year : null;
             $partnerAge = $currentPartnerAge ? $currentPartnerAge + $year : null;
             
@@ -353,7 +366,7 @@ class Dashboard extends BaseController
             $currentCapital += $yearlyNet;
             
             $projections[] = [
-                'year' => date('Y') + $year,
+                'year' => $currentYear + $year,
                 'age_offset' => $year,
                 'user_age' => $userAge,
                 'partner_age' => $partnerAge,

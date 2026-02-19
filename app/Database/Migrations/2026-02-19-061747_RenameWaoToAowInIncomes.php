@@ -4,13 +4,13 @@ namespace App\Database\Migrations;
 
 use CodeIgniter\Database\Migration;
 
-class RenameAOWToAowInIncomes extends Migration
+class RenameWaoToAowInIncomes extends Migration
 {
     public function up()
     {
-        // Rename AOW columns to aow (AOW = Algemene Ouderdomswet, not AOW)
+        // Rename wao columns to aow (AOW = Algemene Ouderdomswet, not WaO)
         $this->forge->modifyColumn('incomes', [
-            'aow_future' => [
+            'wao_future' => [
                 'name' => 'aow_future',
                 'type' => 'DECIMAL',
                 'constraint' => '10,2',
@@ -20,7 +20,7 @@ class RenameAOWToAowInIncomes extends Migration
         ]);
         
         $this->forge->modifyColumn('incomes', [
-            'own_aow' => [
+            'own_wao' => [
                 'name' => 'own_aow',
                 'type' => 'DECIMAL',
                 'constraint' => '10,2',
@@ -30,7 +30,7 @@ class RenameAOWToAowInIncomes extends Migration
         ]);
         
         $this->forge->modifyColumn('incomes', [
-            'aow_start_age' => [
+            'wao_start_age' => [
                 'name' => 'aow_start_age',
                 'type' => 'INT',
                 'constraint' => 3,
@@ -42,34 +42,34 @@ class RenameAOWToAowInIncomes extends Migration
 
     public function down()
     {
-        // Revert aow columns back to AOW
+        // Revert aow columns back to wao
         $this->forge->modifyColumn('incomes', [
             'aow_future' => [
-                'name' => 'aow_future',
+                'name' => 'wao_future',
                 'type' => 'DECIMAL',
                 'constraint' => '10,2',
                 'default' => '0.00',
-                'comment' => 'Toekomstige AOW per maand',
+                'comment' => 'Toekomstige WaO per maand',
             ],
         ]);
         
         $this->forge->modifyColumn('incomes', [
             'own_aow' => [
-                'name' => 'own_aow',
+                'name' => 'own_wao',
                 'type' => 'DECIMAL',
                 'constraint' => '10,2',
                 'default' => '0.00',
-                'comment' => 'Eigen AOW per maand',
+                'comment' => 'Eigen WaO per maand',
             ],
         ]);
         
         $this->forge->modifyColumn('incomes', [
             'aow_start_age' => [
-                'name' => 'aow_start_age',
+                'name' => 'wao_start_age',
                 'type' => 'INT',
                 'constraint' => 3,
                 'null' => true,
-                'comment' => 'Leeftijd waarop AOW (partner) ingaat',
+                'comment' => 'Leeftijd waarop WaO (partner) ingaat',
             ],
         ]);
     }
