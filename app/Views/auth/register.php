@@ -22,13 +22,9 @@
                         <?= csrf_field() ?>
                         
                         <div class="mb-3">
-                            <label for="username" class="form-label">Gebruikersnaam</label>
-                            <input type="text" class="form-control" id="username" name="username" value="<?= old('username') ?>" required>
-                        </div>
-
-                        <div class="mb-3">
                             <label for="email" class="form-label">Email</label>
                             <input type="email" class="form-control" id="email" name="email" value="<?= old('email') ?>" required>
+                            <div class="form-text">Je e-mailadres wordt gebruikt om in te loggen</div>
                         </div>
 
                         <div class="mb-3">

@@ -63,7 +63,6 @@ class Auth extends BaseController
         $profileModel = new UserProfileModel();
 
         $rules = [
-            'username' => 'required|min_length[3]|max_length[50]|is_unique[users.username]',
             'email' => 'required|valid_email|is_unique[users.email]',
             'password' => 'required|min_length[8]',
             'password_confirm' => 'required|matches[password]',
@@ -73,9 +72,11 @@ class Auth extends BaseController
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
+        $email = $this->request->getPost('email');
+        
         $userData = [
-            'username' => $this->request->getPost('username'),
-            'email' => $this->request->getPost('email'),
+            'username' => $email, // Auto-set to email (username field removed from registration)
+            'email' => $email,
             'password' => $this->request->getPost('password'),
             'role' => 'user',
             'is_active' => 1,
