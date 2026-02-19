@@ -113,7 +113,7 @@
 <!-- Pagination -->
 <?php if ($pager): ?>
 <div class="mt-3 d-flex justify-content-center">
-    <?= $pager->links('default', 'bootstrap_pagination') ?>
+    <?= $pager->links('default', 'default_full') ?>
 </div>
 <?php endif; ?>
 
