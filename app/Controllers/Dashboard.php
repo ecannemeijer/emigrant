@@ -83,34 +83,34 @@ class Dashboard extends BaseController
 
     private function calculateFinances($startPosition, $income, $mainProperty, $secondProperty, $expenses, $taxes, $bnbSettings, $bnbExpenses, $profile)
     {
-        // Calculate WaO reduction based on emigration date (for partner WaO)
-        $partnerWaoPercentage = 100.0;
+        // Calculate AOW reduction based on emigration date (for partner AOW)
+        $partnerAowPercentage = 100.0;
         if (!empty($profile['emigration_date']) && !empty($profile['partner_date_of_birth'])) {
-            $partnerWaoPercentage = calculate_wao_percentage(
+            $partnerAowPercentage = calculate_aow_percentage(
                 $profile['emigration_date'],
                 $profile['partner_date_of_birth'],
                 $profile['partner_retirement_age'] ?? 67
             );
         }
         
-        // Calculate own WaO reduction
-        $ownWaoPercentage = 100.0;
+        // Calculate own AOW reduction
+        $ownAowPercentage = 100.0;
         if (!empty($profile['emigration_date']) && !empty($profile['date_of_birth'])) {
-            $ownWaoPercentage = calculate_wao_percentage(
+            $ownAowPercentage = calculate_aow_percentage(
                 $profile['emigration_date'],
                 $profile['date_of_birth'],
                 $profile['retirement_age'] ?? 67
             );
         }
         
-        // Monthly income (with WaO reduction applied)
-        $partnerWaoAmount = ($income['wao_future'] ?? 0) * ($partnerWaoPercentage / 100);
-        $ownWaoAmount = ($income['own_wao'] ?? 0) * ($ownWaoPercentage / 100);
+        // Monthly income (with AOW reduction applied)
+        $partnerAowAmount = ($income['aow_future'] ?? 0) * ($partnerAowPercentage / 100);
+        $ownAowAmount = ($income['own_aow'] ?? 0) * ($ownAowPercentage / 100);
         
         $monthlyIncome = ($income['wia_wife'] ?? 0) +
                         ($income['own_income'] ?? 0) +
-                        $partnerWaoAmount +
-                        $ownWaoAmount +
+                        $partnerAowAmount +
+                        $ownAowAmount +
                         ($income['pension'] ?? 0) +
                         ($income['other_income'] ?? 0);
 
@@ -235,20 +235,20 @@ class Dashboard extends BaseController
         $userRetirementAge = $profile['retirement_age'] ?? 67;
         $partnerRetirementAge = $profile['partner_retirement_age'] ?? 67;
         
-        // Calculate WaO reduction based on emigration date (for partner WaO)
-        $partnerWaoPercentage = 100.0;
+        // Calculate AOW reduction based on emigration date (for partner AOW)
+        $partnerAowPercentage = 100.0;
         if (!empty($profile['emigration_date']) && !empty($profile['partner_date_of_birth'])) {
-            $partnerWaoPercentage = calculate_wao_percentage(
+            $partnerAowPercentage = calculate_aow_percentage(
                 $profile['emigration_date'],
                 $profile['partner_date_of_birth'],
                 $partnerRetirementAge
             );
         }
         
-        // Calculate own WaO reduction
-        $ownWaoPercentage = 100.0;
+        // Calculate own AOW reduction
+        $ownAowPercentage = 100.0;
         if (!empty($profile['emigration_date']) && !empty($profile['date_of_birth'])) {
-            $ownWaoPercentage = calculate_wao_percentage(
+            $ownAowPercentage = calculate_aow_percentage(
                 $profile['emigration_date'],
                 $profile['date_of_birth'],
                 $userRetirementAge
@@ -272,14 +272,14 @@ class Dashboard extends BaseController
             
             // Start with base income
             $monthlyIncomeBase = ($income['own_income'] ?? 0);
-            $hasPartnerWao = false;
+            $hasPartnerAow = false;
             $hasPartnerIncome = false;
             $hasOwnPension = false;
-            $hasOwnWao = false;
+            $hasOwnAow = false;
             $hasWia = false;
-            $partnerWaoAmount = 0;
+            $partnerAowAmount = 0;
             $partnerIncomeAmount = 0;
-            $ownWaoAmount = 0;
+            $ownAowAmount = 0;
             $pensionAmount = 0;
             $wiaAmount = 0;
             
@@ -288,12 +288,12 @@ class Dashboard extends BaseController
             $partnerIncome = ($income['wia_wife'] ?? 0);
             
             if ($partnerHasWia) {
-                // WIA: stops at retirement, then WaO starts
+                // WIA: stops at retirement, then AOW starts
                 if ($partnerAge && $partnerAge >= $partnerRetirementAge) {
-                    // Partner is retired: WIA stops, partner WaO starts
-                    $partnerWaoAmount = ($income['wao_future'] ?? 0) * ($partnerWaoPercentage / 100);
-                    $monthlyIncomeBase += $partnerWaoAmount;
-                    $hasPartnerWao = true;
+                    // Partner is retired: WIA stops, partner AOW starts
+                    $partnerAowAmount = ($income['aow_future'] ?? 0) * ($partnerAowPercentage / 100);
+                    $monthlyIncomeBase += $partnerAowAmount;
+                    $hasPartnerAow = true;
                 } else {
                     // Partner not retired yet: WIA continues
                     $wiaAmount = $partnerIncome;
@@ -309,12 +309,12 @@ class Dashboard extends BaseController
             
             // Check if user has reached pension age
             if ($userAge && $userAge >= $userRetirementAge) {
-                // User is retired: pension and own WaO start
+                // User is retired: pension and own AOW start
                 $pensionAmount = ($income['pension'] ?? 0);
-                $ownWaoAmount = ($income['own_wao'] ?? 0) * ($ownWaoPercentage / 100);
-                $monthlyIncomeBase += $pensionAmount + $ownWaoAmount;
+                $ownAowAmount = ($income['own_aow'] ?? 0) * ($ownAowPercentage / 100);
+                $monthlyIncomeBase += $pensionAmount + $ownAowAmount;
                 $hasOwnPension = true;
-                $hasOwnWao = $ownWaoAmount > 0;
+                $hasOwnAow = $ownAowAmount > 0;
             }
             
             // Calculate with and without B&B
@@ -323,9 +323,9 @@ class Dashboard extends BaseController
             $monthlyIncomeWithoutBnb = $monthlyIncomeBase;
             
             // Store amounts for display
-            $displayPartnerWaoAmount = $hasPartnerWao ? $partnerWaoAmount : 0;
+            $displayPartnerAowAmount = $hasPartnerAow ? $partnerAowAmount : 0;
             $displayPartnerIncomeAmount = $hasPartnerIncome ? $partnerIncomeAmount : 0;
-            $displayOwnWaoAmount = $hasOwnWao ? $ownWaoAmount : 0;
+            $displayOwnAowAmount = $hasOwnAow ? $ownAowAmount : 0;
             $displayPensionAmount = $hasOwnPension ? $pensionAmount : 0;
             $displayWiaAmount = $hasWia ? $wiaAmount : 0;
             
@@ -370,14 +370,14 @@ class Dashboard extends BaseController
                 'yearly_net' => $yearlyNet,
                 'yearly_net_without_bnb' => $yearlyNetWithoutBnb,
                 'capital' => $currentCapital,
-                'has_partner_wao' => $hasPartnerWao,
+                'has_partner_aow' => $hasPartnerAow,
                 'has_partner_income' => $hasPartnerIncome,
                 'has_own_pension' => $hasOwnPension,
-                'has_own_wao' => $hasOwnWao,
+                'has_own_aow' => $hasOwnAow,
                 'has_wia' => $hasWia,
-                'partner_wao_amount' => $displayPartnerWaoAmount,
+                'partner_aow_amount' => $displayPartnerAowAmount,
                 'partner_income_amount' => $displayPartnerIncomeAmount,
-                'own_wao_amount' => $displayOwnWaoAmount,
+                'own_aow_amount' => $displayOwnAowAmount,
                 'pension_amount' => $displayPensionAmount,
                 'wia_amount' => $displayWiaAmount,
                 'has_partner_retired' => ($partnerAge && $partnerAge >= $partnerRetirementAge),

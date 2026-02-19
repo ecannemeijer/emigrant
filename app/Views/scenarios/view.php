@@ -71,7 +71,7 @@
                         <td class="text-end">€ <?= number_format(
                             ($scenarioData['income']['wia_wife'] ?? 0) +
                             ($scenarioData['income']['own_income'] ?? 0) +
-                            ($scenarioData['income']['wao_future'] ?? 0) +
+                            ($scenarioData['income']['aow_future'] ?? 0) +
                             ($scenarioData['income']['pension'] ?? 0) +
                             ($scenarioData['income']['other_income'] ?? 0), 2, ',', '.'
                         ) ?></td>

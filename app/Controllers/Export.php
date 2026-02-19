@@ -54,7 +54,7 @@ class Export extends BaseController
         $csvData[] = ['INKOMSTEN (per maand)'];
         $csvData[] = ['WIA vrouw', number_format($income['wia_wife'] ?? 0, 2, ',', '.')];
         $csvData[] = ['Eigen inkomen', number_format($income['own_income'] ?? 0, 2, ',', '.')];
-        $csvData[] = ['Toekomstige WAO', number_format($income['wao_future'] ?? 0, 2, ',', '.')];
+        $csvData[] = ['Toekomstige AOW', number_format($income['aow_future'] ?? 0, 2, ',', '.')];
         $csvData[] = ['Pensioen', number_format($income['pension'] ?? 0, 2, ',', '.')];
         $csvData[] = ['Overig inkomen', number_format($income['other_income'] ?? 0, 2, ',', '.')];
         $csvData[] = [''];

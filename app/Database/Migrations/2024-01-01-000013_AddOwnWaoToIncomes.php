@@ -4,17 +4,17 @@ namespace App\Database\Migrations;
 
 use CodeIgniter\Database\Migration;
 
-class AddOwnWaoToIncomes extends Migration
+class AddownAowToIncomes extends Migration
 {
     public function up()
     {
         $fields = [
-            'own_wao' => [
+            'own_aow' => [
                 'type'       => 'DECIMAL',
                 'constraint' => '10,2',
                 'null'       => true,
                 'default'    => 0.00,
-                'comment'    => 'Own WaO (not partner) - monthly net amount'
+                'comment'    => 'Own AOW (not partner) - monthly net amount'
             ],
         ];
         
@@ -23,6 +23,6 @@ class AddOwnWaoToIncomes extends Migration
 
     public function down()
     {
-        $this->forge->dropColumn('incomes', 'own_wao');
+        $this->forge->dropColumn('incomes', 'own_aow');
     }
 }

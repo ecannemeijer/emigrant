@@ -73,7 +73,7 @@ class DatabaseSeeder extends Seeder
             'user_id' => $demoId,
             'wia_wife' => 1550.00,
             'own_income' => 0.00,
-            'wao_future' => 0.00,
+            'aow_future' => 0.00,
             'pension' => 0.00,
             'other_income' => 0.00,
             'created_at' => date('Y-m-d H:i:s'),

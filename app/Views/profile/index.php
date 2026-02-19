@@ -62,7 +62,7 @@
                             <label for="partner_date_of_birth" class="form-label">Partner Geboortedatum</label>
                             <input type="date" class="form-control" id="partner_date_of_birth" name="partner_date_of_birth" 
                                    value="<?= esc($profile['partner_date_of_birth'] ?? '') ?>">
-                            <small class="text-muted">Voor WaO berekeningen</small>
+                            <small class="text-muted">Voor AOW berekeningen</small>
                         </div>
                     </div>
 
@@ -83,7 +83,7 @@
                             <label for="emigration_date" class="form-label">Emigratiedatum naar Italië</label>
                             <input type="date" class="form-control" id="emigration_date" name="emigration_date" 
                                    value="<?= esc($profile['emigration_date'] ?? '') ?>">
-                            <small class="text-muted">Belangrijk voor WaO-berekening</small>
+                            <small class="text-muted">Belangrijk voor AOW-berekening</small>
                         </div>
                     </div>
 
@@ -156,63 +156,63 @@
         <?php if (!empty($profile['emigration_date']) && (!empty($profile['partner_date_of_birth']) || !empty($profile['date_of_birth']))): ?>
         <div class="card mt-3 border-info">
             <div class="card-body">
-                <h5><i class="bi bi-percent"></i> WaO Percentages</h5>
+                <h5><i class="bi bi-percent"></i> AOW Percentages</h5>
                 <small class="text-muted">Op basis van emigratiedatum: <?= date('d-m-Y', strtotime($profile['emigration_date'])) ?></small>
                 
                 <?php if (!empty($profile['partner_date_of_birth'])): ?>
                 <hr class="my-3">
-                <h6><?= esc($profile['partner_name'] ?? 'Partner') ?> WaO</h6>
+                <h6><?= esc($profile['partner_name'] ?? 'Partner') ?> AOW</h6>
                 <?php
-                $partnerWaoPercentage = calculate_wao_percentage(
+                $partnerAowPercentage = calculate_AOW_percentage(
                     $profile['emigration_date'],
                     $profile['partner_date_of_birth'],
                     $profile['partner_retirement_age'] ?? 67
                 );
                 ?>
                 <div class="progress mb-2" style="height: 25px;">
-                    <div class="progress-bar <?= $partnerWaoPercentage >= 80 ? 'bg-success' : ($partnerWaoPercentage >= 50 ? 'bg-warning' : 'bg-danger') ?>" 
+                    <div class="progress-bar <?= $partnerAowPercentage >= 80 ? 'bg-success' : ($partnerAowPercentage >= 50 ? 'bg-warning' : 'bg-danger') ?>" 
                          role="progressbar" 
-                         style="width: <?= $partnerWaoPercentage ?>%;"
-                         aria-valuenow="<?= $partnerWaoPercentage ?>" 
+                         style="width: <?= $partnerAowPercentage ?>%;"
+                         aria-valuenow="<?= $partnerAowPercentage ?>" 
                          aria-valuemin="0" 
                          aria-valuemax="100">
-                        <?= number_format($partnerWaoPercentage, 1) ?>%
+                        <?= number_format($partnerAowPercentage, 1) ?>%
                     </div>
                 </div>
                 <small class="text-muted">
-                    WaO-rechten opgebouwd van 15 tot <?= $profile['partner_retirement_age'] ?? 67 ?> jaar
+                    AOW-rechten opgebouwd van 15 tot <?= $profile['partner_retirement_age'] ?? 67 ?> jaar
                 </small>
                 <?php endif; ?>
                 
                 <?php if (!empty($profile['date_of_birth'])): ?>
                 <hr class="my-3">
-                <h6>Jouw WaO</h6>
+                <h6>Jouw AOW</h6>
                 <?php
-                $ownWaoPercentage = calculate_wao_percentage(
+                $ownAowPercentage = calculate_AOW_percentage(
                     $profile['emigration_date'],
                     $profile['date_of_birth'],
                     $profile['retirement_age'] ?? 67
                 );
                 ?>
                 <div class="progress mb-2" style="height: 25px;">
-                    <div class="progress-bar <?= $ownWaoPercentage >= 80 ? 'bg-success' : ($ownWaoPercentage >= 50 ? 'bg-warning' : 'bg-danger') ?>" 
+                    <div class="progress-bar <?= $ownAowPercentage >= 80 ? 'bg-success' : ($ownAowPercentage >= 50 ? 'bg-warning' : 'bg-danger') ?>" 
                          role="progressbar" 
-                         style="width: <?= $ownWaoPercentage ?>%;"
-                         aria-valuenow="<?= $ownWaoPercentage ?>" 
+                         style="width: <?= $ownAowPercentage ?>%;"
+                         aria-valuenow="<?= $ownAowPercentage ?>" 
                          aria-valuemin="0" 
                          aria-valuemax="100">
-                        <?= number_format($ownWaoPercentage, 1) ?>%
+                        <?= number_format($ownAowPercentage, 1) ?>%
                     </div>
                 </div>
                 <small class="text-muted">
-                    WaO-rechten opgebouwd van 15 tot <?= $profile['retirement_age'] ?? 67 ?> jaar
+                    AOW-rechten opgebouwd van 15 tot <?= $profile['retirement_age'] ?? 67 ?> jaar
                 </small>
                 <?php endif; ?>
                 
                 <hr class="my-3">
                 <small class="text-info">
                     <i class="bi bi-info-circle"></i> 
-                    Emigreren vóór pensioenleeftijd verlaagt de WaO. Deze percentages zijn verwerkt in alle dashboard berekeningen.
+                    Emigreren vóór pensioenleeftijd verlaagt de AOW. Deze percentages zijn verwerkt in alle dashboard berekeningen.
                 </small>
             </div>
         </div>

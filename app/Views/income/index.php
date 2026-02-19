@@ -60,27 +60,27 @@
                     <div class="alert alert-info" id="wia_info_alert" style="display: <?= $hasWia ? 'block' : 'none' ?>">
                         <i class="bi bi-info-circle"></i>
                         <strong>Let op:</strong> WIA van <?= esc($partnerName) ?> stopt automatisch wanneer <?= esc($partnerName) ?> 
-                        met pensioen gaat (op de leeftijd ingesteld in je profiel). Dan start de WaO van <?= esc($partnerName) ?>.
+                        met pensioen gaat (op de leeftijd ingesteld in je profiel). Dan start de AOW van <?= esc($partnerName) ?>.
                     </div>
 
                     <div class="mb-3">
-                        <label for="wao_future" class="form-label">WaO <?= esc($partnerName) ?> bij pensioen (netto per maand)</label>
+                        <label for="aow_future" class="form-label">AOW <?= esc($partnerName) ?> bij pensioen (netto per maand)</label>
                         <div class="input-group">
                             <span class="input-group-text">€</span>
-                            <input type="number" step="0.01" class="form-control" id="wao_future" 
-                                   name="wao_future" value="<?= $income['wao_future'] ?? 0 ?>">
+                            <input type="number" step="0.01" class="form-control" id="aow_future" 
+                                   name="aow_future" value="<?= $income['aow_future'] ?? 0 ?>">
                         </div>
-                        <small class="text-muted" id="wao_future_help">
+                        <small class="text-muted" id="aow_future_help">
                             <?= $hasWia ? 'Start automatisch bij ' . esc($partnerName) . ' pensioenleeftijd, WIA stopt dan' : 'Start automatisch bij ' . esc($partnerName) . ' pensioenleeftijd' ?>
                         </small>
                     </div>
 
                     <div class="mb-3">
-                        <label for="own_wao" class="form-label">Eigen WaO bij pensioen (netto per maand)</label>
+                        <label for="own_aow" class="form-label">Eigen AOW bij pensioen (netto per maand)</label>
                         <div class="input-group">
                             <span class="input-group-text">€</span>
-                            <input type="number" step="0.01" class="form-control" id="own_wao" 
-                                   name="own_wao" value="<?= $income['own_wao'] ?? 0 ?>">
+                            <input type="number" step="0.01" class="form-control" id="own_aow" 
+                                   name="own_aow" value="<?= $income['own_aow'] ?? 0 ?>">
                         </div>
                         <small class="text-muted">Start automatisch bij jouw pensioenleeftijd</small>
                     </div>
@@ -122,7 +122,7 @@
                     <?php 
                     $total = ($income['wia_wife'] ?? 0) + 
                              ($income['own_income'] ?? 0) + 
-                             ($income['wao_future'] ?? 0) + 
+                             ($income['aow_future'] ?? 0) + 
                              ($income['pension'] ?? 0) + 
                              ($income['other_income'] ?? 0);
                     ?>
@@ -143,7 +143,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const checkbox = document.getElementById('partner_has_wia');
     const incomeTypeText = document.getElementById('income_type_text');
     const partnerIncomeHelp = document.getElementById('partner_income_help');
-    const waoFutureHelp = document.getElementById('wao_future_help');
+    const aowFutureHelp = document.getElementById('aow_future_help');
     const wiaInfoAlert = document.getElementById('wia_info_alert');
     const partnerName = '<?= esc($partnerName) ?>';
     
@@ -152,13 +152,13 @@ document.addEventListener('DOMContentLoaded', function() {
             // WIA enabled
             incomeTypeText.textContent = 'WIA';
             partnerIncomeHelp.textContent = 'Huidig WIA inkomen';
-            waoFutureHelp.textContent = 'Start automatisch bij ' + partnerName + ' pensioenleeftijd, WIA stopt dan';
+            aowFutureHelp.textContent = 'Start automatisch bij ' + partnerName + ' pensioenleeftijd, WIA stopt dan';
             wiaInfoAlert.style.display = 'block';
         } else {
             // Regular income
             incomeTypeText.textContent = 'Inkomen';
             partnerIncomeHelp.textContent = 'Regulier maandinkomen';
-            waoFutureHelp.textContent = 'Start automatisch bij ' + partnerName + ' pensioenleeftijd';
+            aowFutureHelp.textContent = 'Start automatisch bij ' + partnerName + ' pensioenleeftijd';
             wiaInfoAlert.style.display = 'none';
         }
     });

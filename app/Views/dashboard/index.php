@@ -15,7 +15,7 @@
         <li><strong>Geboortedatum</strong> — voor leeftijdsberekeningen en pensioenprognoses</li>
         <?php endif; ?>
         <?php if (empty($profile['emigration_date'])): ?>
-        <li><strong>Emigratiedatum</strong> — voor WaO-reductie berekeningen</li>
+        <li><strong>Emigratiedatum</strong> — voor AOW-reductie berekeningen</li>
         <?php endif; ?>
     </ul>
     <a href="/profile" class="btn btn-warning">
@@ -69,19 +69,19 @@
 <?php endif; ?>
 
 <?php 
-// Show WaO reduction notice if emigration date affects WaO
+// Show AOW reduction notice if emigration date affects AOW
 if (!empty($profile['emigration_date']) && !empty($profile['partner_date_of_birth'])): 
-    $waoPercentage = calculate_wao_percentage(
+    $AOWPercentage = calculate_AOW_percentage(
         $profile['emigration_date'],
         $profile['partner_date_of_birth'],
         $profile['partner_retirement_age'] ?? 67
     );
-    if ($waoPercentage < 100):
+    if ($AOWPercentage < 100):
 ?>
     <div class="alert alert-info">
         <i class="bi bi-info-circle-fill"></i> 
-        <strong>WaO Reductie:</strong> Op basis van je emigratiedatum (<?= date('d-m-Y', strtotime($profile['emigration_date'])) ?>) 
-        ontvang je <?= number_format($waoPercentage, 1) ?>% van de volledige WaO. 
+        <strong>AOW Reductie:</strong> Op basis van je emigratiedatum (<?= date('d-m-Y', strtotime($profile['emigration_date'])) ?>) 
+        ontvang je <?= number_format($AOWPercentage, 1) ?>% van de volledige AOW. 
         Dit is verwerkt in alle berekeningen.
     </div>
 <?php endif; endif; ?>
@@ -151,20 +151,20 @@ if (!empty($profile['emigration_date']) && !empty($profile['partner_date_of_birt
                     <?php $totalIncome += ($firstYear['partner_income_amount'] ?? 0); ?>
                     <?php endif; ?>
                     
-                    <?php if ($firstYear && $firstYear['has_partner_wao'] && ($firstYear['partner_wao_amount'] ?? 0) > 0): ?>
+                    <?php if ($firstYear && $firstYear['has_partner_aow'] && ($firstYear['partner_aow_amount'] ?? 0) > 0): ?>
                     <tr>
-                        <td>WaO (<?= esc($profile['partner_name'] ?? 'Partner') ?>)</td>
-                        <td class="text-end">€ <?= number_format($firstYear['partner_wao_amount'] ?? 0, 2, ',', '.') ?></td>
+                        <td>AOW (<?= esc($profile['partner_name'] ?? 'Partner') ?>)</td>
+                        <td class="text-end">€ <?= number_format($firstYear['partner_aow_amount'] ?? 0, 2, ',', '.') ?></td>
                     </tr>
-                    <?php $totalIncome += ($firstYear['partner_wao_amount'] ?? 0); ?>
+                    <?php $totalIncome += ($firstYear['partner_aow_amount'] ?? 0); ?>
                     <?php endif; ?>
                     
-                    <?php if ($firstYear && $firstYear['has_own_wao'] && ($firstYear['own_wao_amount'] ?? 0) > 0): ?>
+                    <?php if ($firstYear && $firstYear['has_own_aow'] && ($firstYear['own_aow_amount'] ?? 0) > 0): ?>
                     <tr>
-                        <td>Eigen WaO</td>
-                        <td class="text-end">€ <?= number_format($firstYear['own_wao_amount'] ?? 0, 2, ',', '.') ?></td>
+                        <td>Eigen AOW</td>
+                        <td class="text-end">€ <?= number_format($firstYear['own_aow_amount'] ?? 0, 2, ',', '.') ?></td>
                     </tr>
-                    <?php $totalIncome += ($firstYear['own_wao_amount'] ?? 0); ?>
+                    <?php $totalIncome += ($firstYear['own_aow_amount'] ?? 0); ?>
                     <?php endif; ?>
                     
                     <?php if ($firstYear && $firstYear['has_own_pension'] && ($firstYear['pension_amount'] ?? 0) > 0): ?>
@@ -302,8 +302,8 @@ if (!empty($profile['emigration_date']) && !empty($profile['partner_date_of_birt
                             $ownIncomeAmount = $income['own_income'] ?? 0;
                             $wiaAmount = $projection['wia_amount'] ?? 0;
                             $partnerIncomeAmount = $projection['partner_income_amount'] ?? 0;
-                            $partnerWaoAmount = $projection['partner_wao_amount'] ?? 0;
-                            $ownWaoAmount = $projection['own_wao_amount'] ?? 0;
+                            $partnerAowAmount = $projection['partner_aow_amount'] ?? 0;
+                            $ownAowAmount = $projection['own_aow_amount'] ?? 0;
                             $pensionAmount = $projection['pension_amount'] ?? 0;
                             $bnbAmount = $projection['bnb_monthly'] ?? 0;
                             $monthlyInterest = $projection['monthly_interest'] ?? 0;
@@ -316,8 +316,8 @@ if (!empty($profile['emigration_date']) && !empty($profile['partner_date_of_birt
                                 data-own-income="<?= $ownIncomeAmount ?>"
                                 data-wia="<?= $wiaAmount ?>"
                                 data-partner-income="<?= $partnerIncomeAmount ?>"
-                                data-partner-wao="<?= $partnerWaoAmount ?>"
-                                data-own-wao="<?= $ownWaoAmount ?>"
+                                data-partner-aow="<?= $partnerAowAmount ?>"
+                                data-own-aow="<?= $ownAowAmount ?>"
                                 data-pension="<?= $pensionAmount ?>"
                                 data-bnb="<?= $bnbAmount ?>"
                                 data-monthly-interest="<?= $monthlyInterest ?>"
@@ -377,20 +377,20 @@ if (!empty($profile['emigration_date']) && !empty($profile['partner_date_of_birt
                                             </span>
                                         <?php endif; ?>
                                     <?php endif; ?>
-                                    <?php if ($projection['has_partner_wao']): ?>
-                                        <?php if ($projection['partner_wao_amount'] > 0): ?>
-                                            <span class="badge bg-info" title="<?= esc($profile['partner_name'] ?? 'Partner') ?> WaO: € <?= number_format($projection['partner_wao_amount'], 0, ',', '.') ?>/mnd">
-                                                <i class="bi bi-check-circle-fill"></i> Partner WaO
+                                    <?php if ($projection['has_partner_aow']): ?>
+                                        <?php if ($projection['partner_aow_amount'] > 0): ?>
+                                            <span class="badge bg-info" title="<?= esc($profile['partner_name'] ?? 'Partner') ?> AOW: € <?= number_format($projection['partner_aow_amount'], 0, ',', '.') ?>/mnd">
+                                                <i class="bi bi-check-circle-fill"></i> Partner AOW
                                             </span>
                                         <?php else: ?>
-                                            <span class="badge bg-warning text-dark" title="Partner pensioenleeftijd bereikt, maar WaO is € 0">
-                                                <i class="bi bi-exclamation-circle"></i> Partner WaO € 0
+                                            <span class="badge bg-warning text-dark" title="Partner pensioenleeftijd bereikt, maar AOW is € 0">
+                                                <i class="bi bi-exclamation-circle"></i> Partner AOW € 0
                                             </span>
                                         <?php endif; ?>
                                     <?php endif; ?>
-                                    <?php if ($projection['has_own_wao']): ?>
-                                        <span class="badge bg-primary" title="Eigen WaO: € <?= number_format($projection['own_wao_amount'], 0, ',', '.') ?>/mnd">
-                                            <i class="bi bi-check-circle-fill"></i> Eigen WaO
+                                    <?php if ($projection['has_own_aow']): ?>
+                                        <span class="badge bg-primary" title="Eigen AOW: € <?= number_format($projection['own_aow_amount'], 0, ',', '.') ?>/mnd">
+                                            <i class="bi bi-check-circle-fill"></i> Eigen AOW
                                         </span>
                                     <?php endif; ?>
                                 </td>
@@ -408,7 +408,7 @@ if (!empty($profile['emigration_date']) && !empty($profile['partner_date_of_birt
                         tot <?= esc($profile['partner_name'] ?? 'partner') ?> 68 jaar is
                     <?php else: ?>
                         voor de komende 15 jaar
-                    <?php endif; ?>, inclusief WaO en pensioen op de ingestelde leeftijden.
+                    <?php endif; ?>, inclusief AOW en pensioen op de ingestelde leeftijden.
                     <?php if ($calculations['bnb_net_income'] > 0): ?>
                     <strong>Inkomen/mnd</strong> toont het totale inkomen inclusief B&B. <strong>Netto/mnd</strong> is wat je overhoudt na alle kosten en belastingen.
                     <?php endif; ?>
@@ -505,7 +505,7 @@ if (!empty($profile['emigration_date']) && !empty($profile['partner_date_of_birt
                 <!-- Calculation Info -->
                 <div class="alert alert-info mt-3">
                     <i class="bi bi-info-circle"></i>
-                    <strong>Berekening:</strong> Bij deze berekening is rekening gehouden met emigratiereductie op WaO rechten. 
+                    <strong>Berekening:</strong> Bij deze berekening is rekening gehouden met emigratiereductie op AOW rechten. 
                     Het vermogen wordt berekend door het netto jaarbedrag op te tellen bij het vermogen van het vorige jaar.
                 </div>
             </div>
@@ -541,9 +541,9 @@ if (!empty($profile['emigration_date']) && !empty($profile['partner_date_of_birt
                                         <th>Leeft.</th>
                                         <th class="text-end">Eigen Ink.</th>
                                         <th class="text-end">WIA <?= esc($profile['partner_name'] ?? 'Partner') ?></th>
-                                        <th class="text-end">WaO <?= esc($profile['partner_name'] ?? 'Partner') ?></th>
+                                        <th class="text-end">AOW <?= esc($profile['partner_name'] ?? 'Partner') ?></th>
                                         <th class="text-end">Jouw Pensioen</th>
-                                        <th class="text-end">Jouw WaO</th>
+                                        <th class="text-end">Jouw AOW</th>
                                         <th class="text-end">B&B</th>
                                         <th class="text-end">Spaarrente</th>
                                         <th class="text-end">Totaal</th>
@@ -559,27 +559,27 @@ if (!empty($profile['emigration_date']) && !empty($profile['partner_date_of_birt
                                     // Calculate individual components
                                     $ownIncomeAmount = $ownIncomeData['own_income'] ?? 0;
                                     $wiaAmount = 0;
-                                    $displayPartnerWao = 0;
-                                    $displayOwnWao = 0;
+                                    $displayPartnerAow = 0;
+                                    $displayOwnAow = 0;
                                     $displayPension = 0;
                                     
                                     if (!$projection['has_partner_retired']) {
                                         $wiaAmount = $ownIncomeData['wia_wife'] ?? 0;
                                     }
                                     
-                                    if ($projection['has_partner_wao']) {
-                                        $displayPartnerWao = $projection['partner_wao_amount'];
+                                    if ($projection['has_partner_aow']) {
+                                        $displayPartnerAow = $projection['partner_aow_amount'];
                                     }
                                     
-                                    if ($projection['has_own_wao']) {
-                                        $displayOwnWao = $projection['own_wao_amount'];
+                                    if ($projection['has_own_aow']) {
+                                        $displayOwnAow = $projection['own_aow_amount'];
                                     }
                                     
                                     if ($projection['has_own_pension']) {
                                         $displayPension = $projection['pension_amount'];
                                     }
                                     
-                                    $totalWithoutBnb = $ownIncomeAmount + $wiaAmount + $displayPartnerWao + $displayOwnWao + $displayPension;
+                                    $totalWithoutBnb = $ownIncomeAmount + $wiaAmount + $displayPartnerAow + $displayOwnAow + $displayPension;
                                     $monthlyInterest = $projection['monthly_interest'] ?? 0;
                                     ?>
                                     <tr>
@@ -587,9 +587,9 @@ if (!empty($profile['emigration_date']) && !empty($profile['partner_date_of_birt
                                         <td><?= $projection['user_age'] ?> / <?= $projection['partner_age'] ?></td>
                                         <td class="text-end">€ <?= number_format($ownIncomeAmount, 0, ',', '.') ?></td>
                                         <td class="text-end <?= $wiaAmount > 0 ? '' : 'text-muted' ?>">€ <?= number_format($wiaAmount, 0, ',', '.') ?></td>
-                                        <td class="text-end <?= $displayPartnerWao > 0 ? 'text-info fw-bold' : 'text-muted' ?>">€ <?= number_format($displayPartnerWao, 0, ',', '.') ?></td>
+                                        <td class="text-end <?= $displayPartnerAow > 0 ? 'text-info fw-bold' : 'text-muted' ?>">€ <?= number_format($displayPartnerAow, 0, ',', '.') ?></td>
                                         <td class="text-end <?= $displayPension > 0 ? 'text-success fw-bold' : 'text-muted' ?>">€ <?= number_format($displayPension, 0, ',', '.') ?></td>
-                                        <td class="text-end <?= $displayOwnWao > 0 ? 'text-primary fw-bold' : 'text-muted' ?>">€ <?= number_format($displayOwnWao, 0, ',', '.') ?></td>
+                                        <td class="text-end <?= $displayOwnAow > 0 ? 'text-primary fw-bold' : 'text-muted' ?>">€ <?= number_format($displayOwnAow, 0, ',', '.') ?></td>
                                         <td class="text-end <?= $projection['bnb_monthly'] > 0 ? '' : 'text-muted' ?>">€ <?= number_format($projection['bnb_monthly'], 0, ',', '.') ?></td>
                                         <td class="text-end text-success">€ <?= number_format($monthlyInterest, 0, ',', '.') ?></td>
                                         <td class="text-end fw-bold">€ <?= number_format($projection['monthly_income'], 0, ',', '.') ?></td>
@@ -682,8 +682,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 ownIncome: parseFloat(this.dataset.ownIncome),
                 wia: parseFloat(this.dataset.wia),
                 partnerIncome: parseFloat(this.dataset.partnerIncome),
-                partnerWao: parseFloat(this.dataset.partnerWao),
-                ownWao: parseFloat(this.dataset.ownWao),
+                partnerAow: parseFloat(this.dataset.partnerAow),
+                ownAow: parseFloat(this.dataset.ownAow),
                 pension: parseFloat(this.dataset.pension),
                 bnb: parseFloat(this.dataset.bnb),
                 monthlyInterest: parseFloat(this.dataset.monthlyInterest),
@@ -736,14 +736,14 @@ document.addEventListener('DOMContentLoaded', function() {
         if (data.partnerIncome > 0) {
             incomeHtml += `<tr><td>Inkomen ${data.partnerName}</td><td class=\"text-end\">€ ${formatNumber(data.partnerIncome)}</td></tr>`;
         }
-        if (data.partnerWao > 0) {
-            incomeHtml += `<tr><td>WaO ${data.partnerName} <small class=\"text-muted\">(met emigratie reductie)</small></td><td class=\"text-end text-info\"><strong>€ ${formatNumber(data.partnerWao)}</strong></td></tr>`;
+        if (data.partnerAow > 0) {
+            incomeHtml += `<tr><td>AOW ${data.partnerName} <small class=\"text-muted\">(met emigratie reductie)</small></td><td class=\"text-end text-info\"><strong>€ ${formatNumber(data.partnerAow)}</strong></td></tr>`;
         }
         if (data.pension > 0) {
             incomeHtml += `<tr><td>Jouw Pensioen</td><td class=\"text-end text-success\"><strong>€ ${formatNumber(data.pension)}</strong></td></tr>`;
         }
-        if (data.ownWao > 0) {
-            incomeHtml += `<tr><td>Jouw WaO <small class=\"text-muted\">(met emigratie reductie)</small></td><td class=\"text-end text-primary\"><strong>€ ${formatNumber(data.ownWao)}</strong></td></tr>`;
+        if (data.ownAow > 0) {
+            incomeHtml += `<tr><td>Jouw AOW <small class=\"text-muted\">(met emigratie reductie)</small></td><td class=\"text-end text-primary\"><strong>€ ${formatNumber(data.ownAow)}</strong></td></tr>`;
         }
         if (data.bnb > 0) {
             incomeHtml += `<tr><td>B&B Netto inkomen</td><td class=\"text-end\">€ ${formatNumber(data.bnb)}</td></tr>`;
@@ -891,14 +891,14 @@ document.addEventListener('DOMContentLoaded', function() {
         <?php if (($income['wia_wife'] ?? 0) > 0): ?>
         incomeData.push(['WIA <?= esc($profile['partner_name'] ?? 'Partner') ?>', '\ ' + formatNumber(<?= $income['wia_wife'] ?>)]);
         <?php endif; ?>
-        <?php if (($income['wao_future'] ?? 0) > 0): ?>
-        incomeData.push(['WaO <?= esc($profile['partner_name'] ?? 'Partner') ?> (met reductie)', '\ ' + formatNumber(<?= ($income['wao_future'] ?? 0) * (calculate_wao_percentage($profile['emigration_date'] ?? date('Y-m-d'), $profile['partner_date_of_birth'] ?? date('Y-m-d'), $profile['partner_retirement_age'] ?? 67) / 100) ?>)]);
+        <?php if (($income['aow_future'] ?? 0) > 0): ?>
+        incomeData.push(['AOW <?= esc($profile['partner_name'] ?? 'Partner') ?> (met reductie)', '\ ' + formatNumber(<?= ($income['aow_future'] ?? 0) * (calculate_AOW_percentage($profile['emigration_date'] ?? date('Y-m-d'), $profile['partner_date_of_birth'] ?? date('Y-m-d'), $profile['partner_retirement_age'] ?? 67) / 100) ?>)]);
         <?php endif; ?>
         <?php if (($income['pension'] ?? 0) > 0): ?>
         incomeData.push(['Pensioen', '\ ' + formatNumber(<?= $income['pension'] ?>)]);
         <?php endif; ?>
-        <?php if (($income['own_wao'] ?? 0) > 0): ?>
-        incomeData.push(['Eigen WaO (met reductie)', '\ ' + formatNumber(<?= ($income['own_wao'] ?? 0) * (calculate_wao_percentage($profile['emigration_date'] ?? date('Y-m-d'), $profile['date_of_birth'] ?? date('Y-m-d'), $profile['retirement_age'] ?? 67) / 100) ?>)]);
+        <?php if (($income['own_aow'] ?? 0) > 0): ?>
+        incomeData.push(['Eigen AOW (met reductie)', '\ ' + formatNumber(<?= ($income['own_aow'] ?? 0) * (calculate_AOW_percentage($profile['emigration_date'] ?? date('Y-m-d'), $profile['date_of_birth'] ?? date('Y-m-d'), $profile['retirement_age'] ?? 67) / 100) ?>)]);
         <?php endif; ?>
         <?php if (($income['other_income'] ?? 0) > 0): ?>
         incomeData.push(['Overig inkomen', '\ ' + formatNumber(<?= $income['other_income'] ?>)]);
@@ -1159,7 +1159,7 @@ document.addEventListener('DOMContentLoaded', function() {
         doc.setFontSize(9);
         doc.setFont(undefined, 'italic');
         doc.setTextColor(100, 100, 100);
-        const footerText = 'Deze berekening is gebaseerd op de huidige gegevens en houdt rekening met WaO-reductie bij emigratie.';
+        const footerText = 'Deze berekening is gebaseerd op de huidige gegevens en houdt rekening met AOW-reductie bij emigratie.';
         doc.text(footerText, pageWidth / 2, yPos, { align: 'center' });
         
         // Page numbers

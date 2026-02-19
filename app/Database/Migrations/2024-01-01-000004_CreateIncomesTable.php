@@ -32,11 +32,11 @@ class CreateIncomesTable extends Migration
                 'default'    => '0.00',
                 'comment'    => 'Eigen inkomen per maand',
             ],
-            'wao_future' => [
+            'aow_future' => [
                 'type'       => 'DECIMAL',
                 'constraint' => '10,2',
                 'default'    => '0.00',
-                'comment'    => 'Toekomstige WAO per maand',
+                'comment'    => 'Toekomstige AOW per maand',
             ],
             'pension' => [
                 'type'       => 'DECIMAL',

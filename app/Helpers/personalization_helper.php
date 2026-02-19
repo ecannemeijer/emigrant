@@ -67,17 +67,17 @@ if (!function_exists('personalize_text')) {
 }
 
 /**
- * Calculate WaO reduction percentage based on emigration date
- * Dutch pension rights (AOW/WaO) are built up from age 15 to retirement age
- * 2% per year, so full rights = 50 years * 2% = 100%
+ * Calculate AOW reduction percentage based on emigration date
+ * Dutch pension rights (AOW) are built up from age 15 to retirement age
+ * 2% per year, so full rights = 52 years * 2% = 104% (capped at 100%)
  * 
  * @param string $emigrationDate Date of emigration
  * @param string $dateOfBirth Date of birth
  * @param int $retirementAge Retirement age (default 67)
- * @return float Percentage of full WaO (0-100)
+ * @return float Percentage of full AOW (0-100)
  */
-if (!function_exists('calculate_wao_percentage')) {
-    function calculate_wao_percentage($emigrationDate, $dateOfBirth, $retirementAge = 67)
+if (!function_exists('calculate_aow_percentage')) {
+    function calculate_aow_percentage($emigrationDate, $dateOfBirth, $retirementAge = 67)
     {
         if (empty($emigrationDate) || empty($dateOfBirth)) {
             return 100.0; // No emigration date = assume full rights
@@ -107,5 +107,13 @@ if (!function_exists('calculate_wao_percentage')) {
         $totalYears = $retirementAge - $startAge;
         
         return ($yearsInNL / $totalYears) * 100;
+    }
+}
+
+// Backward compatibility alias
+if (!function_exists('calculate_AOW_percentage')) {
+    function calculate_AOW_percentage($emigrationDate, $dateOfBirth, $retirementAge = 67)
+    {
+        return calculate_aow_percentage($emigrationDate, $dateOfBirth, $retirementAge);
     }
 }

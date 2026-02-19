@@ -40,14 +40,14 @@ class AddPersonalizationAndAges extends Migration
 
         $this->forge->addColumn('user_profiles', $fields);
 
-        // Add start year fields to incomes table for WaO and pension
+        // Add start year fields to incomes table for AOW and pension
         $incomeFields = [
-            'wao_start_age' => [
+            'aow_start_age' => [
                 'type' => 'INT',
                 'constraint' => 3,
                 'null' => true,
-                'comment' => 'Leeftijd waarop WaO (partner) ingaat',
-                'after' => 'wao_future',
+                'comment' => 'Leeftijd waarop AOW (partner) ingaat',
+                'after' => 'aow_future',
             ],
             'pension_start_age' => [
                 'type' => 'INT',
@@ -74,7 +74,7 @@ class AddPersonalizationAndAges extends Migration
 
         // Remove columns from incomes
         $this->forge->dropColumn('incomes', [
-            'wao_start_age',
+            'aow_start_age',
             'pension_start_age',
         ]);
     }

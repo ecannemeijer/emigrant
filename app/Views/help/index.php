@@ -92,23 +92,23 @@
                         <tr>
                             <td><strong>Emigratiedatum</strong></td>
                             <td>Wanneer je naar Italië verhuist</td>
-                            <td>Bepaalt WaO-reductie percentage (vroege emigratie = lagere WaO)</td>
+                            <td>Bepaalt AOW-reductie percentage (vroege emigratie = lagere AOW)</td>
                         </tr>
                         <tr>
                             <td><strong>Pensioenleeftijd</strong></td>
                             <td>Je verwachte pensioenleeftijd (standaard 67)</td>
-                            <td>Start van pensioenuitkering en WaO</td>
+                            <td>Start van pensioenuitkering en AOW</td>
                         </tr>
                         <tr>
                             <td><strong>Partner gegevens</strong></td>
                             <td>Geboortedatum en pensioenleeftijd partner</td>
-                            <td>Voor partner WaO berekeningen en gezamenlijke projecties</td>
+                            <td>Voor partner AOW berekeningen en gezamenlijke projecties</td>
                         </tr>
                     </tbody>
                 </table>
 
                 <div class="alert alert-warning">
-                    <strong>Let op:</strong> Emigratiedatum vóór je 67e verjaardag resulteert in lagere WaO-uitkering!
+                    <strong>Let op:</strong> Emigratiedatum vóór je 67e verjaardag resulteert in lagere AOW-uitkering!
                 </div>
             </div>
 
@@ -142,7 +142,7 @@
             <hr class="my-5">
 
             <!-- Income -->
-            <div class="help-section" id="income" data-keywords="inkomen inkomsten wia wao pensioen salaris uitkering maandinkomen">
+            <div class="help-section" id="income" data-keywords="inkomen inkomsten wia AOW pensioen salaris uitkering maandinkomen">
                 <h2><i class="bi bi-cash-coin"></i> Inkomsten</h2>
                 <p>Vul al je maandelijkse inkomstenbronnen in (netto bedragen).</p>
 
@@ -167,13 +167,13 @@
                             <td>Altijd actief</td>
                         </tr>
                         <tr>
-                            <td><strong>WaO partner (toekomstig)</strong></td>
-                            <td>WaO-uitkering partner na pensioen</td>
+                            <td><strong>AOW partner (toekomstig)</strong></td>
+                            <td>AOW-uitkering partner na pensioen</td>
                             <td>Start op partner's pensioenleeftijd (vervangt WIA)</td>
                         </tr>
                         <tr>
-                            <td><strong>Eigen WaO</strong></td>
-                            <td>Je eigen WaO-uitkering</td>
+                            <td><strong>Eigen AOW</strong></td>
+                            <td>Je eigen AOW-uitkering</td>
                             <td>Start op jouw pensioenleeftijd</td>
                         </tr>
                         <tr>
@@ -190,7 +190,7 @@
                 </table>
 
                 <div class="alert alert-warning">
-                    <strong>WaO-reductie:</strong> Als je vóór je 67e emigreert, wordt je WaO-uitkering gekort. Hoe eerder je emigreert, hoe lager de uitkering!
+                    <strong>AOW-reductie:</strong> Als je vóór je 67e emigreert, wordt je AOW-uitkering gekort. Hoe eerder je emigreert, hoe lager de uitkering!
                 </div>
 
                 <h4>Voorbeeld berekening</h4>
@@ -198,7 +198,7 @@
                 <ul>
                     <li>Opgebouwd in NL: 62 jaar (vanaf 18) = 44 jaar</li>
                     <li>Totaal mogelijk: 67 jaar (vanaf 18) = 49 jaar</li>
-                    <li>WaO-percentage: 44/49 = <strong>89,8%</strong></li>
+                    <li>AOW-percentage: 44/49 = <strong>89,8%</strong></li>
                 </ul>
             </div>
 
@@ -349,11 +349,11 @@
                 <p>De tabel toont jaar-voor-jaar:</p>
                 <ul>
                     <li>Je leeftijd en die van je partner</li>
-                    <li>Maandelijks inkomen (incl. WaO/pensioen transitions)</li>
+                    <li>Maandelijks inkomen (incl. AOW/pensioen transitions)</li>
                     <li>Maandelijkse kosten en belastingen</li>
                     <li>Netto per maand en per jaar</li>
                     <li><strong>Vermogen</strong> — Hoe je kapitaal zich ontwikkelt</li>
-                    <li>Status (actief, gepensioneerd, WaO-reductie)</li>
+                    <li>Status (actief, gepensioneerd, AOW-reductie)</li>
                 </ul>
 
                 <div class="alert alert-info">
@@ -364,7 +364,7 @@
                 <p>Het dashboard waarschuwt je bij:</p>
                 <ul>
                     <li><strong>Negatief netto</strong> — Je geeft meer uit dan je verdient (trekt van vermogen af)</li>
-                    <li><strong>WaO-reductie</strong> — Als emigratie vóór pensioen leidt tot lagere WaO</li>
+                    <li><strong>AOW-reductie</strong> — Als emigratie vóór pensioen leidt tot lagere AOW</li>
                     <li><strong>Incompleet profiel</strong> — Als essentiële profiel velden ontbreken</li>
                 </ul>
             </div>
@@ -375,9 +375,9 @@
             <div class="help-section" id="faq" data-keywords="faq veelgesteld vraag antwoord probleem help">
                 <h2><i class="bi bi-patch-question"></i> Veelgestelde Vragen</h2>
 
-                <h4>Hoe werkt de WaO-reductie?</h4>
-                <p>WaO (buitenland) wordt opgebouwd vanaf je 18e tot je pensioenleeftijd. Als je vóór je pensioen emigreert, bouw je minder jaren op in Nederland, dus krijg je een lager percentage.</p>
-                <p><strong>Voorbeeld:</strong> Emigratie op 60, pensioen op 67 → je bouwt 42 jaar op (van 18 tot 60) van de 49 jaar mogelijk (18-67) = 85,7% WaO.</p>
+                <h4>Hoe werkt de AOW-reductie?</h4>
+                <p>AOW (buitenland) wordt opgebouwd vanaf je 18e tot je pensioenleeftijd. Als je vóór je pensioen emigreert, bouw je minder jaren op in Nederland, dus krijg je een lager percentage.</p>
+                <p><strong>Voorbeeld:</strong> Emigratie op 60, pensioen op 67 → je bouwt 42 jaar op (van 18 tot 60) van de 49 jaar mogelijk (18-67) = 85,7% AOW.</p>
 
                 <h4>Waarom is mijn vermogen negatief?</h4>
                 <p>Dit kan gebeuren als de aankoopprijs van je woning(en) + aankoopkosten hoger is dan je startvermogen. Check je Startpositie Nederland en vastgoedprijzen.</p>

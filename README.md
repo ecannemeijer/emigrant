@@ -178,7 +178,8 @@ Bereken je financiële uitgangspositie:
 
 ### Inkomsten
 Beheer al je inkomstenbronnen:
-- WIA/WAO uitkering
+- WIA uitkering partner
+- AOW (Algemene Ouderdomswet)
 - Eigen inkomen
 - Pensioen
 - Overige inkomsten

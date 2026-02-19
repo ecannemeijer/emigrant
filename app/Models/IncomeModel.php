@@ -17,9 +17,9 @@ class IncomeModel extends Model
         'wia_wife',
         'partner_has_wia',
         'own_income',
-        'wao_future',
-        'own_wao',
-        'wao_start_age',
+        'aow_future',
+        'own_aow',
+        'aow_start_age',
         'pension',
         'pension_start_age',
         'other_income',
@@ -47,7 +47,7 @@ class IncomeModel extends Model
 
         return ($income['wia_wife'] ?? 0) +
                ($income['own_income'] ?? 0) +
-               ($income['wao_future'] ?? 0) +
+               ($income['aow_future'] ?? 0) +
                ($income['pension'] ?? 0) +
                ($income['other_income'] ?? 0);
     }
