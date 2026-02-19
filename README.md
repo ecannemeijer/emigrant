@@ -96,7 +96,47 @@ php spark serve
 
 De applicatie is nu beschikbaar op: `http://localhost:8080`
 
-## 📁 Project Structuur
+## � Email Configuratie
+
+De applicatie stuurt welkomst-emails naar nieuwe gebruikers. Configureer SMTP in je `.env` bestand:
+
+### Development (Mailtrap)
+
+Voor development raden we [Mailtrap.io](https://mailtrap.io) aan:
+
+```env
+email.fromEmail = 'no-reply@emigrant.local'
+email.fromName = 'Emigrant Platform'
+email.protocol = 'smtp'
+email.SMTPHost = 'sandbox.smtp.mailtrap.io'
+email.SMTPUser = 'your-mailtrap-username'
+email.SMTPPass = 'your-mailtrap-password'
+email.SMTPPort = 2525
+email.SMTPCrypto = 'tls'
+```
+
+### Production (Gmail)
+
+Voor productie met Gmail (gebruik een App Password):
+
+```env
+email.fromEmail = 'your-email@gmail.com'
+email.fromName = 'Emigrant Platform'
+email.protocol = 'smtp'
+email.SMTPHost = 'smtp.gmail.com'
+email.SMTPUser = 'your-email@gmail.com'
+email.SMTPPass = 'your-app-password'
+email.SMTPPort = 587
+email.SMTPCrypto = 'tls'
+```
+
+**Let op**: Gmail App Passwords vereisen 2-factor authenticatie. Maak een app-specific password aan via [Google Account Security](https://myaccount.google.com/security).
+
+### Andere providers
+
+De configuratie werkt met elke SMTP provider (SendGrid, AWS SES, Mailgun, etc.). Pas de SMTP instellingen aan volgens je provider.
+
+## �📁 Project Structuur
 
 ```
 emigrant/
