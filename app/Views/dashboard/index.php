@@ -466,6 +466,64 @@ if (!empty($profile['emigration_date']) && !empty($profile['partner_date_of_birt
 
                 <!-- Expenses Breakdown -->
                 <h5 class="mb-3"><i class="bi bi-cart"></i> Uitgaven (per maand)</h5>
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6 class="text-muted">Huishoudelijke kosten</h6>
+                        <table class="table table-sm table-bordered">
+                            <tbody id="household-expenses">
+                                <!-- Filled by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="text-muted">Verzekeringen & Auto</h6>
+                        <table class="table table-sm table-bordered">
+                            <tbody id="insurance-expenses">
+                                <!-- Filled by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <div class="row mt-3">
+                    <div class="col-md-6">
+                        <h6 class="text-muted">Vastgoed kosten</h6>
+                        <table class="table table-sm table-bordered">
+                            <tbody id="property-expenses">
+                                <!-- Filled by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="text-muted">Overige kosten</h6>
+                        <table class="table table-sm table-bordered">
+                            <tbody id="other-expenses">
+                                <!-- Filled by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <hr>
+
+                <!-- Taxes Breakdown -->
+                <h5 class="mb-3"><i class="bi bi-receipt"></i> Belastingen & Heffingen (per maand)</h5>
+                <table class="table table-bordered">
+                    <tbody id="taxes-breakdown">
+                        <!-- Filled by JavaScript -->
+                    </tbody>
+                    <tfoot class="table-light">
+                        <tr>
+                            <td><strong>Totaal Belastingen per maand</strong></td>
+                            <td class="text-end"><strong id="modal-taxes-total"></strong></td>
+                        </tr>
+                    </tfoot>
+                </table>
+
+                <hr>
+
+                <!-- Summary -->
+                <h5 class="mb-3"><i class="bi bi-calculator"></i> Totaal Overzicht</h5>
                 <table class="table table-bordered">
                     <tbody>
                         <tr>
@@ -520,90 +578,6 @@ if (!empty($profile['emigration_date']) && !empty($profile['partner_date_of_birt
                 <button type="button" class="btn btn-danger" id="exportPdfBtn">
                     <i class="bi bi-file-pdf"></i> Export naar PDF
                 </button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Income Breakdown per Year (expandable) -->
-<div class="row mt-3">
-    <div class="col-12">
-        <div class="accordion" id="incomeBreakdownAccordion">
-            <div class="accordion-item">
-                <h2 class="accordion-header">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#incomeBreakdown">
-                        <i class="bi bi-list-check"></i>&nbsp; Gedetailleerde Inkomensopbouw per Jaar (uitklappen)
-                    </button>
-                </h2>
-                <div id="incomeBreakdown" class="accordion-collapse collapse">
-                    <div class="accordion-body">
-                        <div class="table-responsive">
-                            <table class="table table-sm table-bordered">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>Jaar</th>
-                                        <th>Leeft.</th>
-                                        <th class="text-end">Eigen Ink.</th>
-                                        <th class="text-end">WIA <?= esc($profile['partner_name'] ?? 'Partner') ?></th>
-                                        <th class="text-end">AOW <?= esc($profile['partner_name'] ?? 'Partner') ?></th>
-                                        <th class="text-end">Jouw Pensioen</th>
-                                        <th class="text-end">Jouw AOW</th>
-                                        <th class="text-end">B&B</th>
-                                        <th class="text-end">Spaarrente</th>
-                                        <th class="text-end">Totaal</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php 
-                                    // Get income data for breakdown
-                                    $ownIncomeData = $income ?? [];
-                                    ?>
-                                    <?php foreach ($yearlyProjections as $projection): ?>
-                                    <?php
-                                    // Calculate individual components
-                                    $ownIncomeAmount = $ownIncomeData['own_income'] ?? 0;
-                                    $wiaAmount = 0;
-                                    $displayPartnerAow = 0;
-                                    $displayOwnAow = 0;
-                                    $displayPension = 0;
-                                    
-                                    if (!$projection['has_partner_retired']) {
-                                        $wiaAmount = $ownIncomeData['wia_wife'] ?? 0;
-                                    }
-                                    
-                                    if ($projection['has_partner_aow']) {
-                                        $displayPartnerAow = $projection['partner_aow_amount'];
-                                    }
-                                    
-                                    if ($projection['has_own_aow']) {
-                                        $displayOwnAow = $projection['own_aow_amount'];
-                                    }
-                                    
-                                    if ($projection['has_own_pension']) {
-                                        $displayPension = $projection['pension_amount'];
-                                    }
-                                    
-                                    $totalWithoutBnb = $ownIncomeAmount + $wiaAmount + $displayPartnerAow + $displayOwnAow + $displayPension;
-                                    $monthlyInterest = $projection['monthly_interest'] ?? 0;
-                                    ?>
-                                    <tr>
-                                        <td><?= $projection['year'] ?></td>
-                                        <td><?= $projection['user_age'] ?> / <?= $projection['partner_age'] ?></td>
-                                        <td class="text-end">€ <?= number_format($ownIncomeAmount, 0, ',', '.') ?></td>
-                                        <td class="text-end <?= $wiaAmount > 0 ? '' : 'text-muted' ?>">€ <?= number_format($wiaAmount, 0, ',', '.') ?></td>
-                                        <td class="text-end <?= $displayPartnerAow > 0 ? 'text-info fw-bold' : 'text-muted' ?>">€ <?= number_format($displayPartnerAow, 0, ',', '.') ?></td>
-                                        <td class="text-end <?= $displayPension > 0 ? 'text-success fw-bold' : 'text-muted' ?>">€ <?= number_format($displayPension, 0, ',', '.') ?></td>
-                                        <td class="text-end <?= $displayOwnAow > 0 ? 'text-primary fw-bold' : 'text-muted' ?>">€ <?= number_format($displayOwnAow, 0, ',', '.') ?></td>
-                                        <td class="text-end <?= $projection['bnb_monthly'] > 0 ? '' : 'text-muted' ?>">€ <?= number_format($projection['bnb_monthly'], 0, ',', '.') ?></td>
-                                        <td class="text-end text-success">€ <?= number_format($monthlyInterest, 0, ',', '.') ?></td>
-                                        <td class="text-end fw-bold">€ <?= number_format($projection['monthly_income'], 0, ',', '.') ?></td>
-                                    </tr>
-                                    <?php endforeach; ?>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
@@ -670,6 +644,62 @@ if (!empty($profile['emigration_date']) && !empty($profile['partner_date_of_birt
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 
 <script>
+// Expense and Tax data for modal
+const expenseData = {
+    energy: <?= $expenses['energy'] ?? 0 ?>,
+    water: <?= $expenses['water'] ?? 0 ?>,
+    internet: <?= $expenses['internet'] ?? 0 ?>,
+    health_insurance: <?= $expenses['health_insurance'] ?? 0 ?>,
+    car_insurance: <?= $expenses['car_insurance'] ?? 0 ?>,
+    car_fuel: <?= $expenses['car_fuel'] ?? 0 ?>,
+    car_maintenance: <?= $expenses['car_maintenance'] ?? 0 ?>,
+    groceries: <?= $expenses['groceries'] ?? 0 ?>,
+    leisure: <?= $expenses['leisure'] ?? 0 ?>,
+    unforeseen: <?= $expenses['unforeseen'] ?? 0 ?>,
+    other: <?= $expenses['other'] ?? 0 ?>
+};
+
+const propertyData = {
+    main_annual_costs: <?= ($mainProperty['annual_costs'] ?? 0) / 12 ?>,
+    main_maintenance: <?= ($mainProperty['monthly_costs'] ?? 0) ?>,
+    <?php if ($secondProperty): ?>
+    second_annual_costs: <?= ($secondProperty['annual_costs'] ?? 0) / 12 ?>,
+    second_energy: <?= $secondProperty['energy_monthly'] ?? 0 ?>,
+    second_other_costs: <?= $secondProperty['other_monthly_costs'] ?? 0 ?>,
+    second_maintenance: <?= ($secondProperty['maintenance_yearly'] ?? 0) / 12 ?>,
+    <?php endif; ?>
+};
+
+const taxData = {
+    social_contributions: <?= $taxes['social_contributions'] ?? 0 ?>,
+    tari_yearly: <?= ($taxes['tari_yearly'] ?? 0) / 12 ?>,
+    <?php if ($taxes && ($taxes['tax_regime'] ?? '') === 'forfettario'): ?>
+    forfettario: <?= (($income['own_income'] ?? 0) + ($bnbSettings && $bnbSettings['enabled'] ? ($bnbSettings['gross_revenue'] ?? 0) : 0)) * (($taxes['forfettario_percentage'] ?? 15) / 100) ?>,
+    <?php else: ?>
+    normal_tax: <?= (($income['own_income'] ?? 0) + ($bnbSettings && $bnbSettings['enabled'] ? ($bnbSettings['gross_revenue'] ?? 0) : 0)) * (($taxes['normal_tax_percentage'] ?? 23) / 100) ?>,
+    <?php endif; ?>
+    road_tax: <?= ($taxes['road_tax_yearly'] ?? 0) / 12 ?>,
+    <?php if ($mainProperty): ?>
+    main_imu: 0, // IMU first property is exempt
+    <?php endif; ?>
+    <?php if ($secondProperty): ?>
+    second_imu: <?= ($secondProperty['imu_tax'] ?? 0) / 12 ?>,
+    second_tari: <?= ($secondProperty['tari_yearly'] ?? 0) / 12 ?>,
+    <?php endif; ?>
+};
+
+const bnbExpenseData = {
+    <?php if ($bnbSettings && $bnbSettings['enabled'] && $bnbExpenses): ?>
+    extra_energy_water: <?= $bnbExpenses['extra_energy_water'] ?? 0 ?>,
+    insurance: <?= $bnbExpenses['insurance'] ?? 0 ?>,
+    cleaning: <?= $bnbExpenses['cleaning'] ?? 0 ?>,
+    linen_laundry: <?= $bnbExpenses['linen_laundry'] ?? 0 ?>,
+    marketing: <?= $bnbExpenses['marketing'] ?? 0 ?>,
+    maintenance: <?= $bnbExpenses['maintenance'] ?? 0 ?>,
+    administration: <?= $bnbExpenses['administration'] ?? 0 ?>,
+    <?php endif; ?>
+};
+
 // Calculation Modal Handler
 document.addEventListener('DOMContentLoaded', function() {
     const projectionRows = document.querySelectorAll('.projection-row');
@@ -757,10 +787,130 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         document.getElementById('income-breakdown').innerHTML = incomeHtml;
         
+        // Household expenses breakdown
+        let householdHtml = '';
+        if (expenseData.energy > 0) {
+            householdHtml += `<tr><td>Energie</td><td class=\"text-end\">€ ${formatNumber(expenseData.energy)}</td></tr>`;
+        }
+        if (expenseData.water > 0) {
+            householdHtml += `<tr><td>Water</td><td class=\"text-end\">€ ${formatNumber(expenseData.water)}</td></tr>`;
+        }
+        if (expenseData.internet > 0) {
+            householdHtml += `<tr><td>Internet</td><td class=\"text-end\">€ ${formatNumber(expenseData.internet)}</td></tr>`;
+        }
+        if (expenseData.groceries > 0) {
+            householdHtml += `<tr><td>Boodschappen</td><td class=\"text-end\">€ ${formatNumber(expenseData.groceries)}</td></tr>`;
+        }
+        if (expenseData.leisure > 0) {
+            householdHtml += `<tr><td>Vrije tijd</td><td class=\"text-end\">€ ${formatNumber(expenseData.leisure)}</td></tr>`;
+        }
+        if (expenseData.unforeseen > 0) {
+            householdHtml += `<tr><td>Onvoorzien</td><td class=\"text-end\">€ ${formatNumber(expenseData.unforeseen)}</td></tr>`;
+        }
+        if (!householdHtml) householdHtml = '<tr><td colspan=\"2\" class=\"text-muted\"><em>Geen huishoudelijke kosten</em></td></tr>';
+        document.getElementById('household-expenses').innerHTML = householdHtml;
+        
+        // Insurance & Car expenses breakdown
+        let insuranceHtml = '';
+        if (expenseData.health_insurance > 0) {
+            insuranceHtml += `<tr><td>Zorgverzekering</td><td class=\"text-end\">€ ${formatNumber(expenseData.health_insurance)}</td></tr>`;
+        }
+        if (expenseData.car_insurance > 0) {
+            insuranceHtml += `<tr><td>Auto verzekering</td><td class=\"text-end\">€ ${formatNumber(expenseData.car_insurance)}</td></tr>`;
+        }
+        if (expenseData.car_fuel > 0) {
+            insuranceHtml += `<tr><td>Brandstof</td><td class=\"text-end\">€ ${formatNumber(expenseData.car_fuel)}</td></tr>`;
+        }
+        if (expenseData.car_maintenance > 0) {
+            insuranceHtml += `<tr><td>Auto onderhoud</td><td class=\"text-end\">€ ${formatNumber(expenseData.car_maintenance)}</td></tr>`;
+        }
+        if (!insuranceHtml) insuranceHtml = '<tr><td colspan=\"2\" class=\"text-muted\"><em>Geen verzekeringen/auto kosten</em></td></tr>';
+        document.getElementById('insurance-expenses').innerHTML = insuranceHtml;
+        
+        // Property expenses breakdown
+        let propertyHtml = '';
+        if (propertyData.main_annual_costs > 0) {
+            propertyHtml += `<tr><td>Hoofdwoning vaste lasten</td><td class=\"text-end\">€ ${formatNumber(propertyData.main_annual_costs)}</td></tr>`;
+        }
+        if (propertyData.main_maintenance > 0) {
+            propertyHtml += `<tr><td>Hoofdwoning onderhoud</td><td class=\"text-end\">€ ${formatNumber(propertyData.main_maintenance)}</td></tr>`;
+        }
+        if (propertyData.second_annual_costs && propertyData.second_annual_costs > 0) {
+            propertyHtml += `<tr><td>Tweede woning vaste lasten</td><td class=\"text-end\">€ ${formatNumber(propertyData.second_annual_costs)}</td></tr>`;
+        }
+        if (propertyData.second_energy && propertyData.second_energy > 0) {
+            propertyHtml += `<tr><td>Tweede woning energie</td><td class=\"text-end\">€ ${formatNumber(propertyData.second_energy)}</td></tr>`;
+        }
+        if (propertyData.second_other_costs && propertyData.second_other_costs > 0) {
+            propertyHtml += `<tr><td>Tweede woning overige kosten</td><td class=\"text-end\">€ ${formatNumber(propertyData.second_other_costs)}</td></tr>`;
+        }
+        if (propertyData.second_maintenance && propertyData.second_maintenance > 0) {
+            propertyHtml += `<tr><td>Tweede woning onderhoud</td><td class=\"text-end\">€ ${formatNumber(propertyData.second_maintenance)}</td></tr>`;
+        }
+        if (!propertyHtml) propertyHtml = '<tr><td colspan=\"2\" class=\"text-muted\"><em>Geen vastgoed kosten</em></td></tr>';
+        document.getElementById('property-expenses').innerHTML = propertyHtml;
+        
+        // Other expenses breakdown
+        let otherExpHtml = '';
+        if (expenseData.other > 0) {
+            otherExpHtml += `<tr><td>Overige kosten</td><td class=\"text-end\">€ ${formatNumber(expenseData.other)}</td></tr>`;
+        }
+        // B&B expenses if applicable
+        if (bnbExpenseData.extra_energy_water && bnbExpenseData.extra_energy_water > 0) {
+            otherExpHtml += `<tr><td>B&B extra energie/water</td><td class=\"text-end\">€ ${formatNumber(bnbExpenseData.extra_energy_water)}</td></tr>`;
+        }
+        if (bnbExpenseData.insurance && bnbExpenseData.insurance > 0) {
+            otherExpHtml += `<tr><td>B&B verzekering</td><td class=\"text-end\">€ ${formatNumber(bnbExpenseData.insurance)}</td></tr>`;
+        }
+        if (bnbExpenseData.cleaning && bnbExpenseData.cleaning > 0) {
+            otherExpHtml += `<tr><td>B&B schoonmaak</td><td class=\"text-end\">€ ${formatNumber(bnbExpenseData.cleaning)}</td></tr>`;
+        }
+        if (bnbExpenseData.linen_laundry && bnbExpenseData.linen_laundry > 0) {
+            otherExpHtml += `<tr><td>B&B linnen & was</td><td class=\"text-end\">€ ${formatNumber(bnbExpenseData.linen_laundry)}</td></tr>`;
+        }
+        if (bnbExpenseData.marketing && bnbExpenseData.marketing > 0) {
+            otherExpHtml += `<tr><td>B&B marketing</td><td class=\"text-end\">€ ${formatNumber(bnbExpenseData.marketing)}</td></tr>`;
+        }
+        if (bnbExpenseData.maintenance && bnbExpenseData.maintenance > 0) {
+            otherExpHtml += `<tr><td>B&B onderhoud</td><td class=\"text-end\">€ ${formatNumber(bnbExpenseData.maintenance)}</td></tr>`;
+        }
+        if (bnbExpenseData.administration && bnbExpenseData.administration > 0) {
+            otherExpHtml += `<tr><td>B&B administratie</td><td class=\"text-end\">€ ${formatNumber(bnbExpenseData.administration)}</td></tr>`;
+        }
+        if (!otherExpHtml) otherExpHtml = '<tr><td colspan=\"2\" class=\"text-muted\"><em>Geen overige kosten</em></td></tr>';
+        document.getElementById('other-expenses').innerHTML = otherExpHtml;
+        
+        // Taxes breakdown
+        let taxesHtml = '';
+        if (taxData.social_contributions > 0) {
+            taxesHtml += `<tr><td>Sociale bijdragen</td><td class=\"text-end\">€ ${formatNumber(taxData.social_contributions)}</td></tr>`;
+        }
+        if (taxData.forfettario && taxData.forfettario > 0) {
+            taxesHtml += `<tr><td>Inkomstenbelasting (Forfettario)</td><td class=\"text-end\">€ ${formatNumber(taxData.forfettario)}</td></tr>`;
+        }
+        if (taxData.normal_tax && taxData.normal_tax > 0) {
+            taxesHtml += `<tr><td>Inkomstenbelasting (Normaal)</td><td class=\"text-end\">€ ${formatNumber(taxData.normal_tax)}</td></tr>`;
+        }
+        if (taxData.tari_yearly > 0) {
+            taxesHtml += `<tr><td>TARI hoofdwoning</td><td class=\"text-end\">€ ${formatNumber(taxData.tari_yearly)}</td></tr>`;
+        }
+        if (taxData.road_tax > 0) {
+            taxesHtml += `<tr><td>Wegenbelasting</td><td class=\"text-end\">€ ${formatNumber(taxData.road_tax)}</td></tr>`;
+        }
+        if (taxData.second_imu && taxData.second_imu > 0) {
+            taxesHtml += `<tr><td>IMU tweede woning</td><td class=\"text-end\">€ ${formatNumber(taxData.second_imu)}</td></tr>`;
+        }
+        if (taxData.second_tari && taxData.second_tari > 0) {
+            taxesHtml += `<tr><td>TARI tweede woning</td><td class=\"text-end\">€ ${formatNumber(taxData.second_tari)}</td></tr>`;
+        }
+        if (!taxesHtml) taxesHtml = '<tr><td colspan=\"2\" class=\"text-muted\"><em>Geen belastingen</em></td></tr>';
+        document.getElementById('taxes-breakdown').innerHTML = taxesHtml;
+        
         // Totals
         document.getElementById('modal-total-income').textContent = '€ ' + formatNumber(data.monthlyIncome);
         document.getElementById('modal-expenses').textContent = '€ ' + formatNumber(data.monthlyExpenses);
         document.getElementById('modal-taxes').textContent = '€ ' + formatNumber(data.monthlyTaxes);
+        document.getElementById('modal-taxes-total').textContent = '€ ' + formatNumber(data.monthlyTaxes);
         
         const totalExpenses = data.monthlyExpenses + data.monthlyTaxes;
         document.getElementById('modal-total-expenses').textContent = '€ ' + formatNumber(totalExpenses);
