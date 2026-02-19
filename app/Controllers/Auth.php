@@ -94,30 +94,33 @@ class Auth extends BaseController
             try {
                 $emailService = \Config\Services::email();
 
-                // Use configured from address if present, otherwise fallback
-                $emailConfig = new \Config\Email();
-                $fromEmail = $emailConfig->fromEmail ?: ('no-reply@' . (parse_url(base_url(), PHP_URL_HOST) ?? 'localhost'));
-                $fromName  = $emailConfig->fromName ?: 'Emigrant';
-
-                $emailService->setFrom($fromEmail, $fromName);
+                $emailService->setFrom($emailService->fromEmail, $emailService->fromName);
                 $emailService->setTo($userData['email']);
-                $emailService->setSubject('Welkom bij Emigrant — jouw account');
-                $emailService->setMailType('html');
+                $emailService->setSubject('Welkom bij Emigrant — jouw account is aangemaakt');
 
-                $message = view('emails/welcome', [
+                $emailData = [
                     'username' => $userData['username'],
                     'email' => $userData['email'],
-                    'loginUrl' => base_url('/login'),
-                    'profileUrl' => base_url('/profile'),
-                    'supportEmail' => $fromEmail,
-                ]);
+                    'loginUrl' => base_url('login'),
+                    'profileUrl' => base_url('profile'),
+                    'supportEmail' => $emailService->fromEmail,
+                ];
 
-                $emailService->setMessage($message);
-                if (! $emailService->send()) {
-                    log_message('error', 'Welcome email failed: ' . json_encode($emailService->printDebugger(['headers'])));
+                // HTML version
+                $htmlMessage = view('emails/welcome', $emailData);
+                $emailService->setMessage($htmlMessage);
+                
+                // Plain text alternative
+                $textMessage = view('emails/welcome_text', $emailData);
+                $emailService->setAltMessage($textMessage);
+
+                if ($emailService->send()) {
+                    log_message('info', "Welcome email sent successfully to {$userData['email']}");
+                } else {
+                    log_message('error', 'Welcome email failed to send: ' . $emailService->printDebugger(['headers', 'subject', 'body']));
                 }
             } catch (\Throwable $e) {
-                log_message('error', 'Failed to send welcome email: ' . $e->getMessage());
+                log_message('error', 'Failed to send welcome email to ' . $userData['email'] . ': ' . $e->getMessage());
             }
 
             return redirect()->to('/login')->with('success', 'Account aangemaakt! Je kunt nu inloggen.');
