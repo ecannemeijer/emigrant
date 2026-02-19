@@ -190,7 +190,7 @@ class Dashboard extends BaseController
             }
         }
 
-        // Net disposable income
+        // Net disposable income (can be negative if expenses > income)
         $netDisposable = $totalMonthlyIncome - $totalMonthlyExpenses - $monthlyTaxes;
 
         // Calculate capital after emigration
@@ -335,7 +335,7 @@ class Dashboard extends BaseController
             $monthlyNet = $yearlyNet / 12;
             $monthlyNetWithoutBnb = $yearlyNetWithoutBnb / 12;
             
-            // Update capital
+            // Update capital (if yearlyNet is negative, capital decreases automatically)
             $currentCapital += $yearlyNet;
             
             $projections[] = [

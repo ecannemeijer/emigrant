@@ -46,7 +46,7 @@
     <div class="alert alert-warning">
         <i class="bi bi-exclamation-triangle-fill"></i> 
         <strong>Let op!</strong> Je maandelijkse uitgaven zijn hoger dan je inkomsten. 
-        Je leeft van je vermogen met € <?= number_format(abs($calculations['net_disposable']), 0, ',', '.') ?> per maand.
+        Je trekt € <?= number_format(abs($calculations['net_disposable']), 0, ',', '.') ?> per maand van je vermogen af.
     </div>
 <?php endif; ?>
 
@@ -103,19 +103,79 @@ if (!empty($profile['emigration_date']) && !empty($profile['partner_date_of_birt
             </div>
             <div class="card-body">
                 <table class="table table-sm">
+                    <?php 
+                    // Use first year projection for realistic income breakdown
+                    $firstYear = $yearlyProjections[0] ?? null;
+                    $totalIncome = 0;
+                    ?>
+                    
+                    <?php if ($income['own_income'] ?? 0 > 0): ?>
                     <tr>
-                        <td>Inkomen (salaris/uitkering)</td>
-                        <td class="text-end">€ <?= number_format($calculations['monthly_income'] ?? 0, 2, ',', '.') ?></td>
+                        <td>Eigen inkomen</td>
+                        <td class="text-end">€ <?= number_format($income['own_income'] ?? 0, 2, ',', '.') ?></td>
                     </tr>
+                    <?php $totalIncome += ($income['own_income'] ?? 0); ?>
+                    <?php endif; ?>
+                    
+                    <?php if ($firstYear && $firstYear['has_wia'] && ($firstYear['wia_amount'] ?? 0) > 0): ?>
+                    <tr>
+                        <td>WIA (<?= esc($profile['partner_name'] ?? 'Partner') ?>)</td>
+                        <td class="text-end">€ <?= number_format($firstYear['wia_amount'] ?? 0, 2, ',', '.') ?></td>
+                    </tr>
+                    <?php $totalIncome += ($firstYear['wia_amount'] ?? 0); ?>
+                    <?php endif; ?>
+                    
+                    <?php if ($firstYear && $firstYear['has_partner_wao'] && ($firstYear['partner_wao_amount'] ?? 0) > 0): ?>
+                    <tr>
+                        <td>WaO (<?= esc($profile['partner_name'] ?? 'Partner') ?>)</td>
+                        <td class="text-end">€ <?= number_format($firstYear['partner_wao_amount'] ?? 0, 2, ',', '.') ?></td>
+                    </tr>
+                    <?php $totalIncome += ($firstYear['partner_wao_amount'] ?? 0); ?>
+                    <?php endif; ?>
+                    
+                    <?php if ($firstYear && $firstYear['has_own_wao'] && ($firstYear['own_wao_amount'] ?? 0) > 0): ?>
+                    <tr>
+                        <td>Eigen WaO</td>
+                        <td class="text-end">€ <?= number_format($firstYear['own_wao_amount'] ?? 0, 2, ',', '.') ?></td>
+                    </tr>
+                    <?php $totalIncome += ($firstYear['own_wao_amount'] ?? 0); ?>
+                    <?php endif; ?>
+                    
+                    <?php if ($firstYear && $firstYear['has_own_pension'] && ($firstYear['pension_amount'] ?? 0) > 0): ?>
+                    <tr>
+                        <td>Pensioen</td>
+                        <td class="text-end">€ <?= number_format($firstYear['pension_amount'] ?? 0, 2, ',', '.') ?></td>
+                    </tr>
+                    <?php $totalIncome += ($firstYear['pension_amount'] ?? 0); ?>
+                    <?php endif; ?>
+                    
+                    <?php if ($income['other_income'] ?? 0 > 0): ?>
+                    <tr>
+                        <td>Overig inkomen</td>
+                        <td class="text-end">€ <?= number_format($income['other_income'] ?? 0, 2, ',', '.') ?></td>
+                    </tr>
+                    <?php $totalIncome += ($income['other_income'] ?? 0); ?>
+                    <?php endif; ?>
+                    
+                    <?php if ($firstYear && ($firstYear['monthly_interest'] ?? 0) > 0): ?>
+                    <tr class="text-info">
+                        <td><i class="bi bi-graph-up-arrow"></i> Interest op vermogen</td>
+                        <td class="text-end">€ <?= number_format($firstYear['monthly_interest'] ?? 0, 2, ',', '.') ?></td>
+                    </tr>
+                    <?php $totalIncome += ($firstYear['monthly_interest'] ?? 0); ?>
+                    <?php endif; ?>
+                    
                     <?php if (($calculations['bnb_net_income'] ?? 0) > 0): ?>
                     <tr>
                         <td>B&B netto inkomen</td>
                         <td class="text-end">€ <?= number_format($calculations['bnb_net_income'] ?? 0, 2, ',', '.') ?></td>
                     </tr>
+                    <?php $totalIncome += ($calculations['bnb_net_income'] ?? 0); ?>
                     <?php endif; ?>
-                    <tr class="fw-bold">
+                    
+                    <tr class="fw-bold border-top">
                         <td>Totaal</td>
-                        <td class="text-end">€ <?= number_format($calculations['total_monthly_income'] ?? 0, 2, ',', '.') ?></td>
+                        <td class="text-end">€ <?= number_format($totalIncome, 2, ',', '.') ?></td>
                     </tr>
                 </table>
             </div>

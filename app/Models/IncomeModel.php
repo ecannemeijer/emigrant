@@ -21,7 +21,8 @@ class IncomeModel extends Model
         'wao_start_age',
         'pension',
         'pension_start_age',
-        'other_income'
+        'other_income',
+        'minimum_monthly_income'
     ];
 
     // Dates
