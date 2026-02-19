@@ -18,7 +18,7 @@ class Email extends BaseConfig
     /**
      * The mail sending protocol: mail, sendmail, smtp
      */
-    public string $protocol = 'smtp';
+    public string $protocol = 'mail';
 
     /**
      * The server path to Sendmail.
@@ -91,12 +91,16 @@ class Email extends BaseConfig
         // Load from environment variables
         $this->fromEmail = env('email.fromEmail', 'no-reply@emigrant.local');
         $this->fromName = env('email.fromName', 'Emigrant Platform');
+        
+        // Protocol: use 'mail' for Postfix on server, 'smtp' for external SMTP
+        $this->protocol = env('email.protocol', 'mail');
+        
+        // SMTP settings (only used if protocol = 'smtp')
         $this->SMTPHost = env('email.SMTPHost', '');
         $this->SMTPUser = env('email.SMTPUser', '');
         $this->SMTPPass = env('email.SMTPPass', '');
         $this->SMTPPort = (int) env('email.SMTPPort', 587);
         $this->SMTPCrypto = env('email.SMTPCrypto', 'tls');
-        $this->protocol = env('email.protocol', 'smtp');
     }
 
     /**

@@ -30,6 +30,12 @@ $routes->get('register', 'Auth::register');
 $routes->post('register', 'Auth::attemptRegister');
 $routes->get('logout', 'Auth::logout');
 
+// Password Reset (public)
+$routes->get('password-reset/forgot', 'PasswordReset::forgot');
+$routes->post('password-reset/send', 'PasswordReset::sendResetLink');
+$routes->get('password-reset/reset/(:any)', 'PasswordReset::reset/$1');
+$routes->post('password-reset/update', 'PasswordReset::updatePassword');
+
 // Protected routes (require authentication)
 $routes->group('', ['filter' => 'auth'], function ($routes) {
     // Dashboard
@@ -74,6 +80,11 @@ $routes->group('', ['filter' => 'auth'], function ($routes) {
     // Export
     $routes->get('export/csv', 'Export::csv');
     $routes->get('export/pdf', 'Export::pdf');
+    
+    // Help & Contact
+    $routes->get('help', 'Help::index');
+    $routes->get('contact', 'Contact::index');
+    $routes->post('contact/send', 'Contact::send');
 });
 
 // Admin routes (require admin role)

@@ -37,6 +37,9 @@
                         <div class="mb-3">
                             <label for="password" class="form-label">Wachtwoord</label>
                             <input type="password" class="form-control" id="password" name="password" required>
+                            <small class="text-muted">
+                                <a href="/password-reset/forgot">Wachtwoord vergeten?</a>
+                            </small>
                         </div>
 
                         <div class="d-grid">

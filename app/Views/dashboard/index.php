@@ -6,6 +6,24 @@
     <p class="text-muted">Overzicht van je financiële situatie na emigratie</p>
 </div>
 
+<?php if (empty($profile['date_of_birth']) || empty($profile['emigration_date'])): ?>
+<div class="alert alert-warning">
+    <h5><i class="bi bi-exclamation-triangle-fill"></i> Profiel incompleet</h5>
+    <p>Je profiel is nog niet volledig ingevuld. Vul eerst de volgende gegevens in om de volledige dashboard-functionaliteit te gebruiken:</p>
+    <ul class="mb-2">
+        <?php if (empty($profile['date_of_birth'])): ?>
+        <li><strong>Geboortedatum</strong> — voor leeftijdsberekeningen en pensioenprognoses</li>
+        <?php endif; ?>
+        <?php if (empty($profile['emigration_date'])): ?>
+        <li><strong>Emigratiedatum</strong> — voor WaO-reductie berekeningen</li>
+        <?php endif; ?>
+    </ul>
+    <a href="/profile" class="btn btn-warning">
+        <i class="bi bi-person-fill"></i> Ga naar Profiel
+    </a>
+</div>
+<?php endif; ?>
+
 <!-- Key Statistics -->
 <div class="row mb-4">
     <div class="col-md-3">
