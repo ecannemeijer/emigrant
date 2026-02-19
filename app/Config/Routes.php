@@ -36,6 +36,11 @@ $routes->post('password-reset/send', 'PasswordReset::sendResetLink');
 $routes->get('password-reset/reset/(:any)', 'PasswordReset::reset/$1');
 $routes->post('password-reset/update', 'PasswordReset::updatePassword');
 
+// Help & Contact (public)
+$routes->get('help', 'Help::index');
+$routes->get('contact', 'Contact::index');
+$routes->post('contact/send', 'Contact::send');
+
 // Protected routes (require authentication)
 $routes->group('', ['filter' => 'auth'], function ($routes) {
     // Dashboard
@@ -80,11 +85,6 @@ $routes->group('', ['filter' => 'auth'], function ($routes) {
     // Export
     $routes->get('export/csv', 'Export::csv');
     $routes->get('export/pdf', 'Export::pdf');
-    
-    // Help & Contact
-    $routes->get('help', 'Help::index');
-    $routes->get('contact', 'Contact::index');
-    $routes->post('contact/send', 'Contact::send');
 });
 
 // Admin routes (require admin role)

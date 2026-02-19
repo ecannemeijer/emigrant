@@ -117,6 +117,35 @@
                         </li>
                     </ul>
                 </div>
+            <?php else: ?>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/help">
+                                <i class="bi bi-question-circle"></i> Help
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/contact">
+                                <i class="bi bi-envelope"></i> Contact
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/login">
+                                <i class="bi bi-box-arrow-in-right"></i> Inloggen
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/register">
+                                <i class="bi bi-person-plus"></i> Registreren
+                            </a>
+                        </li>
+                    </ul>
+                </div>
             <?php endif; ?>
         </div>
     </nav>
@@ -168,6 +197,23 @@
                                     <i class="bi bi-diagram-3"></i> Scenario's
                                 </a>
                             </li>
+                            
+                            <li class="nav-item mt-3">
+                                <hr>
+                            </li>
+                            
+                            <li class="nav-item">
+                                <a class="nav-link <?= uri_string() == 'help' ? 'active' : '' ?>" href="/help">
+                                    <i class="bi bi-question-circle"></i> Help
+                                </a>
+                            </li>
+                            
+                            <li class="nav-item">
+                                <a class="nav-link <?= uri_string() == 'contact' ? 'active' : '' ?>" href="/contact">
+                                    <i class="bi bi-envelope"></i> Contact
+                                </a>
+                            </li>
+                            
                             <li class="nav-item mt-3">
                                 <a class="nav-link" href="/export/csv">
                                     <i class="bi bi-download"></i> Export CSV
