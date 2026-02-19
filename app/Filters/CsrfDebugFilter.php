@@ -20,11 +20,14 @@ class CsrfDebugFilter implements FilterInterface
 
         $session = service('session');
         $sessionToken = $session->get($tokenName);
-        $sessionId = $session->getId();
+
+        // session id is not exposed on CI Session object; log cookie value instead
+        $sessionCookieName = config('Session')->cookieName ?? 'emigrant_session';
+        $sessionCookie = $request->getCookie($sessionCookieName);
 
         log_message('debug', "CSRF-DBG: route=" . (string) current_url(false) . " method=" . $request->getMethod());
         log_message('debug', "CSRF-DBG: posted_token={$posted}");
-        log_message('debug', "CSRF-DBG: session_id={$sessionId} session_token={$sessionToken}");
+        log_message('debug', "CSRF-DBG: session_cookie={$sessionCookie} session_token={$sessionToken}");
     }
 
     public function after(RequestInterface $request, ResponseInterface $response, $arguments = null)
