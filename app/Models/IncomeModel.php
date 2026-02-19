@@ -15,6 +15,7 @@ class IncomeModel extends Model
     protected $allowedFields    = [
         'user_id',
         'wia_wife',
+        'partner_has_wia',
         'own_income',
         'wao_future',
         'own_wao',

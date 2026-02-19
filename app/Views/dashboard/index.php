@@ -143,6 +143,14 @@ if (!empty($profile['emigration_date']) && !empty($profile['partner_date_of_birt
                     <?php $totalIncome += ($firstYear['wia_amount'] ?? 0); ?>
                     <?php endif; ?>
                     
+                    <?php if ($firstYear && $firstYear['has_partner_income'] && ($firstYear['partner_income_amount'] ?? 0) > 0): ?>
+                    <tr>
+                        <td>Inkomen (<?= esc($profile['partner_name'] ?? 'Partner') ?>)</td>
+                        <td class="text-end">€ <?= number_format($firstYear['partner_income_amount'] ?? 0, 2, ',', '.') ?></td>
+                    </tr>
+                    <?php $totalIncome += ($firstYear['partner_income_amount'] ?? 0); ?>
+                    <?php endif; ?>
+                    
                     <?php if ($firstYear && $firstYear['has_partner_wao'] && ($firstYear['partner_wao_amount'] ?? 0) > 0): ?>
                     <tr>
                         <td>WaO (<?= esc($profile['partner_name'] ?? 'Partner') ?>)</td>
@@ -293,6 +301,7 @@ if (!empty($profile['emigration_date']) && !empty($profile['partner_date_of_birt
                             // Calculate individual components for modal
                             $ownIncomeAmount = $income['own_income'] ?? 0;
                             $wiaAmount = $projection['wia_amount'] ?? 0;
+                            $partnerIncomeAmount = $projection['partner_income_amount'] ?? 0;
                             $partnerWaoAmount = $projection['partner_wao_amount'] ?? 0;
                             $ownWaoAmount = $projection['own_wao_amount'] ?? 0;
                             $pensionAmount = $projection['pension_amount'] ?? 0;
@@ -306,6 +315,7 @@ if (!empty($profile['emigration_date']) && !empty($profile['partner_date_of_birt
                                 data-partner-name="<?= esc($profile['partner_name'] ?? 'Partner') ?>"
                                 data-own-income="<?= $ownIncomeAmount ?>"
                                 data-wia="<?= $wiaAmount ?>"
+                                data-partner-income="<?= $partnerIncomeAmount ?>"
                                 data-partner-wao="<?= $partnerWaoAmount ?>"
                                 data-own-wao="<?= $ownWaoAmount ?>"
                                 data-pension="<?= $pensionAmount ?>"
@@ -346,6 +356,13 @@ if (!empty($profile['emigration_date']) && !empty($profile['partner_date_of_birt
                                         <?php if ($projection['wia_amount'] > 0): ?>
                                             <span class="badge bg-primary" title="<?= esc($profile['partner_name'] ?? 'Partner') ?> WIA: € <?= number_format($projection['wia_amount'], 0, ',', '.') ?>/mnd">
                                                 <i class="bi bi-check-circle-fill"></i> WIA <?= esc($profile['partner_name'] ?? 'Partner') ?>
+                                            </span>
+                                        <?php endif; ?>
+                                    <?php endif; ?>
+                                    <?php if ($projection['has_partner_income']): ?>
+                                        <?php if ($projection['partner_income_amount'] > 0): ?>
+                                            <span class="badge bg-secondary" title="<?= esc($profile['partner_name'] ?? 'Partner') ?> Inkomen: € <?= number_format($projection['partner_income_amount'], 0, ',', '.') ?>/mnd">
+                                                <i class="bi bi-cash"></i> Inkomen <?= esc($profile['partner_name'] ?? 'Partner') ?>
                                             </span>
                                         <?php endif; ?>
                                     <?php endif; ?>
@@ -664,6 +681,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 partnerName: this.dataset.partnerName,
                 ownIncome: parseFloat(this.dataset.ownIncome),
                 wia: parseFloat(this.dataset.wia),
+                partnerIncome: parseFloat(this.dataset.partnerIncome),
                 partnerWao: parseFloat(this.dataset.partnerWao),
                 ownWao: parseFloat(this.dataset.ownWao),
                 pension: parseFloat(this.dataset.pension),
@@ -715,6 +733,9 @@ document.addEventListener('DOMContentLoaded', function() {
         if (data.wia > 0) {
             incomeHtml += `<tr><td>WIA ${data.partnerName}</td><td class=\"text-end\">€ ${formatNumber(data.wia)}</td></tr>`;
         }
+        if (data.partnerIncome > 0) {
+            incomeHtml += `<tr><td>Inkomen ${data.partnerName}</td><td class=\"text-end\">€ ${formatNumber(data.partnerIncome)}</td></tr>`;
+        }
         if (data.partnerWao > 0) {
             incomeHtml += `<tr><td>WaO ${data.partnerName} <small class=\"text-muted\">(met emigratie reductie)</small></td><td class=\"text-end text-info\"><strong>€ ${formatNumber(data.partnerWao)}</strong></td></tr>`;
         }
@@ -726,9 +747,11 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         if (data.bnb > 0) {
             incomeHtml += `<tr><td>B&B Netto inkomen</td><td class=\"text-end\">€ ${formatNumber(data.bnb)}</td></tr>`;
-        }        if (data.monthlyInterest > 0) {
+        }
+        if (data.monthlyInterest > 0) {
             incomeHtml += `<tr><td>Spaarrente</td><td class="text-end text-success">€ ${formatNumber(data.monthlyInterest)}</td></tr>`;
-        }        document.getElementById('income-breakdown').innerHTML = incomeHtml;
+        }
+        document.getElementById('income-breakdown').innerHTML = incomeHtml;
         
         // Totals
         document.getElementById('modal-total-income').textContent = '€ ' + formatNumber(data.monthlyIncome);

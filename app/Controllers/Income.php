@@ -30,6 +30,7 @@ class Income extends BaseController
         $postData = [
             'user_id' => $userId,
             'wia_wife' => $this->request->getPost('wia_wife'),
+            'partner_has_wia' => $this->request->getPost('partner_has_wia') ? 1 : 0,
             'own_income' => $this->request->getPost('own_income'),
             'wao_future' => $this->request->getPost('wao_future'),
             'own_wao' => $this->request->getPost('own_wao') ?: 0,

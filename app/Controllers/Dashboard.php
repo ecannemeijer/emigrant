@@ -273,25 +273,38 @@ class Dashboard extends BaseController
             // Start with base income
             $monthlyIncomeBase = ($income['own_income'] ?? 0);
             $hasPartnerWao = false;
+            $hasPartnerIncome = false;
             $hasOwnPension = false;
             $hasOwnWao = false;
             $hasWia = false;
             $partnerWaoAmount = 0;
+            $partnerIncomeAmount = 0;
             $ownWaoAmount = 0;
             $pensionAmount = 0;
             $wiaAmount = 0;
             
-            // Check if partner has reached pension age
-            if ($partnerAge && $partnerAge >= $partnerRetirementAge) {
-                // Partner is retired: WIA stops, partner WaO starts
-                $partnerWaoAmount = ($income['wao_future'] ?? 0) * ($partnerWaoPercentage / 100);
-                $monthlyIncomeBase += $partnerWaoAmount;
-                $hasPartnerWao = true;
+            // Check partner income (WIA or regular)
+            $partnerHasWia = ($income['partner_has_wia'] ?? 1) == 1;
+            $partnerIncome = ($income['wia_wife'] ?? 0);
+            
+            if ($partnerHasWia) {
+                // WIA: stops at retirement, then WaO starts
+                if ($partnerAge && $partnerAge >= $partnerRetirementAge) {
+                    // Partner is retired: WIA stops, partner WaO starts
+                    $partnerWaoAmount = ($income['wao_future'] ?? 0) * ($partnerWaoPercentage / 100);
+                    $monthlyIncomeBase += $partnerWaoAmount;
+                    $hasPartnerWao = true;
+                } else {
+                    // Partner not retired yet: WIA continues
+                    $wiaAmount = $partnerIncome;
+                    $monthlyIncomeBase += $wiaAmount;
+                    $hasWia = $wiaAmount > 0;
+                }
             } else {
-                // Partner not retired yet: WIA continues
-                $wiaAmount = ($income['wia_wife'] ?? 0);
-                $monthlyIncomeBase += $wiaAmount;
-                $hasWia = $wiaAmount > 0;
+                // Regular partner income: continues always (doesn't stop at retirement)
+                $partnerIncomeAmount = $partnerIncome;
+                $monthlyIncomeBase += $partnerIncomeAmount;
+                $hasPartnerIncome = $partnerIncomeAmount > 0;
             }
             
             // Check if user has reached pension age
@@ -311,6 +324,7 @@ class Dashboard extends BaseController
             
             // Store amounts for display
             $displayPartnerWaoAmount = $hasPartnerWao ? $partnerWaoAmount : 0;
+            $displayPartnerIncomeAmount = $hasPartnerIncome ? $partnerIncomeAmount : 0;
             $displayOwnWaoAmount = $hasOwnWao ? $ownWaoAmount : 0;
             $displayPensionAmount = $hasOwnPension ? $pensionAmount : 0;
             $displayWiaAmount = $hasWia ? $wiaAmount : 0;
@@ -357,10 +371,12 @@ class Dashboard extends BaseController
                 'yearly_net_without_bnb' => $yearlyNetWithoutBnb,
                 'capital' => $currentCapital,
                 'has_partner_wao' => $hasPartnerWao,
+                'has_partner_income' => $hasPartnerIncome,
                 'has_own_pension' => $hasOwnPension,
                 'has_own_wao' => $hasOwnWao,
                 'has_wia' => $hasWia,
                 'partner_wao_amount' => $displayPartnerWaoAmount,
+                'partner_income_amount' => $displayPartnerIncomeAmount,
                 'own_wao_amount' => $displayOwnWaoAmount,
                 'pension_amount' => $displayPensionAmount,
                 'wia_amount' => $displayWiaAmount,

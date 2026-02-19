@@ -15,17 +15,33 @@
 
                     <?php 
                     // Get partner name from profile
-                    $partnerName = $profile['partner_name'] ?? 'vrouw';
+                    $partnerName = $profile['partner_name'] ?? 'partner';
+                    $hasWia = ($income['partner_has_wia'] ?? 1) == 1;
                     ?>
 
                     <div class="mb-3">
-                        <label for="wia_wife" class="form-label">WIA <?= esc($partnerName) ?> (netto per maand)</label>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="partner_has_wia" 
+                                   name="partner_has_wia" value="1" <?= $hasWia ? 'checked' : '' ?>>
+                            <label class="form-check-label" for="partner_has_wia">
+                                <strong><?= esc(ucfirst($partnerName)) ?> heeft WIA</strong>
+                            </label>
+                        </div>
+                        <small class="text-muted">Vink uit indien het regulier inkomen betreft (geen WIA)</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="wia_wife" class="form-label" id="partner_income_label">
+                            <span id="income_type_text"><?= $hasWia ? 'WIA' : 'Inkomen' ?></span> <?= esc($partnerName) ?> (netto per maand)
+                        </label>
                         <div class="input-group">
                             <span class="input-group-text">€</span>
                             <input type="number" step="0.01" class="form-control" id="wia_wife" 
-                                   name="wia_wife" value="<?= $income['wia_wife'] ?? 1550 ?>" required>
+                                   name="wia_wife" value="<?= $income['wia_wife'] ?? 0 ?>" required>
                         </div>
-                        <small class="text-muted">Huidig WIA inkomen</small>
+                        <small class="text-muted" id="partner_income_help">
+                            <?= $hasWia ? 'Huidig WIA inkomen' : 'Regulier maandinkomen' ?>
+                        </small>
                     </div>
 
                     <div class="mb-3">
@@ -41,7 +57,7 @@
 
                     <h5 class="mb-3"><i class="bi bi-calendar-event"></i> Toekomstige Inkomsten bij Pensioen</h5>
                     
-                    <div class="alert alert-info">
+                    <div class="alert alert-info" id="wia_info_alert" style="display: <?= $hasWia ? 'block' : 'none' ?>">
                         <i class="bi bi-info-circle"></i>
                         <strong>Let op:</strong> WIA van <?= esc($partnerName) ?> stopt automatisch wanneer <?= esc($partnerName) ?> 
                         met pensioen gaat (op de leeftijd ingesteld in je profiel). Dan start de WaO van <?= esc($partnerName) ?>.
@@ -54,7 +70,9 @@
                             <input type="number" step="0.01" class="form-control" id="wao_future" 
                                    name="wao_future" value="<?= $income['wao_future'] ?? 0 ?>">
                         </div>
-                        <small class="text-muted">Start automatisch bij <?= esc($partnerName) ?> pensioenleeftijd, WIA stopt dan</small>
+                        <small class="text-muted" id="wao_future_help">
+                            <?= $hasWia ? 'Start automatisch bij ' . esc($partnerName) . ' pensioenleeftijd, WIA stopt dan' : 'Start automatisch bij ' . esc($partnerName) . ' pensioenleeftijd' ?>
+                        </small>
                     </div>
 
                     <div class="mb-3">
@@ -119,5 +137,32 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const checkbox = document.getElementById('partner_has_wia');
+    const incomeTypeText = document.getElementById('income_type_text');
+    const partnerIncomeHelp = document.getElementById('partner_income_help');
+    const waoFutureHelp = document.getElementById('wao_future_help');
+    const wiaInfoAlert = document.getElementById('wia_info_alert');
+    const partnerName = '<?= esc($partnerName) ?>';
+    
+    checkbox.addEventListener('change', function() {
+        if (this.checked) {
+            // WIA enabled
+            incomeTypeText.textContent = 'WIA';
+            partnerIncomeHelp.textContent = 'Huidig WIA inkomen';
+            waoFutureHelp.textContent = 'Start automatisch bij ' + partnerName + ' pensioenleeftijd, WIA stopt dan';
+            wiaInfoAlert.style.display = 'block';
+        } else {
+            // Regular income
+            incomeTypeText.textContent = 'Inkomen';
+            partnerIncomeHelp.textContent = 'Regulier maandinkomen';
+            waoFutureHelp.textContent = 'Start automatisch bij ' + partnerName + ' pensioenleeftijd';
+            wiaInfoAlert.style.display = 'none';
+        }
+    });
+});
+</script>
 
 <?= $this->endSection() ?>
