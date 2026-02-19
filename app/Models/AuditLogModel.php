@@ -89,6 +89,6 @@ class AuditLogModel extends Model
      */
     public function clearAll(): void
     {
-        $this->db->truncate($this->table);
+        $this->db->table($this->table)->truncate();
     }
 }
