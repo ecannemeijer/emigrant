@@ -73,11 +73,12 @@ class Auth extends BaseController
         }
 
         $email = $this->request->getPost('email');
+        $password = $this->request->getPost('password');
         
         $userData = [
             'username' => $email, // Auto-set to email (username field removed from registration)
             'email' => $email,
-            'password' => $this->request->getPost('password'),
+            'password' => password_hash($password, PASSWORD_DEFAULT),
             'role' => 'user',
             'is_active' => 1,
         ];

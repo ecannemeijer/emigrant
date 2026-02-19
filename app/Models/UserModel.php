@@ -38,7 +38,11 @@ class UserModel extends Model
             return $data;
         }
 
-        $data['data']['password'] = password_hash($data['data']['password'], PASSWORD_DEFAULT);
+        // Only hash if not already hashed (bcrypt hashes start with $2y$)
+        if (strpos($data['data']['password'], '$2y$') !== 0) {
+            $data['data']['password'] = password_hash($data['data']['password'], PASSWORD_DEFAULT);
+        }
+        
         return $data;
     }
 
