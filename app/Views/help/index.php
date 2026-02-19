@@ -75,6 +75,7 @@
                 <p>Je profiel bevat essentiële persoonlijke gegevens die gebruikt worden voor alle berekeningen.</p>
 
                 <h4>Belangrijke velden</h4>
+                <div class="table-responsive">
                 <table class="table table-bordered">
                     <thead>
                         <tr>
@@ -106,6 +107,7 @@
                         </tr>
                     </tbody>
                 </table>
+                </div>
 
                 <div class="alert alert-warning">
                     <strong>Let op:</strong> Emigratiedatum vóór je 67e verjaardag resulteert in lagere AOW-uitkering!
@@ -147,6 +149,7 @@
                 <p>Vul al je maandelijkse inkomstenbronnen in (netto bedragen).</p>
 
                 <h4>Inkomstensoorten</h4>
+                <div class="table-responsive">
                 <table class="table table-bordered">
                     <thead>
                         <tr>
@@ -188,6 +191,7 @@
                         </tr>
                     </tbody>
                 </table>
+                </div>
 
                 <div class="alert alert-warning">
                     <strong>AOW-reductie:</strong> Als je vóór je 67e emigreert, wordt je AOW-uitkering gekort. Hoe eerder je emigreert, hoe lager de uitkering!

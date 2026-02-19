@@ -120,6 +120,7 @@ if (!empty($profile['emigration_date']) && !empty($profile['partner_date_of_birt
                 <h5 class="mb-0"><i class="bi bi-cash-coin"></i> Inkomsten Breakdown</h5>
             </div>
             <div class="card-body">
+                <div class="table-responsive">
                 <table class="table table-sm">
                     <?php 
                     // Use first year projection for realistic income breakdown
@@ -204,6 +205,7 @@ if (!empty($profile['emigration_date']) && !empty($profile['partner_date_of_birt
                         <td class="text-end">€ <?= number_format($totalIncome, 2, ',', '.') ?></td>
                     </tr>
                 </table>
+                </div>
             </div>
         </div>
     </div>
@@ -214,6 +216,7 @@ if (!empty($profile['emigration_date']) && !empty($profile['partner_date_of_birt
                 <h5 class="mb-0"><i class="bi bi-wallet2"></i> Uitgaven Breakdown</h5>
             </div>
             <div class="card-body">
+                <div class="table-responsive">
                 <table class="table table-sm">
                     <tr>
                         <td>Maandelijkse lasten</td>
@@ -228,6 +231,7 @@ if (!empty($profile['emigration_date']) && !empty($profile['partner_date_of_birt
                         <td class="text-end">€ <?= number_format(($calculations['monthly_expenses'] ?? 0) + ($calculations['monthly_taxes'] ?? 0), 2, ',', '.') ?></td>
                     </tr>
                 </table>
+                </div>
             </div>
         </div>
     </div>

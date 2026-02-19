@@ -22,6 +22,7 @@
                 <h5 class="mb-0">Startpositie Nederland</h5>
             </div>
             <div class="card-body">
+                <div class="table-responsive">
                 <table class="table table-sm">
                     <tr>
                         <td>Verkoopprijs woning</td>
@@ -40,6 +41,7 @@
                         <td class="text-end">€ <?= number_format($scenarioData['start_position']['total_starting_capital'] ?? 0, 0, ',', '.') ?></td>
                     </tr>
                 </table>
+                </div>
             </div>
         </div>
     </div>
@@ -51,6 +53,7 @@
                 <h5 class="mb-0">Maandinkomen</h5>
             </div>
             <div class="card-body">
+                <div class="table-responsive">
                 <table class="table table-sm">
                     <tr>
                         <td>WIA vrouw</td>
@@ -77,6 +80,7 @@
                         ) ?></td>
                     </tr>
                 </table>
+                </div>
             </div>
         </div>
     </div>

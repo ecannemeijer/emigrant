@@ -63,6 +63,7 @@
             <div class="card-body">
                 <h5 class="card-title">Berekening</h5>
                 <?php if ($startPosition): ?>
+                    <div class="table-responsive">
                     <table class="table table-sm">
                         <tr>
                             <td>Verkoopprijs</td>
@@ -85,6 +86,7 @@
                             <td class="text-end">€ <?= number_format($startPosition['total_starting_capital'] ?? 0, 0, ',', '.') ?></td>
                         </tr>
                     </table>
+                    </div>
                 <?php else: ?>
                     <p class="text-muted">Vul de gegevens in om het totaal te zien</p>
                 <?php endif; ?>
