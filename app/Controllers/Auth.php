@@ -90,6 +90,36 @@ class Auth extends BaseController
                 'language' => 'nl',
             ]);
 
+            // Send welcome email (best effort — failure does not block registration)
+            try {
+                $emailService = \Config\Services::email();
+
+                // Use configured from address if present, otherwise fallback
+                $emailConfig = new \Config\Email();
+                $fromEmail = $emailConfig->fromEmail ?: ('no-reply@' . (parse_url(base_url(), PHP_URL_HOST) ?? 'localhost'));
+                $fromName  = $emailConfig->fromName ?: 'Emigrant';
+
+                $emailService->setFrom($fromEmail, $fromName);
+                $emailService->setTo($userData['email']);
+                $emailService->setSubject('Welkom bij Emigrant — jouw account');
+                $emailService->setMailType('html');
+
+                $message = view('emails/welcome', [
+                    'username' => $userData['username'],
+                    'email' => $userData['email'],
+                    'loginUrl' => base_url('/login'),
+                    'profileUrl' => base_url('/profile'),
+                    'supportEmail' => $fromEmail,
+                ]);
+
+                $emailService->setMessage($message);
+                if (! $emailService->send()) {
+                    log_message('error', 'Welcome email failed: ' . json_encode($emailService->printDebugger(['headers'])));
+                }
+            } catch (\Throwable $e) {
+                log_message('error', 'Failed to send welcome email: ' . $e->getMessage());
+            }
+
             return redirect()->to('/login')->with('success', 'Account aangemaakt! Je kunt nu inloggen.');
         }
 
