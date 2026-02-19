@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Models\UserModel;
 use App\Models\UserProfileModel;
+use App\Models\AuditLogModel;
 
 class Admin extends BaseController
 {
@@ -143,5 +144,43 @@ class Admin extends BaseController
         $userModel->delete($userId);
 
         return redirect()->to('/admin/users')->with('success', 'Gebruiker verwijderd!');
+    }
+
+    public function auditLogs()
+    {
+        $auditModel = new AuditLogModel();
+        $userModel  = new UserModel();
+
+        $filterUserId = $this->request->getGet('user_id');
+        $perPage      = 100;
+
+        $result = $auditModel->getLogs($perPage, $filterUserId ?: null);
+
+        $data = [
+            'title'      => 'Audit Log',
+            'logs'       => $result['logs'],
+            'pager'      => $result['pager'],
+            'users'      => $auditModel->getLoggedUsers(),
+            'filterUser' => $filterUserId,
+        ];
+
+        return view('admin/audit_logs', $data);
+    }
+
+    public function clearAuditLogs()
+    {
+        $auditModel = new AuditLogModel();
+        $auditModel->clearAll();
+
+        return redirect()->to('/admin/audit-logs')->with('success', 'Audit log geleegd.');
+    }
+
+    public function deleteOldLogs()
+    {
+        $days = (int) ($this->request->getPost('days') ?? 90);
+        $auditModel = new AuditLogModel();
+        $deleted = $auditModel->deleteOlderThan($days);
+
+        return redirect()->to('/admin/audit-logs')->with('success', "{$deleted} log regels ouder dan {$days} dagen verwijderd.");
     }
 }

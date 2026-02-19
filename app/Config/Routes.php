@@ -96,6 +96,9 @@ $routes->group('admin', ['filter' => 'admin'], function ($routes) {
     $routes->get('users/edit/(:num)', 'Admin::editUser/$1');
     $routes->post('users/update/(:num)', 'Admin::updateUser/$1');
     $routes->post('users/delete/(:num)', 'Admin::deleteUser/$1');
+    $routes->get('audit-logs', 'Admin::auditLogs');
+    $routes->post('audit-logs/clear', 'Admin::clearAuditLogs');
+    $routes->post('audit-logs/delete-old', 'Admin::deleteOldLogs');
 });
 
 /*

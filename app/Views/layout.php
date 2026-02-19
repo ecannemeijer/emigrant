@@ -357,6 +357,23 @@
                                     <i class="bi bi-download"></i> Export CSV
                                 </a>
                             </li>
+                            
+                            <?php if (session()->get('role') === 'admin'): ?>
+                            <li class="nav-item mt-3">
+                                <hr>
+                                <small class="text-muted px-3">Admin</small>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link <?= strpos(uri_string(), 'admin/users') !== false ? 'active' : '' ?>" href="/admin/users">
+                                    <i class="bi bi-people"></i> Gebruikersbeheer
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link <?= strpos(uri_string(), 'admin/audit-logs') !== false ? 'active' : '' ?>" href="/admin/audit-logs">
+                                    <i class="bi bi-journal-text"></i> Audit Log
+                                </a>
+                            </li>
+                            <?php endif; ?>
                         </ul>
                     </div>
                 </nav>
@@ -433,6 +450,23 @@
                                     <i class="bi bi-download"></i> Export CSV
                                 </a>
                             </li>
+                            
+                            <?php if (session()->get('role') === 'admin'): ?>
+                            <li class="nav-item mt-3">
+                                <hr>
+                                <small class="text-muted px-3">Admin</small>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link <?= strpos(uri_string(), 'admin/users') !== false ? 'active' : '' ?>" href="/admin/users" data-bs-dismiss="offcanvas">
+                                    <i class="bi bi-people"></i> Gebruikersbeheer
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link <?= strpos(uri_string(), 'admin/audit-logs') !== false ? 'active' : '' ?>" href="/admin/audit-logs" data-bs-dismiss="offcanvas">
+                                    <i class="bi bi-journal-text"></i> Audit Log
+                                </a>
+                            </li>
+                            <?php endif; ?>
                         </ul>
                     </div>
                 </div>
