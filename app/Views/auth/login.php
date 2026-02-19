@@ -10,6 +10,14 @@
                         <i class="bi bi-box-arrow-in-right"></i> Inloggen
                     </h2>
 
+                    <?php if (session()->getFlashdata('error')): ?>
+                        <div class="alert alert-danger"><?= esc(session()->getFlashdata('error')) ?></div>
+                    <?php endif ?>
+
+                    <?php if (session()->getFlashdata('success')): ?>
+                        <div class="alert alert-success"><?= esc(session()->getFlashdata('success')) ?></div>
+                    <?php endif ?>
+
                     <?php if (session()->has('errors')): ?>
                         <div class="alert alert-danger">
                             <?php foreach (session('errors') as $error): ?>

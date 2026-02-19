@@ -82,5 +82,6 @@ class Security extends BaseConfig
      *
      * @see https://codeigniter4.github.io/userguide/libraries/security.html#redirection-on-failure
      */
-    public bool $redirect = (ENVIRONMENT === 'production');
+    // Redirect back with friendly message on CSRF failure (development + production)
+    public bool $redirect = true;
 }
