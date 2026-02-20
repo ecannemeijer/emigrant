@@ -268,6 +268,147 @@ if (!empty($profile['emigration_date']) && !empty($profile['partner_date_of_birt
 </div>
 <?php endif; ?>
 
+<!-- What-If Slider Panel -->
+<?php if (!empty($yearlyProjections)): ?>
+<div class="row mt-4" id="whatIfSection">
+    <div class="col-12">
+        <div class="card border-warning">
+            <div class="card-header bg-warning bg-opacity-15 d-flex justify-content-between align-items-center" 
+                 style="cursor:pointer" data-bs-toggle="collapse" data-bs-target="#whatIfBody">
+                <h5 class="mb-0">
+                    <i class="bi bi-sliders"></i> What-If Analyse
+                    <small class="text-muted fw-normal ms-2">— pas waarden aan en zie direct de impact</small>
+                </h5>
+                <button class="btn btn-sm btn-outline-warning"><i class="bi bi-chevron-down"></i></button>
+            </div>
+            <div class="collapse" id="whatIfBody">
+                <div class="card-body">
+                    <div class="row g-4">
+                        <!-- Sliders -->
+                        <div class="col-lg-4">
+                            <h6 class="text-muted mb-3"><i class="bi bi-toggles"></i> Aanpassingen</h6>
+
+                            <div class="mb-3">
+                                <label class="form-label d-flex justify-content-between">
+                                    <span><i class="bi bi-cash-coin text-success"></i> Extra maandinkomen</span>
+                                    <strong class="text-success" id="wiExtraIncomeVal">€ 0</strong>
+                                </label>
+                                <input type="range" class="form-range" id="wiExtraIncome"
+                                       min="-3000" max="3000" step="50" value="0"
+                                       oninput="updateWhatIf()">
+                                <div class="d-flex justify-content-between"><small class="text-muted">-€ 3.000</small><small class="text-muted">+€ 3.000</small></div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label d-flex justify-content-between">
+                                    <span><i class="bi bi-wallet2 text-danger"></i> Extra maanduitgaven</span>
+                                    <strong class="text-danger" id="wiExtraExpensesVal">€ 0</strong>
+                                </label>
+                                <input type="range" class="form-range" id="wiExtraExpenses"
+                                       min="-1000" max="3000" step="25" value="0"
+                                       oninput="updateWhatIf()">
+                                <div class="d-flex justify-content-between"><small class="text-muted">-€ 1.000</small><small class="text-muted">+€ 3.000</small></div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label d-flex justify-content-between">
+                                    <span><i class="bi bi-percent text-primary"></i> Rente/rendement</span>
+                                    <strong class="text-primary" id="wiInterestVal"><?= $startPosition['interest_rate'] ?? 2 ?>%</strong>
+                                </label>
+                                <input type="range" class="form-range" id="wiInterest"
+                                       min="0" max="10" step="0.25"
+                                       value="<?= $startPosition['interest_rate'] ?? 2 ?>"
+                                       oninput="updateWhatIf()">
+                                <div class="d-flex justify-content-between"><small class="text-muted">0%</small><small class="text-muted">10%</small></div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label d-flex justify-content-between">
+                                    <span><i class="bi bi-graph-up text-warning"></i> Jaarlijkse inflatie uitgaven</span>
+                                    <strong class="text-warning" id="wiInflationVal">0%</strong>
+                                </label>
+                                <input type="range" class="form-range" id="wiInflation"
+                                       min="0" max="6" step="0.25" value="0"
+                                       oninput="updateWhatIf()">
+                                <div class="d-flex justify-content-between"><small class="text-muted">0%</small><small class="text-muted">6%</small></div>
+                            </div>
+
+                            <button class="btn btn-sm btn-outline-secondary w-100 mt-1" onclick="resetWhatIf()">
+                                <i class="bi bi-arrow-counterclockwise"></i> Reset
+                            </button>
+                        </div>
+
+                        <!-- Impact Summary -->
+                        <div class="col-lg-3">
+                            <h6 class="text-muted mb-3"><i class="bi bi-lightning"></i> Direct effect (jaar 1)</h6>
+                            <div class="card bg-light mb-2">
+                                <div class="card-body p-3">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="small">Maandinkomen</span>
+                                        <span class="fw-bold text-success" id="wi-income-1">—</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="small">Maanduitgaven</span>
+                                        <span class="fw-bold text-danger" id="wi-expenses-1">—</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="small">Belasting/mnd</span>
+                                        <span class="fw-bold text-warning" id="wi-taxes-1">—</span>
+                                    </div>
+                                    <hr class="my-2">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="small fw-bold">Netto/mnd</span>
+                                        <span class="fw-bold fs-6" id="wi-net-1">—</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center mt-1">
+                                        <span class="small text-muted">vs. origineel</span>
+                                        <span class="small fw-bold" id="wi-net-delta-1">—</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card border-primary mb-2">
+                                <div class="card-body p-3">
+                                    <div class="small text-muted mb-1">Kapitaal einde jaar 1</div>
+                                    <div class="fw-bold" id="wi-capital-1">—</div>
+                                    <div class="small text-muted mt-1">Kapitaal in 10 jaar</div>
+                                    <div class="fw-bold" id="wi-capital-10">—</div>
+                                </div>
+                            </div>
+                            <div id="wi-bankrupt-alert" class="alert alert-danger p-2 small d-none">
+                                <i class="bi bi-exclamation-triangle-fill"></i> <span id="wi-bankrupt-msg"></span>
+                            </div>
+                        </div>
+
+                        <!-- Mini projection table -->
+                        <div class="col-lg-5">
+                            <h6 class="text-muted mb-3"><i class="bi bi-table"></i> Projectie met aanpassingen
+                                <small class="fw-normal">(groen = beter, rood = slechter)</small>
+                            </h6>
+                            <div class="table-responsive">
+                                <table class="table table-sm table-bordered mb-0" style="font-size:0.8rem">
+                                    <thead class="table-dark">
+                                        <tr>
+                                            <th>Jaar</th>
+                                            <th>Lft</th>
+                                            <th class="text-end">Netto/mnd</th>
+                                            <th class="text-end">Δ Netto</th>
+                                            <th class="text-end">Vermogen</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="wi-table-body">
+                                        <tr><td colspan="5" class="text-center text-muted">Gebruik de sliders hierboven</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<?php endif; ?>
+
 <!-- Multi-Year Projection Table -->
 <?php if (!empty($yearlyProjections) && !empty($profile['date_of_birth'])): ?>
 
@@ -1398,5 +1539,153 @@ new Chart(capitalCtx, {
         }
     }
 });
+</script>
+
+<script>
+// ============================================================
+// WHAT-IF SLIDER ENGINE
+// ============================================================
+const wiBaseProjections = <?= json_encode(array_map(function($p) {
+    return [
+        'year'             => $p['year'],
+        'user_age'         => $p['user_age'] ?? '-',
+        'monthly_income'   => round($p['monthly_income'], 2),
+        'yearly_expenses'  => round($p['yearly_expenses'] ?? ($p['monthly_expenses'] ?? 0) * 12, 2),
+        'yearly_taxes'     => round($p['yearly_taxes'] ?? ($p['monthly_taxes'] ?? 0) * 12, 2),
+        'monthly_net'      => round($p['monthly_net'], 2),
+        'capital'          => round($p['capital'], 2),
+        'monthly_interest' => round($p['monthly_interest'] ?? 0, 2),
+    ];
+}, $yearlyProjections)) ?>;
+
+const wiBaseCapital     = <?= round($calculations['remaining_capital'] ?? 0, 2) ?>;
+const wiBaseInterest    = <?= round($startPosition['interest_rate'] ?? 2, 2) ?>;
+
+function wiFormat(val) {
+    const abs = Math.abs(val);
+    const str = '€\u00a0' + abs.toLocaleString('nl-NL', {minimumFractionDigits: 0, maximumFractionDigits: 0});
+    return val < 0 ? '-' + str : str;
+}
+
+function updateWhatIf() {
+    const extraIncome   = parseFloat(document.getElementById('wiExtraIncome').value);
+    const extraExpenses = parseFloat(document.getElementById('wiExtraExpenses').value);
+    const interestRate  = parseFloat(document.getElementById('wiInterest').value);
+    const inflation     = parseFloat(document.getElementById('wiInflation').value);
+
+    // Update labels
+    const fmtInc = (extraIncome >= 0 ? '+€ ' : '-€ ') + Math.abs(extraIncome).toLocaleString('nl-NL');
+    document.getElementById('wiExtraIncomeVal').textContent = fmtInc;
+    const fmtExp = (extraExpenses >= 0 ? '+€ ' : '-€ ') + Math.abs(extraExpenses).toLocaleString('nl-NL');
+    document.getElementById('wiExtraExpensesVal').textContent = fmtExp;
+    document.getElementById('wiInterestVal').textContent = interestRate.toFixed(2).replace('.', ',') + '%';
+    document.getElementById('wiInflationVal').textContent = inflation.toFixed(2).replace('.', ',') + '%';
+
+    // Recalculate projections
+    let capital = wiBaseCapital;
+    const results = [];
+    let bankruptYear = null;
+
+    for (let i = 0; i < wiBaseProjections.length; i++) {
+        const base = wiBaseProjections[i];
+        const inflationFactor = Math.pow(1 + inflation / 100, i);
+
+        // Base interest at original rate on current capital
+        const baseYearlyInterest = capital * (wiBaseInterest / 100);
+        // New interest at new rate
+        const newYearlyInterest  = capital * (interestRate / 100);
+        const interestDelta      = newYearlyInterest - baseYearlyInterest;
+
+        const origMonthlyInterest = base.monthly_interest;
+        const newMonthlyInterest  = origMonthlyInterest + interestDelta / 12;
+
+        const monthlyIncome   = base.monthly_income - origMonthlyInterest + newMonthlyInterest + extraIncome;
+        const monthlyExpenses = (base.yearly_expenses / 12) * inflationFactor + extraExpenses;
+        const monthlyTaxes    = base.yearly_taxes / 12;
+        const monthlyNet      = monthlyIncome - monthlyExpenses - monthlyTaxes;
+        const yearlyNet       = monthlyNet * 12;
+
+        capital += yearlyNet;
+
+        if (!bankruptYear && capital < 0) {
+            bankruptYear = base.year;
+        }
+
+        results.push({
+            year:          base.year,
+            user_age:      base.user_age,
+            monthly_income: monthlyIncome,
+            monthly_expenses: monthlyExpenses,
+            monthly_taxes:    monthlyTaxes,
+            monthly_net:   monthlyNet,
+            capital:       capital,
+            base_net:      base.monthly_net,
+            base_capital:  base.capital,
+        });
+    }
+
+    // Update summary cards (year 1)
+    const r0 = results[0];
+    if (r0) {
+        document.getElementById('wi-income-1').textContent    = wiFormat(r0.monthly_income);
+        document.getElementById('wi-expenses-1').textContent  = wiFormat(r0.monthly_expenses);
+        document.getElementById('wi-taxes-1').textContent     = wiFormat(r0.monthly_taxes);
+
+        const netEl   = document.getElementById('wi-net-1');
+        netEl.textContent = wiFormat(r0.monthly_net);
+        netEl.className   = 'fw-bold fs-6 ' + (r0.monthly_net >= 0 ? 'text-success' : 'text-danger');
+
+        const delta1 = r0.monthly_net - r0.base_net;
+        const deltaEl = document.getElementById('wi-net-delta-1');
+        deltaEl.textContent = (delta1 >= 0 ? '+' : '') + wiFormat(delta1) + '/mnd';
+        deltaEl.className   = 'small fw-bold ' + (delta1 >= 0 ? 'text-success' : 'text-danger');
+
+        document.getElementById('wi-capital-1').textContent  = wiFormat(r0.capital);
+
+        const r9 = results[Math.min(9, results.length - 1)];
+        document.getElementById('wi-capital-10').textContent = r9 ? wiFormat(r9.capital) : '—';
+    }
+
+    // Bankrupt alert
+    const alertEl = document.getElementById('wi-bankrupt-alert');
+    if (bankruptYear) {
+        document.getElementById('wi-bankrupt-msg').textContent = 'Vermogen raakt op in ' + bankruptYear + '!';
+        alertEl.classList.remove('d-none');
+    } else {
+        alertEl.classList.add('d-none');
+    }
+
+    // Build mini table (max 15 rows for readability)
+    const displayRows = results.slice(0, 15);
+    let html = '';
+    for (const r of displayRows) {
+        const netDelta    = r.monthly_net - r.base_net;
+        const capDelta    = r.capital - r.base_capital;
+        const netClass    = r.monthly_net >= 0 ? 'text-success' : 'text-danger';
+        const deltaClass  = netDelta >= 0 ? 'text-success' : 'text-danger';
+        const capClass    = r.capital < 0 ? 'text-danger fw-bold' : (capDelta >= 0 ? 'text-success' : 'text-danger');
+        const deltaStr    = (netDelta >= 0 ? '+' : '') + wiFormat(netDelta);
+
+        html += `<tr>
+            <td>${r.year}</td>
+            <td>${r.user_age}</td>
+            <td class="text-end ${netClass}">${wiFormat(r.monthly_net)}</td>
+            <td class="text-end ${deltaClass} small">${deltaStr}</td>
+            <td class="text-end ${capClass}">${wiFormat(r.capital)}</td>
+        </tr>`;
+    }
+    document.getElementById('wi-table-body').innerHTML = html;
+}
+
+function resetWhatIf() {
+    document.getElementById('wiExtraIncome').value   = 0;
+    document.getElementById('wiExtraExpenses').value = 0;
+    document.getElementById('wiInterest').value      = wiBaseInterest;
+    document.getElementById('wiInflation').value     = 0;
+    updateWhatIf();
+}
+
+// Init on page load if panel already open, trigger on panel open
+document.getElementById('whatIfBody')?.addEventListener('shown.bs.collapse', updateWhatIf);
 </script>
 <?= $this->endSection() ?>
