@@ -14,105 +14,49 @@ class PasswordReset extends BaseController
             return redirect()->to('/dashboard');
         }
 
-        return view('auth/forgot_password');
+        return view('auth/forgot_password', ['title' => 'Wachtwoord vergeten']);
     }
 
     public function sendResetLink()
     {
-        $email = $this->request->getPost('email');
+        $email = trim((string) $this->request->getPost('email'));
 
-        if (!RequestThrottle::allow('password-reset', 5, HOUR, is_string($email) ? $email : null)) {
-            return redirect()->to('/login')->with('success', 'Als dit e-mailadres bij een account hoort, ontvang je binnen enkele minuten een wachtwoord reset link.');
+        if (!RequestThrottle::allow('password-reset', 5, HOUR, $email !== '' ? $email : null)) {
+            return redirect()->to('/password-reset/forgot')->with('success', $this->successMessage());
         }
 
-        if (!$email || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            return redirect()->back()->with('error', 'Voer een geldig e-mailadres in.');
+        if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return redirect()->back()->withInput()->with('error', 'Voer een geldig e-mailadres in.');
         }
 
-        $userModel = new UserModel();
-        $user = $userModel->where('email', $email)->first();
-
-        // Always show success message (prevent user enumeration)
-        $successMessage = 'Als dit e-mailadres bij een account hoort, ontvang je binnen enkele minuten een wachtwoord reset link.';
-
-        if (!$user) {
-            // User doesn't exist, but don't reveal that
-            return redirect()->to('/login')->with('success', $successMessage);
+        $user = (new UserModel())->where('email', $email)->first();
+        if ($user) {
+            $this->createAndSendToken($user);
         }
 
-        // Generate secure token
-        $token = bin2hex(random_bytes(32));
-
-        // Store token in database
-        $db = \Config\Database::connect();
-        
-        // Delete old tokens for this email
-        $db->table('password_resets')->where('email', $email)->delete();
-        
-        // Insert new token
-        $db->table('password_resets')->insert([
-            'email' => $email,
-            'token' => password_hash($token, PASSWORD_DEFAULT),
-            'created_at' => Time::now()->toDateTimeString(),
-        ]);
-
-        // Send reset email
-        try {
-            $emailService = \Config\Services::email();
-
-            $emailService->setFrom($emailService->fromEmail, $emailService->fromName);
-            $emailService->setTo($email);
-            $emailService->setSubject('Wachtwoord resetten — Emigrant Platform');
-
-            $resetLink = base_url("password-reset/reset/{$token}");
-
-            $message = view('emails/password_reset', [
-                'username' => $user['username'],
-                'resetLink' => $resetLink,
-            ]);
-
-            $emailService->setMessage($message);
-
-            $textMessage = view('emails/password_reset_text', [
-                'username' => $user['username'],
-                'resetLink' => $resetLink,
-            ]);
-
-            $emailService->setAltMessage($textMessage);
-
-            if ($emailService->send()) {
-                log_message('info', "Password reset email sent to {$email}");
-            } else {
-                log_message('error', 'Password reset email failed: ' . $emailService->printDebugger(['headers', 'subject']));
-            }
-        } catch (\Throwable $e) {
-            log_message('error', 'Failed to send password reset email to ' . $email . ': ' . $e->getMessage());
-        }
-
-        return redirect()->to('/login')->with('success', $successMessage);
+        return redirect()->to('/password-reset/forgot')->with('success', $this->successMessage());
     }
 
     public function reset($token = null)
     {
-        if (!$token) {
-            return redirect()->to('/login')->with('error', 'Ongeldige reset link.');
+        if (session()->get('isLoggedIn')) {
+            return redirect()->to('/dashboard');
         }
 
-        $data = [
-            'title' => 'Wachtwoord resetten',
-            'token' => $token,
-        ];
+        $token = is_string($token) ? $token : '';
+        if ($token === '' || !$this->findValidReset($token)) {
+            return redirect()->to('/password-reset/forgot')->with('error', 'Deze resetlink is verlopen of ongeldig. Vraag een nieuwe aan.');
+        }
 
-        return view('auth/reset_password', $data);
+        return view('auth/reset_password', [
+            'title' => 'Wachtwoord wijzigen',
+            'token' => $token,
+        ]);
     }
 
     public function updatePassword()
     {
-        $token = $this->request->getPost('token');
-        $password = $this->request->getPost('password');
-        $passwordConfirm = $this->request->getPost('password_confirm');
-
-        // Validation
+        $token = (string) $this->request->getPost('token');
         $rules = [
             'password' => 'required|min_length[8]',
             'password_confirm' => 'required|matches[password]',
@@ -122,40 +66,96 @@ class PasswordReset extends BaseController
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
-        // Find valid token (created within last hour)
-        $db = \Config\Database::connect();
-        $resets = $db->table('password_resets')
-            ->where('created_at >', Time::now()->subHours(1)->toDateTimeString())
-            ->get()
-            ->getResultArray();
-
-        $validReset = null;
-        foreach ($resets as $reset) {
-            if (password_verify($token, $reset['token'])) {
-                $validReset = $reset;
-                break;
-            }
-        }
-
+        $validReset = $this->findValidReset($token);
         if (!$validReset) {
-            return redirect()->to('/password-reset/forgot')->with('error', 'Deze reset link is verlopen of ongeldig. Vraag een nieuw aan.');
+            return redirect()->to('/password-reset/forgot')->with('error', 'Deze resetlink is verlopen of ongeldig. Vraag een nieuwe aan.');
         }
 
-        // Update password
         $userModel = new UserModel();
         $user = $userModel->where('email', $validReset['email'])->first();
-
         if (!$user) {
             return redirect()->to('/login')->with('error', 'Gebruiker niet gevonden.');
         }
 
         $userModel->update($user['id'], [
-            'password' => $password, // Will be hashed by beforeUpdate callback
+            'password' => (string) $this->request->getPost('password'),
         ]);
 
-        // Delete used token
-        $db->table('password_resets')->where('email', $validReset['email'])->delete();
+        $this->resetsTable()->where('email', $validReset['email'])->delete();
 
-        return redirect()->to('/login')->with('success', 'Wachtwoord succesvol gewijzigd! Je kunt nu inloggen.');
+        return redirect()->to('/login')->with('success', 'Wachtwoord gewijzigd. Je kunt nu inloggen.');
+    }
+
+    private function successMessage(): string
+    {
+        return 'Als dit e-mailadres bij een account hoort, ontvang je binnen enkele minuten een link om je wachtwoord te wijzigen.';
+    }
+
+    private function createAndSendToken(array $user): void
+    {
+        $email = $user['email'];
+        $token = bin2hex(random_bytes(32));
+
+        try {
+            $table = $this->resetsTable();
+            $table->where('email', $email)->delete();
+            $table->insert([
+                'email' => $email,
+                'token' => hash('sha256', $token),
+                'created_at' => Time::now()->toDateTimeString(),
+            ]);
+        } catch (\Throwable $e) {
+            log_message('error', 'Password reset token store failed: ' . $e->getMessage());
+            return;
+        }
+
+        try {
+            $emailService = \Config\Services::email();
+            $emailService->setFrom($emailService->fromEmail, $emailService->fromName);
+            $emailService->setTo($email);
+            $emailService->setSubject('Wachtwoord wijzigen — Emigrant');
+            $emailService->setMailType('html');
+
+            $resetLink = base_url('password-reset/reset/' . $token);
+            $emailService->setMessage(view('emails/password_reset', [
+                'username' => $user['username'] ?? $email,
+                'resetLink' => $resetLink,
+            ]));
+            $emailService->setAltMessage(view('emails/password_reset_text', [
+                'username' => $user['username'] ?? $email,
+                'resetLink' => $resetLink,
+            ]));
+
+            if (!$emailService->send()) {
+                log_message('error', 'Password reset email failed: ' . $emailService->printDebugger(['headers', 'subject']));
+            }
+        } catch (\Throwable $e) {
+            log_message('error', 'Failed to send password reset email: ' . $e->getMessage());
+        }
+    }
+
+    private function findValidReset(string $token): ?array
+    {
+        if ($token === '' || !preg_match('/^[a-f0-9]{64}$/', $token)) {
+            return null;
+        }
+
+        try {
+            $row = $this->resetsTable()
+                ->where('token', hash('sha256', $token))
+                ->where('created_at >', Time::now()->subHours(1)->toDateTimeString())
+                ->get()
+                ->getRowArray();
+        } catch (\Throwable $e) {
+            log_message('error', 'Password reset lookup failed: ' . $e->getMessage());
+            return null;
+        }
+
+        return $row ?: null;
+    }
+
+    private function resetsTable()
+    {
+        return \Config\Database::connect()->table('password_resets');
     }
 }

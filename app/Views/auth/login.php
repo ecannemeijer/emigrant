@@ -35,11 +35,11 @@
                         </div>
 
                         <div class="mb-3">
-                            <label for="password" class="form-label">Wachtwoord</label>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <label for="password" class="form-label mb-0">Wachtwoord</label>
+                                <a href="/password-reset/forgot" class="small">Wachtwoord vergeten?</a>
+                            </div>
                             <input type="password" class="form-control" id="password" name="password" required>
-                            <small class="text-muted">
-                                <a href="/password-reset/forgot">Wachtwoord vergeten?</a>
-                            </small>
                         </div>
 
                         <div class="d-grid">

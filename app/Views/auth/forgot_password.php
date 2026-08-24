@@ -1,55 +1,35 @@
-<!DOCTYPE html>
-<html lang="nl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wachtwoord vergeten</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-</head>
-<body class="bg-light">
-    <div class="container">
-        <div class="row justify-content-center mt-5">
-            <div class="col-md-5">
-                <div class="card shadow">
-                    <div class="card-body p-4">
-                        <h3 class="text-center mb-4">
-                            <i class="bi bi-key"></i> Wachtwoord vergeten
-                        </h3>
+<?= $this->extend('layout') ?>
 
-                        <?php if (session()->getFlashdata('error')): ?>
-                            <div class="alert alert-danger alert-dismissible fade show">
-                                <?= esc(session()->getFlashdata('error')) ?>
-                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                            </div>
-                        <?php endif; ?>
+<?= $this->section('content') ?>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="card">
+                <div class="card-body p-5">
+                    <h2 class="card-title text-center mb-3">
+                        <i class="bi bi-key"></i> Wachtwoord vergeten
+                    </h2>
+                    <p class="text-muted text-center">Vul je e-mailadres in. Je ontvangt een link om een nieuw wachtwoord te kiezen. De link is 1 uur geldig.</p>
 
-                        <p class="text-muted">Voer je e-mailadres in. Als dit e-mailadres bij een account hoort, ontvang je een link om je wachtwoord te resetten.</p>
-
-                        <form action="/password-reset/send" method="post">
-                            <?= csrf_field() ?>
-
-                            <div class="mb-3">
-                                <label for="email" class="form-label">E-mailadres</label>
-                                <input type="email" class="form-control" id="email" name="email" required autofocus>
-                            </div>
-
-                            <button type="submit" class="btn btn-primary w-100">
-                                <i class="bi bi-envelope"></i> Verstuur reset link
+                    <form action="/password-reset/send" method="post">
+                        <?= csrf_field() ?>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">E-mailadres</label>
+                            <input type="email" class="form-control" id="email" name="email" value="<?= esc(old('email')) ?>" required autofocus>
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-envelope"></i> Stuur resetlink
                             </button>
-                        </form>
+                        </div>
+                    </form>
 
-                        <hr class="my-4">
-
-                        <p class="text-center mb-0">
-                            <a href="/login"><i class="bi bi-arrow-left"></i> Terug naar login</a>
-                        </p>
+                    <div class="text-center mt-3">
+                        <a href="/login"><i class="bi bi-arrow-left"></i> Terug naar inloggen</a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+</div>
+<?= $this->endSection() ?>

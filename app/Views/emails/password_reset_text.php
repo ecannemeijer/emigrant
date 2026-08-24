@@ -2,7 +2,7 @@ Wachtwoord resetten
 
 Hallo <?= esc($username) ?>,
 
-Je hebt een verzoek ingediend om je wachtwoord te resetten. Klik op onderstaande link om een nieuw wachtwoord in te stellen:
+Je hebt gevraagd om je wachtwoord te wijzigen. Open deze link (1 uur geldig):
 
 <?= esc($resetLink) ?>
 

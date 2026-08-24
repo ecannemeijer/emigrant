@@ -3,7 +3,7 @@
 
     <p>Hallo <?= esc($username) ?>,</p>
 
-    <p>Je hebt een verzoek ingediend om je wachtwoord te resetten. Klik op onderstaande knop om een nieuw wachtwoord in te stellen:</p>
+    <p>Je hebt gevraagd om je wachtwoord te wijzigen. Klik op de knop hieronder. De link is 1 uur geldig.</p>
 
     <p style="text-align: center; margin: 30px 0;">
         <a href="<?= esc($resetLink) ?>" 
