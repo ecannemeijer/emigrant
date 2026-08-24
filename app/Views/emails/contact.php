@@ -1,7 +1,7 @@
 <div style="font-family: Arial, Helvetica, sans-serif; color: #222; line-height:1.5;">
     <h2 style="color:#003366;">Nieuw contactformulier bericht</h2>
 
-    <p>Je hebt een nieuw bericht ontvangen via het Emigrant contactformulier:</p>
+    <p>Je hebt een nieuw bericht ontvangen via het EmigreerItalia-contactformulier:</p>
 
     <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
         <tr style="background: #f5f5f5;">

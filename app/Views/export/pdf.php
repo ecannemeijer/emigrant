@@ -17,7 +17,7 @@
         <button class="btn btn-primary" onclick="window.print()">Opslaan als PDF / printen</button>
         <a class="btn btn-outline-secondary" href="/dashboard">Terug</a>
     </div>
-    <h1>Emigratie Italië — financieel overzicht</h1>
+    <h1>EmigreerItalia — financieel overzicht</h1>
     <p><?= esc(($profile['first_name'] ?? '') . ' ' . ($profile['last_name'] ?? '')) ?> · <?= date('d-m-Y') ?></p>
 
     <?php if (!empty($warnings)): ?>

@@ -1,6 +1,6 @@
 Nieuw contactformulier bericht
 
-Je hebt een nieuw bericht ontvangen via het Emigrant contactformulier:
+Je hebt een nieuw bericht ontvangen via het EmigreerItalia-contactformulier:
 
 Naam: <?= esc($name) ?>
 

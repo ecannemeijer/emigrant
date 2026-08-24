@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= esc($title ?? 'Emigratie Calculator') ?> - Italië Calculator</title>
+    <title><?= esc($title ?? 'Home') ?> — EmigreerItalia</title>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="icon" href="/favicon.png" type="image/png" sizes="32x32">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -232,15 +232,20 @@
         }
     </style>
 </head>
-<body>
+<?php
+$isLoggedIn = (bool) session()->get('isLoggedIn');
+$homeUri = trim((string) uri_string(), '/');
+$isHome = $homeUri === '';
+?>
+<body class="<?= (!$isLoggedIn && $isHome) ? 'layout-marketing' : '' ?>">
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
         <div class="container-fluid">
-            <a class="navbar-brand" href="/">
-                <i class="bi bi-geo-alt-fill"></i> Emigratie Italië Calculator
+            <a class="navbar-brand" href="<?= $isLoggedIn ? '/dashboard' : '/' ?>">
+                <i class="bi bi-geo-alt-fill"></i> EmigreerItalia
             </a>
             
-            <?php if (session()->get('isLoggedIn')): ?>
+            <?php if ($isLoggedIn): ?>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                     <span class="navbar-toggler-icon"></span>
                 </button>
@@ -276,26 +281,24 @@
                 </button>
                 
                 <div class="collapse navbar-collapse" id="navbarNav">
-                    <ul class="navbar-nav ms-auto">
+                    <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-1">
                         <li class="nav-item">
-                            <a class="nav-link" href="/help">
-                                <i class="bi bi-question-circle"></i> Help
-                            </a>
+                            <a class="nav-link" href="/#features">Wat zit erin</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="/contact">
-                                <i class="bi bi-envelope"></i> Contact
-                            </a>
+                            <a class="nav-link" href="/#prijzen">Prijzen</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="/login">
-                                <i class="bi bi-box-arrow-in-right"></i> Inloggen
-                            </a>
+                            <a class="nav-link" href="/help">Help</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="/register">
-                                <i class="bi bi-person-plus"></i> Registreren
-                            </a>
+                            <a class="nav-link" href="/contact">Contact</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/login">Inloggen</a>
+                        </li>
+                        <li class="nav-item ms-lg-2">
+                            <a class="btn btn-success" href="/register">Gratis starten</a>
                         </li>
                     </ul>
                 </div>
@@ -305,7 +308,7 @@
 
     <div class="container-fluid">
         <div class="row">
-            <?php if (session()->get('isLoggedIn')): ?>
+            <?php if ($isLoggedIn): ?>
                 <!-- Desktop Sidebar (visible on md and up) -->
                 <nav class="col-md-2 d-none d-md-block sidebar">
                     <div class="position-sticky">
@@ -334,7 +337,7 @@
                 <!-- Main Content -->
                 <main class="col-md-10 ms-sm-auto px-md-4 py-4">
             <?php else: ?>
-                <main class="col-12 px-md-4 py-4">
+                <main class="col-12 px-md-4 py-4<?= $isHome ? ' mkt-main' : '' ?>">
             <?php endif; ?>
             
                     <!-- Flash Messages -->
@@ -370,7 +373,7 @@
                         </div>
                     <?php endif; ?>
 
-                    <?php if (session()->get('isLoggedIn')): ?>
+                    <?php if ($isLoggedIn): ?>
                         <?= view('partials/wizard') ?>
                     <?php endif; ?>
 

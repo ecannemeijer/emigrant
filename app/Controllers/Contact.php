@@ -43,7 +43,7 @@ class Contact extends BaseController
             $emailService->setFrom($emailService->fromEmail, $emailService->fromName);
             $emailService->setReplyTo($email, $name);
             $emailService->setTo('e.cannemeijer@gmail.com');
-            $emailService->setSubject("[Emigrant Contact] {$subject}");
+            $emailService->setSubject("[EmigreerItalia Contact] {$subject}");
 
             $emailMessage = view('emails/contact', [
                 'name' => $name,

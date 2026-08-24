@@ -1,4 +1,4 @@
-Welkom bij Emigrant, <?= esc($username) ?>!
+Welkom bij EmigreerItalia, <?= esc($username) ?>!
 
 Je account is aangemaakt met het e-mailadres <?= esc($email) ?>.
 
@@ -15,4 +15,4 @@ Handige links:
 Heb je vragen of hulp nodig? Antwoord op deze e-mail of contacteer <?= esc($supportEmail) ?>.
 
 Met vriendelijke groet,
-Het Emigrant team
+Het EmigreerItalia-team

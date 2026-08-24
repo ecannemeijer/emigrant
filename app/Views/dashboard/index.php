@@ -1017,7 +1017,7 @@ document.addEventListener('DOMContentLoaded', function() {
         doc.setTextColor(255, 255, 255);
         doc.setFontSize(22);
         doc.setFont(undefined, 'bold');
-        doc.text('Financieel Emigratieplan', margin, 20);
+        doc.text('EmigreerItalia — financieel plan', margin, 20);
         doc.setFontSize(11);
         doc.setFont(undefined, 'normal');
         doc.text('Gegenereerd op ' + new Date().toLocaleDateString('nl-NL'), margin, 28);

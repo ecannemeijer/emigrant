@@ -6,9 +6,10 @@
         <div class="col-md-5">
             <div class="card">
                 <div class="card-body p-5">
-                    <h2 class="card-title text-center mb-4">
+                    <h2 class="card-title text-center mb-2">
                         <i class="bi bi-box-arrow-in-right"></i> Inloggen
                     </h2>
+                    <p class="text-center text-muted mb-4">Welkom terug bij EmigreerItalia</p>
 
                     <?php if (session()->getFlashdata('error')): ?>
                         <div class="alert alert-danger"><?= esc(session()->getFlashdata('error')) ?></div>
@@ -48,7 +49,8 @@
                     </form>
 
                     <div class="text-center mt-3">
-                        <p>Nog geen account? <a href="/register">Registreer hier</a></p>
+                        <p>Nog geen account? <a href="/register">Gratis starten</a></p>
+                        <p class="mb-0"><a href="/">Terug naar EmigreerItalia</a></p>
                     </div>
                 </div>
             </div>

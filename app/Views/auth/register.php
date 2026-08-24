@@ -6,9 +6,16 @@
         <div class="col-md-6">
             <div class="card">
                 <div class="card-body p-5">
-                    <h2 class="card-title text-center mb-4">
-                        <i class="bi bi-person-plus"></i> Registreren
+                    <h2 class="card-title text-center mb-2">
+                        <i class="bi bi-person-plus"></i> Account maken
                     </h2>
+                    <p class="text-center text-muted mb-4">
+                        <?php if (!empty($freeMonth)): ?>
+                            De eerste maand kun je EmigreerItalia gratis proberen.
+                        <?php else: ?>
+                            Maak een account en reken je emigratie naar Italië door.
+                        <?php endif; ?>
+                    </p>
 
                     <?php if (session()->has('errors')): ?>
                         <div class="alert alert-danger">
@@ -44,7 +51,8 @@
                     </form>
 
                     <div class="text-center mt-3">
-                        <p>Al een account? <a href="/login">Login hier</a></p>
+                        <p>Al een account? <a href="/login">Inloggen</a></p>
+                        <p class="mb-0"><a href="/">Terug naar EmigreerItalia</a></p>
                     </div>
                 </div>
             </div>

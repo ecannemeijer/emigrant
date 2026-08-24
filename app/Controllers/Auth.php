@@ -15,7 +15,7 @@ class Auth extends BaseController
             return redirect()->to('/dashboard');
         }
 
-        return view('auth/login');
+        return view('auth/login', ['title' => 'Inloggen']);
     }
 
     public function attemptLogin()
@@ -70,7 +70,17 @@ class Auth extends BaseController
             return redirect()->to('/dashboard');
         }
 
-        return view('auth/register');
+        $freeMonth = true;
+        try {
+            $freeMonth = !(new BillingService())->isBillingEnabled();
+        } catch (\Throwable $e) {
+            $freeMonth = true;
+        }
+
+        return view('auth/register', [
+            'title' => 'Account maken',
+            'freeMonth' => $freeMonth,
+        ]);
     }
 
     public function attemptRegister()
@@ -121,7 +131,7 @@ class Auth extends BaseController
 
                 $emailService->setFrom($emailService->fromEmail, $emailService->fromName);
                 $emailService->setTo($userData['email']);
-                $emailService->setSubject('Welkom bij Emigrant — jouw account is aangemaakt');
+                $emailService->setSubject('Welkom bij EmigreerItalia — jouw account is aangemaakt');
 
                 $emailData = [
                     'username' => $userData['username'],

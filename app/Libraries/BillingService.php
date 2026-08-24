@@ -341,14 +341,14 @@ class BillingService
             'intent' => 'CAPTURE',
             'purchase_units' => [[
                 'custom_id' => $userId . ':' . $plan,
-                'description' => $label . ' Emigrant',
+                'description' => $label . ' EmigreerItalia',
                 'amount' => [
                     'currency_code' => $currency,
                     'value' => $amount,
                 ],
             ]],
             'application_context' => [
-                'brand_name' => 'Emigrant',
+                'brand_name' => 'EmigreerItalia',
                 'landing_page' => 'NO_PREFERENCE',
                 'user_action' => 'PAY_NOW',
                 'return_url' => site_url('subscription/return'),

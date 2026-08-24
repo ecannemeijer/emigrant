@@ -21,5 +21,5 @@
 
     <p style="color: #666; font-size: 0.9em;">Heb je geen wachtwoord reset aangevraagd? Negeer deze e-mail dan. Je wachtwoord blijft ongewijzigd.</p>
 
-    <p style="color:#666; font-size:0.9em; margin-top: 30px;">Met vriendelijke groet,<br/>Het Emigrant team</p>
+    <p style="color:#666; font-size:0.9em; margin-top: 30px;">Met vriendelijke groet,<br/>Het EmigreerItalia-team</p>
 </div>

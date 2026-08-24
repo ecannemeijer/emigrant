@@ -113,7 +113,7 @@ class PasswordReset extends BaseController
             $emailService = \Config\Services::email();
             $emailService->setFrom($emailService->fromEmail, $emailService->fromName);
             $emailService->setTo($email);
-            $emailService->setSubject('Wachtwoord wijzigen — Emigrant');
+            $emailService->setSubject('Wachtwoord wijzigen — EmigreerItalia');
             $emailService->setMailType('html');
 
             $resetLink = base_url('password-reset/reset/' . $token);

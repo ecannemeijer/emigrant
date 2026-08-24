@@ -1,5 +1,5 @@
 <div style="font-family: Arial, Helvetica, sans-serif; color: #222; line-height:1.5;">
-    <h2 style="color:#003366;">Welkom bij Emigrant, <?= esc($username) ?>!</h2>
+    <h2 style="color:#003366;">Welkom bij EmigreerItalia, <?= esc($username) ?>!</h2>
 
     <p>Je account is aangemaakt met het e-mailadres <strong><?= esc($email) ?></strong>.</p>
 
@@ -18,5 +18,5 @@
 
     <p>Heb je vragen of hulp nodig? Antwoord op deze e-mail of contacteer <a href="mailto:<?= esc($supportEmail) ?>"><?= esc($supportEmail) ?></a>.</p>
 
-    <p style="color:#666; font-size:0.9em;">Met vriendelijke groet,<br/>Het Emigrant team</p>
+    <p style="color:#666; font-size:0.9em;">Met vriendelijke groet,<br/>Het EmigreerItalia-team</p>
 </div>

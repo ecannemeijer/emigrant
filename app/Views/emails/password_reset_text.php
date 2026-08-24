@@ -11,4 +11,4 @@ Deze link is 1 uur geldig.
 Heb je geen wachtwoord reset aangevraagd? Negeer deze e-mail dan. Je wachtwoord blijft ongewijzigd.
 
 Met vriendelijke groet,
-Het Emigrant team
+Het EmigreerItalia-team

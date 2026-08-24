@@ -70,7 +70,7 @@ class CalendarExport
         $lines = [
             'BEGIN:VCALENDAR',
             'VERSION:2.0',
-            'PRODID:-//Emigrant//Planning//NL',
+            'PRODID:-//EmigreerItalia//Planning//NL',
             'CALSCALE:GREGORIAN',
             'METHOD:PUBLISH',
             'BEGIN:VEVENT',

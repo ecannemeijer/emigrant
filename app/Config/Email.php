@@ -90,7 +90,7 @@ class Email extends BaseConfig
         
         // Load from environment variables
         $this->fromEmail = env('email.fromEmail', 'no-reply@emigrant.local');
-        $this->fromName = env('email.fromName', 'Emigrant Platform');
+        $this->fromName = env('email.fromName', 'EmigreerItalia');
         
         // Protocol: use 'mail' for Postfix on server, 'smtp' for external SMTP
         $this->protocol = env('email.protocol', 'mail');

@@ -3,7 +3,7 @@
 <?= $this->section('content') ?>
 <div class="mb-4">
     <h1><i class="bi bi-question-circle"></i> Help & Documentatie</h1>
-    <p class="text-muted">Uitgebreide handleiding voor het gebruik van de Emigrant Calculator</p>
+    <p class="text-muted">Handleiding voor EmigreerItalia</p>
 </div>
 
 <!-- Search Box -->
@@ -44,7 +44,7 @@
             <!-- Getting Started -->
             <div class="help-section" id="getting-started" data-keywords="beginnen starten eerste stap nieuw account registreren aanmelden">
                 <h2><i class="bi bi-play-circle"></i> Aan de slag</h2>
-                <p>Welkom bij de Emigrant Calculator! Deze tool helpt je om je financiële situatie na emigratie naar Italië door te rekenen.</p>
+                <p>Welkom bij EmigreerItalia. Deze tool helpt je om je financiële situatie na emigratie naar Italië door te rekenen.</p>
                 
                 <h4>Eerste stappen</h4>
                 <ol>
