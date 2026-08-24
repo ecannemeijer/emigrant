@@ -65,13 +65,14 @@ class Dashboard extends BaseController
 
         $raw['start_position'] = $raw['start_position'] ?? [];
         $raw['start_position']['renovation_outlay'] = 0;
+        $raw['start_position']['renovation_by_year'] = [];
         try {
             $renoSettings = (new RenovationSettingModel())->getByUserId($userId);
             $renoModel = new RenovationItemModel();
-            $raw['start_position']['renovation_outlay'] = $renoModel->capitalOutlay(
-                $userId,
-                (float) ($renoSettings['contingency_percent'] ?? 10)
-            );
+            $contingency = (float) ($renoSettings['contingency_percent'] ?? 10);
+            $byYear = $renoModel->outlayByYear($userId, $contingency, (int) date('Y'));
+            $raw['start_position']['renovation_by_year'] = $byYear;
+            $raw['start_position']['renovation_outlay'] = array_sum($byYear);
         } catch (\Throwable $e) {
             // Tabellen nog niet gemigreerd.
         }

@@ -121,4 +121,48 @@ class RenovationItemModel extends Model
 
         return (float) $totals['capital'];
     }
+
+    public function plannedYear(array $item, int $fallbackYear): int
+    {
+        if (!empty($item['planned_date']) && preg_match('/^(\d{4})/', (string) $item['planned_date'], $m)) {
+            return (int) $m[1];
+        }
+        if (!empty($item['planned_year'])) {
+            return (int) $item['planned_year'];
+        }
+
+        return $fallbackYear;
+    }
+
+    public function includedAmount(array $item, float $contingencyPercent = 10.0): float
+    {
+        if (($item['status'] ?? '') === 'skipped' || empty($item['include_in_capital'])) {
+            return 0.0;
+        }
+        $line = $this->lineCost($item);
+        $isDone = ($item['status'] ?? '') === 'done' || (float) ($item['actual_cost'] ?? 0) > 0;
+        if (!$isDone) {
+            $line += (float) ($item['estimated_cost'] ?? 0) * ($contingencyPercent / 100);
+        }
+
+        return $line;
+    }
+
+    /**
+     * @return array<int, float> year => amount from remaining capital
+     */
+    public function outlayByYear(int $userId, float $contingencyPercent, int $fallbackYear): array
+    {
+        $byYear = [];
+        foreach ($this->forUser($userId) as $item) {
+            $amount = $this->includedAmount($item, $contingencyPercent);
+            if ($amount <= 0) {
+                continue;
+            }
+            $year = $this->plannedYear($item, $fallbackYear);
+            $byYear[$year] = ($byYear[$year] ?? 0.0) + $amount;
+        }
+
+        return $byYear;
+    }
 }

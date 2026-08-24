@@ -271,10 +271,20 @@ class FinanceCalculator
         $commissionPct = ((float) ($bnbExpenses['platform_commission'] ?? 0)) / 100;
 
         $startingCapital  = $this->calculateStartingCapital($startPosition);
+        $renoByYear = $startPosition['renovation_by_year'] ?? [];
+        if ((!is_array($renoByYear) || $renoByYear === []) && (float) ($startPosition['renovation_outlay'] ?? 0) > 0) {
+            $renoByYear = [$referenceYear => (float) $startPosition['renovation_outlay']];
+        }
+        $pastRenovation = 0.0;
+        foreach ($renoByYear as $renoYear => $renoAmount) {
+            if ((int) $renoYear < $referenceYear) {
+                $pastRenovation += (float) $renoAmount;
+            }
+        }
         $remainingCapital = $startingCapital
             - $this->calculatePropertyOutlay($mainProperty)
             - $this->calculatePropertyOutlay($secondProperty)
-            - (float) ($startPosition['renovation_outlay'] ?? 0);
+            - $pastRenovation;
 
         $interestRate  = (float) ($startPosition['interest_rate'] ?? 2);
         $inflationRate = (float) ($startPosition['inflation_rate'] ?? 0);
@@ -356,7 +366,9 @@ class FinanceCalculator
                 $year0 = $cf;
             }
 
-            $yearlyNet = $cf['monthly_net'] * 12;
+            $renoThisYear = (float) ($renoByYear[$year] ?? 0);
+            $yearlyCashflow = $cf['monthly_net'] * 12;
+            $yearlyNet = $yearlyCashflow - $renoThisYear;
             $capital  += $yearlyNet;
 
             $projections[] = [
@@ -382,7 +394,9 @@ class FinanceCalculator
                 'yearly_expenses' => $cf['monthly_expenses'] * 12,
                 'yearly_taxes' => $cf['monthly_taxes'] * 12,
                 'yearly_net' => $yearlyNet,
-                'yearly_net_without_bnb' => $cfWithoutBnb['monthly_net'] * 12,
+                'yearly_cashflow' => $yearlyCashflow,
+                'renovation_outlay' => $renoThisYear,
+                'yearly_net_without_bnb' => $cfWithoutBnb['monthly_net'] * 12 - $renoThisYear,
                 'capital' => $capital,
                 'has_partner_aow' => $cf['has_partner_aow'],
                 'has_partner_income' => $cf['has_partner_income'],

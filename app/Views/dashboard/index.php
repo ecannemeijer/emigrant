@@ -32,7 +32,7 @@
                 <div class="stat-label">Resterend Vermogen</div>
                 <div class="stat-value">€ <?= number_format($calculations['remaining_capital'] ?? 0, 0, ',', '.') ?></div>
                 <div class="small text-muted">
-                    Verbouw afgetrokken: € <?= number_format($calculations['renovation_outlay'] ?? 0, 0, ',', '.') ?>
+                    Verbouw in de projectie: € <?= number_format($calculations['renovation_outlay'] ?? 0, 0, ',', '.') ?>
                     <a href="/renovation" class="ms-1">begroting</a>
                 </div>
             </div>
@@ -347,6 +347,8 @@ $partnerNameDash = trim($profile['partner_name'] ?? '') !== '' ? $profile['partn
                                 data-monthly-taxes="<?= $projection['yearly_taxes'] / 12 ?>"
                                 data-monthly-net="<?= $projection['monthly_net'] ?>"
                                 data-yearly-net="<?= $projection['yearly_net'] ?>"
+                                data-yearly-cashflow="<?= $projection['yearly_cashflow'] ?? $projection['yearly_net'] ?>"
+                                data-renovation="<?= $projection['renovation_outlay'] ?? 0 ?>"
                                 data-capital="<?= $projection['capital'] ?>"
                                 data-has-partner-retired="<?= !empty($projection['has_partner_retired']) || !empty($projection['has_partner_retired']) ? 'true' : 'false' ?>"
                                 data-has-user-retired="<?= !empty($projection['has_user_retired']) || !empty($projection['has_user_retired']) ? 'true' : 'false' ?>"
@@ -372,6 +374,9 @@ $partnerNameDash = trim($profile['partner_name'] ?? '') !== '' ? $profile['partn
                                     <strong>€ <?= number_format($projection['capital'], 0, ',', '.') ?></strong>
                                 </td>
                                 <td class="text-center">
+                                    <?php if (($projection['renovation_outlay'] ?? 0) > 0): ?>
+                                        <span class="badge bg-dark" title="Verbouw: € <?= number_format($projection['renovation_outlay'], 0, ',', '.') ?>">Verbouw</span>
+                                    <?php endif; ?>
                                     <?php if (!empty($projection['has_own_wia']) && $ownWiaAmount > 0): ?>
                                         <span class="badge bg-success" title="WIA <?= esc($youNameDash) ?>: € <?= number_format($ownWiaAmount, 0, ',', '.') ?>/mnd">WIA <?= esc($youNameDash) ?></span>
                                     <?php elseif (!empty($projection['has_own_benefit']) && $ownBenefitAmount > 0): ?>
@@ -558,8 +563,16 @@ $partnerNameDash = trim($profile['partner_name'] ?? '') !== '' ? $profile['partn
                             <td class="text-end" id="modal-net-monthly"></td>
                         </tr>
                         <tr>
-                            <td>Netto per jaar</td>
+                            <td>Netto per jaar (cashflow)</td>
                             <td class="text-end" id="modal-net-yearly"></td>
+                        </tr>
+                        <tr id="modal-renovation-row" class="d-none">
+                            <td>Verbouwposten dit jaar (eenmalig)</td>
+                            <td class="text-end text-danger" id="modal-renovation"></td>
+                        </tr>
+                        <tr id="modal-net-after-reno-row" class="d-none">
+                            <td><strong>Netto na verbouw</strong></td>
+                            <td class="text-end" id="modal-net-after-reno"></td>
                         </tr>
                         <tr class="table-primary">
                             <td><strong>Totaal Vermogen eind jaar</strong></td>
@@ -573,6 +586,7 @@ $partnerNameDash = trim($profile['partner_name'] ?? '') !== '' ? $profile['partn
                     <i class="bi bi-info-circle"></i>
                     <strong>Berekening:</strong> Bij deze berekening is rekening gehouden met emigratiereductie op AOW rechten. 
                     Het vermogen wordt berekend door het netto jaarbedrag op te tellen bij het vermogen van het vorige jaar.
+                    Verbouwposten gaan in het geplande jaar van het vermogen af.
                 </div>
             </div>
             <div class="modal-footer">
@@ -735,6 +749,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 monthlyTaxes: parseFloat(this.dataset.monthlyTaxes),
                 monthlyNet: parseFloat(this.dataset.monthlyNet),
                 yearlyNet: parseFloat(this.dataset.yearlyNet),
+                yearlyCashflow: parseFloat(this.dataset.yearlyCashflow || this.dataset.yearlyNet),
+                renovation: parseFloat(this.dataset.renovation || '0'),
                 capital: parseFloat(this.dataset.capital),
                 hasPartnerRetired: this.dataset.hasPartnerRetired === 'true',
                 hasUserRetired: this.dataset.hasUserRetired === 'true'
@@ -941,8 +957,24 @@ document.addEventListener('DOMContentLoaded', function() {
         netMonthlyElement.className = 'text-end ' + (data.monthlyNet >= 0 ? 'text-success' : 'text-danger');
         
         const netYearlyElement = document.getElementById('modal-net-yearly');
-        netYearlyElement.textContent = '€ ' + formatNumber(data.yearlyNet);
-        netYearlyElement.className = 'text-end ' + (data.yearlyNet >= 0 ? 'text-success' : 'text-danger');
+        const cashflow = Number.isFinite(data.yearlyCashflow) ? data.yearlyCashflow : data.yearlyNet;
+        netYearlyElement.textContent = '€ ' + formatNumber(cashflow);
+        netYearlyElement.className = 'text-end ' + (cashflow >= 0 ? 'text-success' : 'text-danger');
+
+        const renoRow = document.getElementById('modal-renovation-row');
+        const afterRow = document.getElementById('modal-net-after-reno-row');
+        const reno = data.renovation || 0;
+        if (reno > 0) {
+            renoRow.classList.remove('d-none');
+            afterRow.classList.remove('d-none');
+            document.getElementById('modal-renovation').textContent = '€ ' + formatNumber(reno);
+            const afterEl = document.getElementById('modal-net-after-reno');
+            afterEl.textContent = '€ ' + formatNumber(data.yearlyNet);
+            afterEl.className = 'text-end ' + (data.yearlyNet >= 0 ? 'text-success' : 'text-danger');
+        } else {
+            renoRow.classList.add('d-none');
+            afterRow.classList.add('d-none');
+        }
         
         const capitalElement = document.getElementById('modal-capital');
         capitalElement.textContent = '€ ' + formatNumber(data.capital);
@@ -1370,6 +1402,7 @@ const wiBaseProjections = <?= json_encode(array_map(function($p) {
         'yearly_expenses'  => round($p['yearly_expenses'] ?? ($p['monthly_expenses'] ?? 0) * 12, 2),
         'yearly_taxes'     => round($p['yearly_taxes'] ?? ($p['monthly_taxes'] ?? 0) * 12, 2),
         'monthly_net'      => round($p['monthly_net'], 2),
+        'renovation_outlay'=> round($p['renovation_outlay'] ?? 0, 2),
         'capital'          => round($p['capital'], 2),
         'monthly_interest' => round($p['monthly_interest'] ?? 0, 2),
         'inflator'         => $p['inflator'] ?? 1,
@@ -1425,7 +1458,7 @@ function updateWhatIf() {
         const monthlyExpenses = ((base.yearly_expenses / 12) / origFactor) * inflationFactor + extraExpenses;
         const monthlyTaxes    = ((base.yearly_taxes / 12) / origFactor) * inflationFactor;
         const monthlyNet      = monthlyIncome - monthlyExpenses - monthlyTaxes;
-        const yearlyNet       = monthlyNet * 12;
+        const yearlyNet       = monthlyNet * 12 - (base.renovation_outlay || 0);
 
         capital += yearlyNet;
 

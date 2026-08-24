@@ -64,6 +64,7 @@ class FinanceDataMapper
             'interest_rate' => $row['interest_rate'] ?? $row['interest_rate'] ?? 2,
             'inflation_rate' => $row['inflation_rate'] ?? $row['inflation_rate'] ?? 0,
             'renovation_outlay' => $row['renovation_outlay'] ?? 0,
+            'renovation_by_year' => $row['renovation_by_year'] ?? [],
         ];
     }
 

@@ -147,5 +147,31 @@ check(($aowSplit['yearlyProjections'][0]['own_aow_amount'] ?? 0) > 0, 'own AOW s
 check(($aowSplit['yearlyProjections'][0]['wia_amount'] ?? 0) > 0, 'partner WIA still running at 62');
 check(($aowSplit['yearlyProjections'][0]['partner_aow_amount'] ?? 0) == 0, 'partner AOW not yet');
 
+$reno = $calc->analyze([
+    'profile' => [
+        'date_of_birth' => '1970-01-01',
+        'retirement_age' => 67,
+    ],
+    'start_position' => [
+        'house_sale_price' => 0,
+        'savings' => 100000,
+        'interest_rate' => 0,
+        'inflation_rate' => 0,
+        'renovation_by_year' => [2027 => 20000],
+        'renovation_outlay' => 20000,
+    ],
+    'income' => ['own_income' => 0],
+    'expenses' => [],
+    'taxes' => [],
+    'bnb_settings' => [],
+    'bnb_expenses' => [],
+], 2026);
+$reno0 = $reno['yearlyProjections'][0];
+$reno1 = $reno['yearlyProjections'][1];
+check(abs(($reno0['renovation_outlay'] ?? 0) - 0) < 0.01, 'no renovation in 2026');
+check(abs(($reno1['renovation_outlay'] ?? 0) - 20000) < 0.01, 'renovation 20000 in 2027');
+check(abs(($reno['calculations']['remaining_capital'] ?? 0) - 100000) < 0.01, 'remaining still 100000 before 2027 reno');
+check(abs(($reno1['capital'] ?? 0) - 80000) < 0.01, 'capital after 2027 reno '.$reno1['capital']);
+
 echo $fail === 0 ? "\nAll good\n" : "\n$fail failed\n";
 exit($fail === 0 ? 0 : 1);
