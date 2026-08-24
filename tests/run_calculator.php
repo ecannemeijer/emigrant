@@ -59,5 +59,34 @@ $result = $calc->analyze([
 ], 2026);
 check(($result['yearlyProjections'][0]['year'] ?? 0) === 2026, 'projection starts 2026');
 
+$wia = $calc->analyze([
+    'profile' => [
+        'date_of_birth' => '1970-01-01',
+        'partner_date_of_birth' => '1972-01-01',
+        'retirement_age' => 67,
+        'partner_retirement_age' => 67,
+    ],
+    'start_position' => [
+        'house_sale_price' => 0,
+        'savings' => 0,
+        'interest_rate' => 0,
+        'inflation_rate' => 2,
+    ],
+    'income' => [
+        'own_income' => 0,
+        'wia_wife' => 1000,
+        'partner_has_wia' => 1,
+    ],
+    'expenses' => [],
+    'taxes' => [],
+    'bnb_settings' => [],
+    'bnb_expenses' => [],
+], 2026);
+$wia0 = $wia['yearlyProjections'][0]['wia_amount'];
+$wia5 = $wia['yearlyProjections'][5]['wia_amount'];
+$expected5 = 1000 * pow(1.02, 5);
+check(abs($wia0 - 1000) < 0.02, "WIA year 0 = $wia0");
+check(abs($wia5 - $expected5) < 0.05, "WIA year 5 indexed $wia5 vs $expected5");
+
 echo $fail === 0 ? "\nAll good\n" : "\n$fail failed\n";
 exit($fail === 0 ? 0 : 1);

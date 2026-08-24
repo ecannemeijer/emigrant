@@ -40,7 +40,7 @@
                                    name="wia_wife" value="<?= $income['wia_wife'] ?? 0 ?>" required>
                         </div>
                         <small class="text-muted" id="partner_income_help">
-                            <?= $hasWia ? 'Huidig WIA inkomen' : 'Regulier maandinkomen' ?>
+                            <?= $hasWia ? 'Huidig WIA-inkomen (in de projectie jaarlijks geïndexeerd, net als inflatie)' : 'Regulier maandinkomen' ?>
                         </small>
                     </div>
 
@@ -166,7 +166,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (this.checked) {
             // WIA enabled
             incomeTypeText.textContent = 'WIA';
-            partnerIncomeHelp.textContent = 'Huidig WIA inkomen';
+            partnerIncomeHelp.textContent = 'Huidig WIA-inkomen (in de projectie jaarlijks geïndexeerd, net als inflatie)';
             aowFutureHelp.textContent = 'Start automatisch bij ' + partnerName + ' pensioenleeftijd, WIA stopt dan';
             wiaInfoAlert.style.display = 'block';
         } else {

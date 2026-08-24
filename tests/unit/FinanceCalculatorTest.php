@@ -236,6 +236,46 @@ class FinanceCalculatorTest extends TestCase
         $this->assertEquals(0.0, $result['yearlyProjections'][0]['monthly_interest']);
     }
 
+    public function testWiaAndAowFollowInflation(): void
+    {
+        $input = [
+            'profile' => [
+                'date_of_birth' => '1970-01-01',
+                'partner_date_of_birth' => '1972-01-01',
+                'emigration_date' => '2015-01-01',
+                'retirement_age' => 67,
+                'partner_retirement_age' => 67,
+            ],
+            'start_position' => [
+                'house_sale_price' => 0,
+                'mortgage_debt' => 0,
+                'savings' => 0,
+                'interest_rate' => 0,
+                'inflation_rate' => 2,
+            ],
+            'income' => [
+                'own_income' => 0,
+                'income_stops_at_retirement' => 1,
+                'wia_wife' => 1000,
+                'partner_has_wia' => 1,
+                'aow_future' => 800,
+                'own_aow' => 0,
+                'pension' => 0,
+                'other_income' => 0,
+            ],
+            'expenses' => [],
+            'taxes' => [],
+            'bnb_settings' => [],
+            'bnb_expenses' => [],
+        ];
+
+        $result = $this->calc->analyze($input, 2026);
+        $this->assertEqualsWithDelta(1000.0, $result['calculations']['wia_amount'], 0.01);
+
+        $year5 = $result['yearlyProjections'][5];
+        $this->assertEqualsWithDelta(1000 * pow(1.02, 5), $year5['wia_amount'], 0.05);
+    }
+
     public function testRentalIncomeIsTaxed(): void
     {
         $result = $this->calc->analyze([

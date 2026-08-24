@@ -506,17 +506,18 @@ class FinanceCalculator
 
         if ($partnerHasWia) {
             if ($partnerAowDue) {
-                $partnerAowAmount = (float) ($income['aow_future'] ?? 0) * ($partnerAowPct / 100);
+                $partnerAowAmount = (float) ($income['aow_future'] ?? 0) * ($partnerAowPct / 100) * $inflator;
                 $hasPartnerAow    = $partnerAowAmount > 0;
             } else {
-                $wiaAmount = $partnerIncomeField;
+                // WIA wordt wettelijk geïndexeerd (doorgaans 2x per jaar, gekoppeld aan het minimumloon).
+                $wiaAmount = $partnerIncomeField * $inflator;
                 $hasWia    = $wiaAmount > 0;
             }
         } else {
             $partnerIncomeAmount = $partnerIncomeField;
             $hasPartnerIncome    = $partnerIncomeAmount > 0;
             if ($partnerAowDue) {
-                $partnerAowAmount = (float) ($income['aow_future'] ?? 0) * ($partnerAowPct / 100);
+                $partnerAowAmount = (float) ($income['aow_future'] ?? 0) * ($partnerAowPct / 100) * $inflator;
                 $hasPartnerAow    = $partnerAowAmount > 0;
             }
         }
@@ -530,7 +531,7 @@ class FinanceCalculator
             $hasOwnPension = $pensionAmount > 0;
         }
         if ($userAge !== null && $userAge >= $ownAowAge) {
-            $ownAowAmount = (float) ($income['own_aow'] ?? 0) * ($ownAowPct / 100);
+            $ownAowAmount = (float) ($income['own_aow'] ?? 0) * ($ownAowPct / 100) * $inflator;
             $hasOwnAow    = $ownAowAmount > 0;
         }
 

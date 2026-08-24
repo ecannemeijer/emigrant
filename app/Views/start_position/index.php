@@ -69,12 +69,13 @@
                     </div>
 
                     <div class="mb-3">
-                        <label for="inflation_rate" class="form-label">Inflatie uitgaven per jaar</label>
+                        <label for="inflation_rate" class="form-label">Indexatie per jaar</label>
                         <div class="input-group">
                             <input type="number" step="0.01" class="form-control" id="inflation_rate"
                                    name="inflation_rate" value="<?= $startPosition['inflation_rate'] ?? 2 ?>">
                             <span class="input-group-text">%</span>
                         </div>
+                        <small class="text-muted">Geldt voor maandlasten én wettelijk geïndexeerde uitkeringen (WIA en AOW). Aanvullend pensioen blijft nominaal.</small>
                     </div>
 
                     <button type="submit" class="btn btn-primary">
