@@ -1436,32 +1436,30 @@ function updateWhatIf() {
     document.getElementById('wiInterestVal').textContent = interestRate.toFixed(2).replace('.', ',') + '%';
     document.getElementById('wiInflationVal').textContent = inflation.toFixed(2).replace('.', ',') + '%';
 
-    // Recalculate projections
+    // Recalculate projections. At default sliders this must match the echte jaartabel.
     let capital = wiBaseCapital;
     const results = [];
     let bankruptYear = null;
 
     for (let i = 0; i < wiBaseProjections.length; i++) {
         const base = wiBaseProjections[i];
-        const origFactor = Math.pow(1 + wiOrigInflation / 100, i) || 1;
+        const origFactor = (Number(base.inflator) > 0) ? Number(base.inflator) : 1;
         const inflationFactor = Math.pow(1 + inflation / 100, i);
 
-        // Base interest at original rate on current capital
-        const baseYearlyInterest = capital * (wiBaseInterest / 100);
-        // New interest at new rate
-        const newYearlyInterest  = capital * (interestRate / 100);
-        const interestDelta      = newYearlyInterest - baseYearlyInterest;
+        const origInterest = Number(base.monthly_interest) || 0;
+        const newInterest = capital > 0 ? (capital * (interestRate / 100)) / 12 : 0;
 
-        const origMonthlyInterest = base.monthly_interest;
-        const newMonthlyInterest  = origMonthlyInterest + interestDelta / 12;
+        const indexedNow = Number(base.indexed_monthly) || 0;
+        const nominalNow = Number(base.nominal_monthly) || 0;
+        const uninflatedIndexed = indexedNow / origFactor;
+        const reconstructedOrig = indexedNow + nominalNow + origInterest;
+        const incomeGap = (Number(base.monthly_income) || 0) - reconstructedOrig;
 
-        const indexedNominal = (base.indexed_monthly || 0) / origFactor;
-        const nominalIncome  = base.nominal_monthly || 0;
-        const monthlyIncome  = indexedNominal * inflationFactor + nominalIncome - origMonthlyInterest + newMonthlyInterest + extraIncome;
-        const monthlyExpenses = ((base.yearly_expenses / 12) / origFactor) * inflationFactor + extraExpenses;
-        const monthlyTaxes    = ((base.yearly_taxes / 12) / origFactor) * inflationFactor;
-        const monthlyNet      = monthlyIncome - monthlyExpenses - monthlyTaxes;
-        const yearlyNet       = monthlyNet * 12 - (base.renovation_outlay || 0);
+        const monthlyIncome = uninflatedIndexed * inflationFactor + nominalNow + newInterest + extraIncome + incomeGap;
+        const monthlyExpenses = ((Number(base.yearly_expenses) / 12) / origFactor) * inflationFactor + extraExpenses;
+        const monthlyTaxes = ((Number(base.yearly_taxes) / 12) / origFactor) * inflationFactor;
+        const monthlyNet = monthlyIncome - monthlyExpenses - monthlyTaxes;
+        const yearlyNet = monthlyNet * 12 - (Number(base.renovation_outlay) || 0);
 
         capital += yearlyNet;
 
