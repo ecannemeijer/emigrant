@@ -160,14 +160,19 @@
                     </thead>
                     <tbody>
                         <tr>
+                            <td><strong>Loon per maand</strong></td>
+                            <td>Netto loon of freelance (hoofdinkomen)</td>
+                            <td>Altijd actief</td>
+                        </tr>
+                        <tr>
                             <td><strong>WIA (partner)</strong></td>
                             <td>WIA-uitkering van je partner</td>
                             <td>Tot partner de pensioenleeftijd bereikt</td>
                         </tr>
                         <tr>
-                            <td><strong>Eigen inkomen</strong></td>
-                            <td>Salaris, freelance, etc.</td>
-                            <td>Altijd actief</td>
+                            <td><strong>Eigen uitkering</strong></td>
+                            <td>WIA of andere uitkering tot AOW</td>
+                            <td>Tot AOW-leeftijd</td>
                         </tr>
                         <tr>
                             <td><strong>AOW partner (toekomstig)</strong></td>
@@ -183,11 +188,6 @@
                             <td><strong>Pensioen</strong></td>
                             <td>Je pensioenuitkering</td>
                             <td>Start op jouw pensioenleeftijd</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Overig inkomen</strong></td>
-                            <td>Andere vaste inkomsten</td>
-                            <td>Altijd actief</td>
                         </tr>
                     </tbody>
                 </table>

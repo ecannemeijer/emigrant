@@ -785,6 +785,12 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('modal-retirement-status').innerHTML = statusHtml;
         
         let incomeHtml = '';
+        if (data.ownOther > 0) {
+            incomeHtml += `<tr><td>Loon ${data.youName}</td><td class="text-end">€ ${formatNumber(data.ownOther)}</td></tr>`;
+        }
+        if (data.partnerOther > 0) {
+            incomeHtml += `<tr><td>Loon ${data.partnerName}</td><td class="text-end">€ ${formatNumber(data.partnerOther)}</td></tr>`;
+        }
         if (data.ownWia > 0) {
             incomeHtml += `<tr><td>WIA ${data.youName}</td><td class="text-end">€ ${formatNumber(data.ownWia)}</td></tr>`;
         }
@@ -808,12 +814,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         if (data.pension > 0) {
             incomeHtml += `<tr><td>Aanvullend pensioen ${data.youName}</td><td class="text-end text-success"><strong>€ ${formatNumber(data.pension)}</strong></td></tr>`;
-        }
-        if (data.ownOther > 0) {
-            incomeHtml += `<tr><td>Overig ${data.youName}</td><td class="text-end">€ ${formatNumber(data.ownOther)}</td></tr>`;
-        }
-        if (data.partnerOther > 0) {
-            incomeHtml += `<tr><td>Overig ${data.partnerName}</td><td class="text-end">€ ${formatNumber(data.partnerOther)}</td></tr>`;
         }
         if (data.bnb > 0) {
             incomeHtml += `<tr><td>B&B Netto inkomen</td><td class=\"text-end\">€ ${formatNumber(data.bnb)}</td></tr>`;
@@ -1091,6 +1091,12 @@ document.addEventListener('DOMContentLoaded', function() {
         doc.setTextColor(0, 0, 0);
         
         const incomeData = [];
+        <?php if (($income['own_other_income'] ?? 0) > 0): ?>
+        incomeData.push(['Loon <?= esc($profile['first_name'] ?? 'jij') ?>', '\ ' + formatNumber(<?= $income['own_other_income'] ?>)]);
+        <?php endif; ?>
+        <?php if (($income['partner_other_income'] ?? 0) > 0): ?>
+        incomeData.push(['Loon <?= esc($profile['partner_name'] ?? 'Partner') ?>', '\ ' + formatNumber(<?= $income['partner_other_income'] ?>)]);
+        <?php endif; ?>
         <?php if (($income['own_income'] ?? 0) > 0): ?>
         incomeData.push(['Eigen inkomen', '\ ' + formatNumber(<?= $income['own_income'] ?>)]);
         <?php endif; ?>
@@ -1109,9 +1115,6 @@ document.addEventListener('DOMContentLoaded', function() {
         <?php endif; ?>
         <?php if (($income['pension'] ?? 0) > 0): ?>
         incomeData.push(['Aanvullend pensioen (niet geïndexeerd)', '\ ' + formatNumber(<?= $income['pension'] ?>)]);
-        <?php endif; ?>
-        <?php if (($income['other_income'] ?? 0) > 0): ?>
-        incomeData.push(['Overig inkomen', '\ ' + formatNumber(<?= $income['other_income'] ?>)]);
         <?php endif; ?>
         <?php if (($calculations['bnb_net_income'] ?? 0) > 0): ?>
         incomeData.push(['B&B netto inkomen', '\ ' + formatNumber(<?= $calculations['bnb_net_income'] ?>)]);

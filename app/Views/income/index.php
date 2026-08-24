@@ -21,7 +21,7 @@ if ((float) $ownOther === 0.0 && (float) $partnerOther === 0.0 && (float) ($inco
 ?>
 <div class="mb-4">
     <h1><i class="bi bi-cash-coin"></i> Inkomsten</h1>
-    <p class="text-muted mb-0">Per persoon: uitkering (WIA of anders), AOW vanaf de AOW-leeftijd, en overig netto-inkomen. Eén persoon mag ook.</p>
+    <p class="text-muted mb-0">Per persoon: eerst loon (hoofdinkomen), daarna uitkering (WIA of anders) en AOW. Eén persoon mag ook.</p>
 </div>
 
 <form action="/income/save" method="post">
@@ -45,6 +45,15 @@ if ((float) $ownOther === 0.0 && (float) $partnerOther === 0.0 && (float) ($inco
             <div class="card person-card person-card-you h-100">
                 <div class="card-body">
                     <h2 class="h5 mb-3"><i class="bi bi-person"></i> <?= esc($youName) ?></h2>
+
+                    <div class="mb-3">
+                        <label for="own_other_income" class="form-label">Loon per maand</label>
+                        <div class="input-group">
+                            <span class="input-group-text">€</span>
+                            <input type="number" step="0.01" class="form-control" id="own_other_income" name="own_other_income" value="<?= esc($ownOther) ?>">
+                        </div>
+                        <small class="text-muted">Netto loon of freelance. Dit is het hoofdinkomen en stopt niet automatisch bij AOW.</small>
+                    </div>
 
                     <label class="form-label">Soort uitkering tot AOW</label>
                     <div class="btn-group w-100 mb-3" role="group">
@@ -79,15 +88,6 @@ if ((float) $ownOther === 0.0 && (float) $partnerOther === 0.0 && (float) ($inco
                         <small class="text-muted">Telt mee vanaf deze leeftijd; het bedrag is dan al geïndexeerd vanaf nu (nu <?= (int) $ownAowAge ?>).</small>
                     </div>
 
-                    <div class="mb-3">
-                        <label for="own_other_income" class="form-label">Overig inkomen netto per maand</label>
-                        <div class="input-group">
-                            <span class="input-group-text">€</span>
-                            <input type="number" step="0.01" class="form-control" id="own_other_income" name="own_other_income" value="<?= esc($ownOther) ?>">
-                        </div>
-                        <small class="text-muted">Loon, freelance of andere inkomsten die niet stoppen bij AOW.</small>
-                    </div>
-
                     <div class="mb-0">
                         <label for="pension" class="form-label">Aanvullend pensioen netto per maand</label>
                         <div class="input-group">
@@ -105,6 +105,15 @@ if ((float) $ownOther === 0.0 && (float) $partnerOther === 0.0 && (float) ($inco
             <div class="card person-card person-card-partner h-100">
                 <div class="card-body">
                     <h2 class="h5 mb-3"><i class="bi bi-person-heart"></i> <?= esc($partnerName) ?></h2>
+
+                    <div class="mb-3">
+                        <label for="partner_other_income" class="form-label">Loon per maand</label>
+                        <div class="input-group">
+                            <span class="input-group-text">€</span>
+                            <input type="number" step="0.01" class="form-control" id="partner_other_income" name="partner_other_income" value="<?= esc($partnerOther) ?>">
+                        </div>
+                        <small class="text-muted">Netto loon of freelance. Dit is het hoofdinkomen en stopt niet automatisch bij AOW.</small>
+                    </div>
 
                     <label class="form-label">Soort uitkering tot AOW</label>
                     <div class="btn-group w-100 mb-3" role="group">
@@ -137,14 +146,6 @@ if ((float) $ownOther === 0.0 && (float) $partnerOther === 0.0 && (float) ($inco
                         <label for="partner_aow_start_age" class="form-label">AOW start op leeftijd</label>
                         <input type="number" min="60" max="75" class="form-control" id="partner_aow_start_age" name="partner_aow_start_age" value="<?= esc($partnerAowAge) ?>">
                         <small class="text-muted">Telt mee vanaf deze leeftijd van <?= esc($partnerName) ?> (nu <?= (int) $partnerAowAge ?>), dan al geïndexeerd vanaf nu.</small>
-                    </div>
-
-                    <div class="mb-0">
-                        <label for="partner_other_income" class="form-label">Overig inkomen netto per maand</label>
-                        <div class="input-group">
-                            <span class="input-group-text">€</span>
-                            <input type="number" step="0.01" class="form-control" id="partner_other_income" name="partner_other_income" value="<?= esc($partnerOther) ?>">
-                        </div>
                     </div>
                 </div>
             </div>
