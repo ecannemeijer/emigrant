@@ -42,7 +42,7 @@ class CreateBillingTables extends Migration
         $defaults = [
             'billing_enabled' => '0',
             'price_month' => '9.90',
-            'price_year' => '99.00',
+            'price_year' => '69.00',
             'currency' => 'EUR',
         ];
         foreach ($defaults as $key => $value) {

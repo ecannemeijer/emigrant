@@ -312,7 +312,7 @@ Ook:
 ### 4. Pas daarna betalen aanzetten
 
 - [ ] Inloggen als admin → **Config**
-- [ ] Prijzen controleren (standaard €9,90 / maand, €99 / jaar)
+- [ ] Prijzen controleren (standaard €9,90 / maand, €69 / jaar)
 - [ ] Vinkje **Betaling verplicht (PayPal)** aanzetten
 - [ ] Testen: nieuw account zonder abonnement komt op `/subscription` en kan via PayPal betalen
 - [ ] Testen: bestaand account met complimentary toegang blijft binnen tot de einddatum

@@ -44,7 +44,7 @@ class BillingService
     public function getPrice(string $plan): float
     {
         $key = $plan === self::PLAN_MONTH ? 'price_month' : 'price_year';
-        $default = $plan === self::PLAN_MONTH ? '9.90' : '99.00';
+        $default = $plan === self::PLAN_MONTH ? '9.90' : '69.00';
 
         return (float) $this->settings->getValue($key, $default);
     }
