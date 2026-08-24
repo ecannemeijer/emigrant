@@ -110,7 +110,32 @@ h1, h2, .navbar-brand, .landing h1 {
 .landing .lead, .landing .lead { opacity: .92; }
 .kpi-runway { font-size: .85rem; color: var(--muted); }
 
-.badge.bg-info { background-color: #1D6A96 !important; }
+.checklist-guide {
+    background: #f4faf6;
+    border: 1px solid rgba(0, 140, 69, .18);
+    border-left: 4px solid var(--it-green);
+    border-radius: 12px;
+    padding: 16px 18px;
+    font-size: .95rem;
+}
+.checklist-guide h6 { color: var(--it-green-dark); margin-top: .75rem; }
+.checklist-guide h6:first-child { margin-top: 0; }
+.checklist-guide ul { margin-bottom: .5rem; padding-left: 1.2rem; }
+.editor-toolbar {
+    display: flex; flex-wrap: wrap; gap: 4px;
+    background: #f6f3ec; border: 1px solid #e4ddd0; border-bottom: 0;
+    border-radius: 10px 10px 0 0; padding: 8px;
+}
+.editor-toolbar .toolbar-sep { width: 1px; background: #d9d0c4; margin: 0 4px; }
+.note-editor {
+    min-height: 220px; padding: 12px 14px;
+    border: 1px solid #e4ddd0; border-radius: 0 0 10px 10px;
+    background: #fff; outline: none;
+}
+.note-editor:empty:before {
+    content: attr(data-placeholder); color: #8a857e;
+}
+.checklist-item .btn-sm { white-space: nowrap; }
 
 @media (max-width: 767.98px) {
     .stat-card .stat-value { font-size: 1.35rem; }
