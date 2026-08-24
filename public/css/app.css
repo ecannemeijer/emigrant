@@ -222,3 +222,91 @@ h1, h2, .navbar-brand, .landing h1 {
     .stat-card .stat-value { font-size: 1.35rem; }
     .landing::after, .landing::after { width: 48px; height: 32px; }
 }
+
+.reno-cal-wrap {
+    background: linear-gradient(160deg, #1b241c 0%, #006B34 55%, #8a1c22 160%);
+    color: #fff; border-radius: 24px; padding: 20px 20px 16px;
+    box-shadow: var(--shadow);
+}
+.reno-cal-toolbar {
+    display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap;
+    margin-bottom: 12px;
+}
+.reno-cal-toolbar h2 { font-family: "Fraunces", Georgia, serif; text-transform: capitalize; }
+.reno-cal-controls { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.reno-cal-legend {
+    display: flex; flex-wrap: wrap; gap: 12px; font-size: .8rem; opacity: .9; margin-bottom: 12px;
+}
+.cal-dot {
+    display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 4px; vertical-align: middle;
+}
+.cal-dot.planned { background: #e8c36a; }
+.cal-dot.quoted { background: #7ec8e3; }
+.cal-dot.in_progress { background: #f0a04b; }
+.cal-dot.done { background: #6dcf9b; }
+.cal-dot.skipped { background: #b5b5b5; }
+.reno-calendar { background: #faf7f2; color: #1b241c; border-radius: 16px; padding: 12px; }
+.cal-month-head, .cal-week-head {
+    display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px;
+    font-size: .75rem; text-transform: uppercase; letter-spacing: .06em; color: #7a746b; margin-bottom: 6px; text-align: center;
+}
+.cal-month { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+.cal-week { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
+.cal-day {
+    min-height: 92px; background: #fff; border-radius: 12px; padding: 6px;
+    border: 1px solid #eadfd0; cursor: pointer; display: flex; flex-direction: column; gap: 4px;
+}
+.cal-week .cal-day { min-height: 180px; }
+.cal-day.muted { opacity: .45; }
+.cal-day.today { border-color: #008C45; box-shadow: 0 0 0 2px rgba(0,140,69,.2); }
+.cal-day.has-items { background: #fffdf8; }
+.cal-num { font-size: .8rem; font-weight: 700; color: #5c564c; }
+.cal-chip {
+    display: block; width: 100%; border: 0; border-radius: 7px; padding: 3px 6px;
+    font-size: .72rem; text-align: left; line-height: 1.2; cursor: pointer;
+    border-left: 3px solid transparent;
+}
+.cal-chip.cal-planned { background: #efe6d4; color: #6b5420; }
+.cal-chip.cal-quoted { background: #dceaf5; color: #1d6a96; }
+.cal-chip.cal-in_progress { background: #fbe7c6; color: #8a5a00; }
+.cal-chip.cal-done { background: #d9efe3; color: #006B34; }
+.cal-chip.cal-skipped { background: #eee; color: #777; }
+.cal-chip.prio-high { border-left-color: #CD212A; }
+.cal-chip.prio-medium { border-left-color: #c9a227; }
+.cal-chip.prio-low { border-left-color: #8a857e; }
+.cal-chip-cat { font-weight: 700; text-decoration: underline; text-underline-offset: 2px; }
+.cal-more { font-size: .7rem; color: #8a857e; }
+.cal-year { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.cal-mini { background: #fff; border-radius: 12px; padding: 10px; border: 1px solid #eadfd0; }
+.cal-mini h3 { font-size: .85rem; text-transform: capitalize; margin: 0 0 8px; font-family: "Fraunces", Georgia, serif; }
+.cal-mini-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
+.cal-mini-dow { font-size: .65rem; text-align: center; color: #8a857e; }
+.cal-mini-day {
+    position: relative; border: 0; background: transparent; border-radius: 6px;
+    font-size: .72rem; padding: 4px 0; cursor: pointer;
+}
+.cal-mini-day.muted { opacity: .3; }
+.cal-mini-day.today { font-weight: 700; color: #008C45; }
+.cal-mini-day.has-items { font-weight: 700; }
+.cal-mini-day.cal-planned { background: #efe6d4; }
+.cal-mini-day.cal-quoted { background: #dceaf5; }
+.cal-mini-day.cal-in_progress { background: #fbe7c6; }
+.cal-mini-day.cal-done { background: #d9efe3; }
+.cal-mini-day.cal-skipped { background: #eee; }
+.cal-mini-day i {
+    position: absolute; top: 0; right: 1px; font-style: normal; font-size: .55rem;
+    background: #CD212A; color: #fff; border-radius: 8px; padding: 0 3px;
+}
+.reno-cal-unscheduled { margin-top: 12px; }
+.reno-cal-unscheduled .cal-chip { width: auto; display: inline-block; }
+
+@media (max-width: 991.98px) {
+    .cal-year { grid-template-columns: repeat(2, 1fr); }
+    .cal-week { grid-template-columns: 1fr; }
+    .cal-week-head { display: none; }
+}
+@media (max-width: 767.98px) {
+    .cal-month { grid-template-columns: 1fr 1fr; }
+    .cal-month-head { display: none; }
+    .cal-year { grid-template-columns: 1fr; }
+}

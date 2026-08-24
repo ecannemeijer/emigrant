@@ -281,7 +281,7 @@ Doe dit in deze volgorde als je écht wilt laten betalen.
 ### 1. Database
 
 - [ ] `php spark migrate` op de server (billing-tabellen; bestaande users zonder abonnement krijgen 1 maand)
-- [ ] Verbouw-tabellen: `2026-08-24-120000_CreateRenovationTables` en `2026-08-24-140000_CreateRenovationCategories`
+- [ ] Verbouw-tabellen: `CreateRenovationTables`, `CreateRenovationCategories`, `AddPlannedDateToRenovationItems`
 
 ### 2. PayPal Developer-app
 

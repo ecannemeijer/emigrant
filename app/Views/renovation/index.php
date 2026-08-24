@@ -30,9 +30,14 @@ $prioClass = ['high' => 'prio-high', 'medium' => 'prio-mid', 'low' => 'prio-low'
         <h1 class="mb-2">Verbouwen</h1>
         <p class="mb-0 reno-lead">Maak zelf categorieën (keuken, dak, elektra) en voeg daarna posten met kosten toe. Die kosten gaan van je vermogen op het dashboard.</p>
     </div>
-    <button class="btn btn-light" type="button" data-bs-toggle="modal" data-bs-target="#categoryModal" onclick="renoNewCategory()">
-        <i class="bi bi-folder-plus"></i> Nieuwe categorie
-    </button>
+    <div class="d-flex flex-wrap gap-2">
+        <a class="btn btn-outline-light" href="#reno-planning">
+            <i class="bi bi-calendar3"></i> Planning
+        </a>
+        <button class="btn btn-light" type="button" data-bs-toggle="modal" data-bs-target="#categoryModal" onclick="renoNewCategory()">
+            <i class="bi bi-folder-plus"></i> Nieuwe categorie
+        </button>
+    </div>
 </div>
 
 <div class="row g-3 mb-4">
@@ -109,6 +114,36 @@ $prioClass = ['high' => 'prio-high', 'medium' => 'prio-mid', 'low' => 'prio-low'
         </form>
     </div>
 </div>
+
+<section class="reno-cal-wrap mb-4" id="reno-planning">
+    <div class="reno-cal-toolbar">
+        <div>
+            <p class="reno-kicker mb-1">Planning</p>
+            <h2 class="h4 mb-0" id="renoCalTitle">Kalender</h2>
+        </div>
+        <div class="reno-cal-controls">
+            <div class="btn-group" role="group" aria-label="Weergave">
+                <button type="button" class="btn btn-sm btn-outline-light reno-cal-view" data-view="week">Week</button>
+                <button type="button" class="btn btn-sm btn-light reno-cal-view active" data-view="month">Maand</button>
+                <button type="button" class="btn btn-sm btn-outline-light reno-cal-view" data-view="year">Jaar</button>
+            </div>
+            <div class="btn-group">
+                <button type="button" class="btn btn-sm btn-outline-light" id="renoCalPrev" aria-label="Vorige"><i class="bi bi-chevron-left"></i></button>
+                <button type="button" class="btn btn-sm btn-outline-light" id="renoCalToday">Vandaag</button>
+                <button type="button" class="btn btn-sm btn-outline-light" id="renoCalNext" aria-label="Volgende"><i class="bi bi-chevron-right"></i></button>
+            </div>
+        </div>
+    </div>
+    <div class="reno-cal-legend">
+        <span><i class="cal-dot planned"></i> Gepland</span>
+        <span><i class="cal-dot quoted"></i> Offerte</span>
+        <span><i class="cal-dot in_progress"></i> Bezig</span>
+        <span><i class="cal-dot done"></i> Klaar</span>
+        <span><i class="cal-dot skipped"></i> Vervalt</span>
+    </div>
+    <div id="renoCalendar" class="reno-calendar"></div>
+    <div id="renoCalUnscheduled" class="reno-cal-unscheduled"></div>
+</section>
 
 <div class="reno-filters mb-3">
     <button type="button" class="chip active" data-filter="all">Alles</button>
@@ -351,8 +386,9 @@ foreach ($categories ?? [] as $cat) {
                             <input type="text" class="form-control" name="contractor" id="item_contractor" placeholder="Naam of ditta">
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label class="form-label" for="item_year">Jaar (gepland)</label>
-                            <input type="number" class="form-control" name="planned_year" id="item_year" min="2020" max="2040" placeholder="<?= date('Y') ?>">
+                            <label class="form-label" for="item_date">Geplande dag</label>
+                            <input type="date" class="form-control" name="planned_date" id="item_date">
+                            <input type="hidden" name="planned_year" id="item_year">
                         </div>
                     </div>
                     <div class="form-check">
@@ -408,22 +444,16 @@ foreach ($categories ?? [] as $cat) {
 <?= $this->section('scripts') ?>
 <script>
 const renoNotes = <?= json_encode($notesById ?? [], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP) ?>;
+const renoCalItems = <?= json_encode($calendarItems ?? [], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP) ?>;
+const renoCalCats = <?= json_encode($categories ?? [], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP) ?>;
 const itemModal = document.getElementById('itemModal');
 
-function renoNewCategory() {
-    document.getElementById('categoryModalTitle').textContent = 'Nieuwe categorie';
-    document.getElementById('category_id').value = '';
-    document.getElementById('category_name').value = '';
+function syncItemYearFromDate() {
+    const dateVal = document.getElementById('item_date').value;
+    document.getElementById('item_year').value = dateVal ? dateVal.slice(0, 4) : '';
 }
 
-function renoEditCategory(id, name) {
-    document.getElementById('categoryModalTitle').textContent = 'Categorie hernoemen';
-    document.getElementById('category_id').value = id;
-    document.getElementById('category_name').value = name;
-    bootstrap.Modal.getOrCreateInstance(document.getElementById('categoryModal')).show();
-}
-
-function renoNewItem(room) {
+function renoNewItem(room, dateStr) {
     document.getElementById('itemModalTitle').textContent = 'Nieuwe verbouwpost';
     document.getElementById('item_id').value = '';
     document.getElementById('item_title').value = '';
@@ -439,12 +469,12 @@ function renoNewItem(room) {
     document.getElementById('item_actual').value = 0;
     document.getElementById('item_vat').value = '10';
     document.getElementById('item_contractor').value = '';
-    document.getElementById('item_year').value = '';
+    document.getElementById('item_date').value = dateStr || '';
+    syncItemYearFromDate();
     document.getElementById('item_capital').checked = true;
 }
 
-function renoEditItem(btn) {
-    const item = JSON.parse(btn.getAttribute('data-item'));
+function renoFillItem(item) {
     document.getElementById('itemModalTitle').textContent = 'Verbouwpost bewerken';
     document.getElementById('item_id').value = item.id;
     document.getElementById('item_title').value = item.title || '';
@@ -455,10 +485,255 @@ function renoEditItem(btn) {
     document.getElementById('item_actual').value = item.actual_cost || 0;
     document.getElementById('item_vat').value = String(parseFloat(item.vat_rate || 10));
     document.getElementById('item_contractor').value = item.contractor || '';
-    document.getElementById('item_year').value = item.planned_year || '';
+    document.getElementById('item_date').value = item.planned_date || '';
+    if (!item.planned_date && item.planned_year) {
+        document.getElementById('item_date').value = String(item.planned_year) + '-01-01';
+    }
+    syncItemYearFromDate();
     document.getElementById('item_capital').checked = String(item.include_in_capital) === '1';
     bootstrap.Modal.getOrCreateInstance(itemModal).show();
 }
+
+function renoEditItem(btn) {
+    renoFillItem(JSON.parse(btn.getAttribute('data-item')));
+}
+
+function renoNewCategory() {
+    document.getElementById('categoryModalTitle').textContent = 'Nieuwe categorie';
+    document.getElementById('category_id').value = '';
+    document.getElementById('category_name').value = '';
+}
+
+function renoEditCategory(id, name) {
+    document.getElementById('categoryModalTitle').textContent = 'Categorie hernoemen';
+    document.getElementById('category_id').value = id;
+    document.getElementById('category_name').value = name;
+    bootstrap.Modal.getOrCreateInstance(document.getElementById('categoryModal')).show();
+}
+
+document.getElementById('item_date').addEventListener('change', syncItemYearFromDate);
+
+(function () {
+    const DAYS = ['ma', 'di', 'wo', 'do', 'vr', 'za', 'zo'];
+    const MONTHS = ['januari','februari','maart','april','mei','juni','juli','augustus','september','oktober','november','december'];
+    const root = document.getElementById('renoCalendar');
+    const titleEl = document.getElementById('renoCalTitle');
+    const unscheduledEl = document.getElementById('renoCalUnscheduled');
+    if (!root) return;
+
+    let view = 'month';
+    let cursor = new Date();
+    cursor.setHours(12, 0, 0, 0);
+
+    function ymd(d) {
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return y + '-' + m + '-' + day;
+    }
+    function parseDate(item) {
+        if (item.planned_date) return item.planned_date.slice(0, 10);
+        return null;
+    }
+    function mondayOf(d) {
+        const x = new Date(d);
+        const day = (x.getDay() + 6) % 7;
+        x.setDate(x.getDate() - day);
+        return x;
+    }
+    function itemsOn(dateStr) {
+        return renoCalItems.filter(function (it) { return parseDate(it) === dateStr; });
+    }
+    function catFor(name) {
+        return renoCalCats.find(function (c) { return c.name === name; }) || null;
+    }
+    function chipHtml(item) {
+        const payload = encodeURIComponent(JSON.stringify(item));
+        const cat = item.room ? '<span class="cal-chip-cat">' + escapeHtml(item.room) + '</span> ' : '';
+        return '<button type="button" class="cal-chip cal-' + escapeHtml(item.status || 'planned') + ' prio-' + escapeHtml(item.priority || 'medium') + '" data-payload="' + payload + '">' + cat + escapeHtml(item.title || 'Post') + '</button>';
+    }
+    function escapeHtml(s) {
+        return String(s || '').replace(/[&<>"']/g, function (c) {
+            return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]);
+        });
+    }
+
+    function render() {
+        const y = cursor.getFullYear();
+        const m = cursor.getMonth();
+        if (view === 'week') {
+            const start = mondayOf(cursor);
+            const end = new Date(start);
+            end.setDate(start.getDate() + 6);
+            titleEl.textContent = start.getDate() + '–' + end.getDate() + ' ' + MONTHS[end.getMonth()] + ' ' + end.getFullYear();
+            let html = '<div class="cal-week-head">' + DAYS.map(function (d) { return '<div>' + d + '</div>'; }).join('') + '</div><div class="cal-week">';
+            for (let i = 0; i < 7; i++) {
+                const d = new Date(start);
+                d.setDate(start.getDate() + i);
+                html += dayCell(d, true);
+            }
+            html += '</div>';
+            root.innerHTML = html;
+        } else if (view === 'year') {
+            titleEl.textContent = String(y);
+            let html = '<div class="cal-year">';
+            for (let mi = 0; mi < 12; mi++) {
+                html += miniMonth(y, mi);
+            }
+            html += '</div>';
+            root.innerHTML = html;
+        } else {
+            titleEl.textContent = MONTHS[m] + ' ' + y;
+            const first = new Date(y, m, 1);
+            const start = mondayOf(first);
+            let html = '<div class="cal-month-head">' + DAYS.map(function (d) { return '<div>' + d + '</div>'; }).join('') + '</div><div class="cal-month">';
+            for (let i = 0; i < 42; i++) {
+                const d = new Date(start);
+                d.setDate(start.getDate() + i);
+                html += dayCell(d, false, d.getMonth() !== m);
+            }
+            html += '</div>';
+            root.innerHTML = html;
+        }
+        bindChips();
+        renderUnscheduled();
+    }
+
+    function dayCell(d, large, muted) {
+        const key = ymd(d);
+        const today = ymd(new Date()) === key;
+        const list = itemsOn(key);
+        let extra = '';
+        if (large) {
+            extra = list.map(chipHtml).join('');
+        } else if (view === 'month') {
+            extra = list.slice(0, 4).map(chipHtml).join('') + (list.length > 4 ? '<span class="cal-more">+' + (list.length - 4) + '</span>' : '');
+        }
+        return '<div class="cal-day' + (muted ? ' muted' : '') + (today ? ' today' : '') + (list.length ? ' has-items' : '') + '" data-date="' + key + '">' +
+            '<span class="cal-num">' + d.getDate() + '</span>' + extra + '</div>';
+    }
+
+    function miniMonth(year, month) {
+        const first = new Date(year, month, 1);
+        const start = mondayOf(first);
+        let html = '<div class="cal-mini"><h3>' + MONTHS[month] + '</h3><div class="cal-mini-grid">';
+        DAYS.forEach(function (d) { html += '<span class="cal-mini-dow">' + d.charAt(0) + '</span>'; });
+        for (let i = 0; i < 42; i++) {
+            const d = new Date(start);
+            d.setDate(start.getDate() + i);
+            const outside = d.getMonth() !== month;
+            const key = ymd(d);
+            const list = itemsOn(key);
+            const cls = ['cal-mini-day'];
+            if (outside) cls.push('muted');
+            if (ymd(new Date()) === key) cls.push('today');
+            if (list.length) cls.push('has-items', 'cal-' + (list[0].status || 'planned'));
+            html += '<button type="button" class="' + cls.join(' ') + '" data-date="' + key + '" title="' + list.map(function (it) { return it.title; }).join(', ') + '">' + d.getDate() + (list.length > 1 ? '<i>' + list.length + '</i>' : '') + '</button>';
+        }
+        html += '</div></div>';
+        return html;
+    }
+
+    function bindChips() {
+        root.querySelectorAll('.cal-chip').forEach(function (btn) {
+            btn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                const item = JSON.parse(decodeURIComponent(this.dataset.payload));
+                if (e.target.classList.contains('cal-chip-cat')) {
+                    const cat = catFor(item.room);
+                    if (cat) {
+                        renoEditCategory(cat.id, cat.name);
+                        return;
+                    }
+                }
+                renoFillItem(item);
+            });
+        });
+        root.querySelectorAll('.cal-day').forEach(function (cell) {
+            cell.addEventListener('click', function (e) {
+                if (e.target.closest('.cal-chip')) return;
+                const dateStr = this.dataset.date;
+                const list = itemsOn(dateStr);
+                if (list.length === 1) {
+                    renoFillItem(list[0]);
+                    return;
+                }
+                renoNewItem('', dateStr);
+                bootstrap.Modal.getOrCreateInstance(itemModal).show();
+            });
+        });
+        root.querySelectorAll('.cal-mini-day').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                const dateStr = this.dataset.date;
+                const list = itemsOn(dateStr);
+                if (list.length === 1) {
+                    renoFillItem(list[0]);
+                    return;
+                }
+                if (list.length > 1) {
+                    cursor = new Date(dateStr + 'T12:00:00');
+                    view = 'month';
+                    setViewButtons();
+                    render();
+                    return;
+                }
+                renoNewItem('', dateStr);
+                bootstrap.Modal.getOrCreateInstance(itemModal).show();
+            });
+        });
+    }
+
+    function renderUnscheduled() {
+        const loose = renoCalItems.filter(function (it) { return !parseDate(it); });
+        if (!loose.length) {
+            unscheduledEl.innerHTML = '';
+            return;
+        }
+        unscheduledEl.innerHTML = '<p class="small mb-2">Nog zonder dag — klik om een datum te zetten</p><div class="d-flex flex-wrap gap-2">' +
+            loose.map(chipHtml).join('') + '</div>';
+        unscheduledEl.querySelectorAll('.cal-chip').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                renoFillItem(JSON.parse(decodeURIComponent(this.dataset.payload)));
+            });
+        });
+    }
+
+    function setViewButtons() {
+        document.querySelectorAll('.reno-cal-view').forEach(function (b) {
+            const on = b.dataset.view === view;
+            b.classList.toggle('active', on);
+            b.classList.toggle('btn-light', on);
+            b.classList.toggle('btn-outline-light', !on);
+        });
+    }
+
+    document.querySelectorAll('.reno-cal-view').forEach(function (b) {
+        b.addEventListener('click', function () {
+            view = this.dataset.view;
+            setViewButtons();
+            render();
+        });
+    });
+    document.getElementById('renoCalPrev').addEventListener('click', function () {
+        if (view === 'year') cursor.setFullYear(cursor.getFullYear() - 1);
+        else if (view === 'week') cursor.setDate(cursor.getDate() - 7);
+        else cursor.setMonth(cursor.getMonth() - 1);
+        render();
+    });
+    document.getElementById('renoCalNext').addEventListener('click', function () {
+        if (view === 'year') cursor.setFullYear(cursor.getFullYear() + 1);
+        else if (view === 'week') cursor.setDate(cursor.getDate() + 7);
+        else cursor.setMonth(cursor.getMonth() + 1);
+        render();
+    });
+    document.getElementById('renoCalToday').addEventListener('click', function () {
+        cursor = new Date();
+        cursor.setHours(12, 0, 0, 0);
+        render();
+    });
+
+    render();
+})();
 
 document.addEventListener('DOMContentLoaded', function () {
     document.querySelectorAll('.reno-filters .chip').forEach(function (chip) {

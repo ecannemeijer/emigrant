@@ -14,7 +14,7 @@ class RenovationItemModel extends Model
     protected $allowedFields    = [
         'user_id', 'title', 'room', 'status', 'priority',
         'estimated_cost', 'actual_cost', 'vat_rate', 'contractor',
-        'planned_year', 'include_in_capital', 'notes', 'sort_order',
+        'planned_year', 'planned_date', 'include_in_capital', 'notes', 'sort_order',
     ];
     protected $useTimestamps = true;
     protected $dateFormat    = 'datetime';

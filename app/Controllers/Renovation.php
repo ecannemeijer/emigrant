@@ -47,8 +47,12 @@ class Renovation extends BaseController
 
         $categoryNames = array_keys($grouped);
         $notesById = [];
+        $calendarItems = [];
         foreach ($items as $item) {
             $notesById[(int) $item['id']] = $item['notes'] ?? '';
+            $cal = $item;
+            unset($cal['notes']);
+            $calendarItems[] = $cal;
         }
 
         return view('renovation/index', [
@@ -59,6 +63,7 @@ class Renovation extends BaseController
             'totals' => $totals,
             'startingCapital' => $startingCapital,
             'notesById' => $notesById,
+            'calendarItems' => $calendarItems,
             'categories' => $categories,
             'rooms' => $categoryNames,
             'statuses' => RenovationItemModel::STATUSES,
@@ -173,6 +178,17 @@ class Renovation extends BaseController
 
     private function itemFromPost(int $userId): array
     {
+        $plannedDate = trim((string) $this->request->getPost('planned_date'));
+        $plannedDate = preg_match('/^\d{4}-\d{2}-\d{2}$/', $plannedDate) ? $plannedDate : null;
+        $plannedYear = $this->request->getPost('planned_year');
+        if ($plannedDate) {
+            $plannedYear = (int) substr($plannedDate, 0, 4);
+        } elseif ($plannedYear) {
+            $plannedYear = (int) $plannedYear;
+        } else {
+            $plannedYear = null;
+        }
+
         return [
             'user_id' => $userId,
             'title' => trim((string) $this->request->getPost('title')) ?: 'Nieuwe post',
@@ -183,7 +199,8 @@ class Renovation extends BaseController
             'actual_cost' => (float) ($this->request->getPost('actual_cost') ?: 0),
             'vat_rate' => (float) ($this->request->getPost('vat_rate') ?: 10),
             'contractor' => trim((string) $this->request->getPost('contractor')) ?: null,
-            'planned_year' => $this->request->getPost('planned_year') ?: null,
+            'planned_year' => $plannedYear,
+            'planned_date' => $plannedDate,
             'include_in_capital' => $this->request->getPost('include_in_capital') ? 1 : 0,
         ];
     }
