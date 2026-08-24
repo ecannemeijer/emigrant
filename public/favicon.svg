@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Emigratie Italië">
+  <rect width="32" height="32" rx="7" fill="#008C45"/>
+  <rect x="10.67" width="10.66" height="32" fill="#F4F5F0"/>
+  <rect x="21.33" width="10.67" height="32" fill="#CD212A"/>
+  <rect width="32" height="32" rx="7" fill="none" stroke="rgba(0,0,0,.12)" stroke-width="1"/>
+  <path fill="#1B1B1B" d="M16 6.2c-3.1 0-5.6 2.45-5.6 5.45 0 4.05 5.6 12.15 5.6 12.15s5.6-8.1 5.6-12.15c0-3-2.5-5.45-5.6-5.45z"/>
+  <circle cx="16" cy="11.5" r="2.35" fill="#F4F5F0"/>
+</svg>

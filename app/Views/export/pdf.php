@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <title>Financieel overzicht</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="icon" href="/favicon.png" type="image/png">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body { padding: 32px; color: #1b241c; }
