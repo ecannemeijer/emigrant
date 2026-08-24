@@ -75,6 +75,8 @@ class AuditFilter implements FilterInterface
         'GET:admin/config'          => 'Admin: config bekeken',
         'POST:admin/config'         => 'Admin: config opgeslagen',
         'GET:admin/payments'        => 'Admin: betalingen bekeken',
+        'GET:renovation/planning'   => 'Planning bekeken',
+        'POST:renovation/appointment' => 'Afspraak opgeslagen',
     ];
 
     public function before(RequestInterface $request, $arguments = null)
@@ -146,6 +148,9 @@ class AuditFilter implements FilterInterface
             '#^POST:admin/users/update/\d+$#'      => 'Admin: gebruiker bijgewerkt',
             '#^POST:admin/users/delete/\d+$#'      => 'Admin: gebruiker verwijderd',
             '#^GET:password-reset/reset/[a-z0-9]+$#i' => 'Wachtwoord reset pagina bezocht',
+            '#^POST:renovation/appointment/delete/\d+$#' => 'Afspraak verwijderd',
+            '#^GET:renovation/appointment/google/\d+$#' => 'Afspraak naar Google Agenda',
+            '#^GET:renovation/appointment/ics/\d+$#' => 'Afspraak .ics gedownload',
         ];
 
         foreach ($patterns as $pattern => $label) {

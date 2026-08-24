@@ -81,6 +81,10 @@ $routes->group('', ['filter' => ['auth', 'subscription']], function ($routes) {
     $routes->post('renovation/item', 'Renovation::saveItem');
     $routes->post('renovation/item/delete/(:num)', 'Renovation::deleteItem/$1');
     $routes->post('renovation/note/(:num)', 'Renovation::note/$1');
+    $routes->post('renovation/appointment', 'Appointment::save');
+    $routes->post('renovation/appointment/delete/(:num)', 'Appointment::delete/$1');
+    $routes->get('renovation/appointment/google/(:num)', 'Appointment::google/$1');
+    $routes->get('renovation/appointment/ics/(:num)', 'Appointment::ics/$1');
     
     // Expenses
     $routes->get('expenses', 'Expenses::index');

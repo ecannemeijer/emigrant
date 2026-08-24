@@ -245,6 +245,7 @@ h1, h2, .navbar-brand, .landing h1 {
 .cal-dot.in_progress { background: #f0a04b; }
 .cal-dot.done { background: #6dcf9b; }
 .cal-dot.skipped { background: #b5b5b5; }
+.cal-dot.appointment { background: #7c3aed; }
 .reno-calendar { background: #faf7f2; color: #1b241c; border-radius: 16px; padding: 12px; }
     .cal-month-head, .cal-week-head, .cal-month, .cal-week, .cal-mini-grid, .cal-year {
         display: grid !important;
@@ -361,7 +362,7 @@ h1, h2, .navbar-brand, .landing h1 {
 .cal-mini-day.cal-color-yellow { background: #fef3c7; }
 .cal-mini-day.cal-color-orange { background: #ffedd5; }
 .cal-mini-day.cal-color-green { background: #dcfce7; }
-.cal-mini-day.cal-color-red { background: #fee2e2; }
+.cal-mini-day.cal-color-purple { background: #ede9fe; }
 
 .cal-time-head, .cal-allday, .cal-time-row {
     display: grid;

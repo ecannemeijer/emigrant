@@ -37,9 +37,11 @@ $statuses = $statuses ?? [];
     <div>
         <p class="reno-kicker mb-1">Planning</p>
         <h1 class="mb-2">Kalender</h1>
-        <p class="mb-0 text-muted">Overzicht van verbouwposten op dag, week, maand en jaar. Klik op een post om die te bewerken, of op een lege dag om een nieuwe post te plannen.</p>
+        <p class="mb-0 text-muted">Verbouwposten én afspraken. Klik op een dag of tijdstip voor een nieuwe afspraak. Stuur een afspraak door naar Google Agenda.</p>
     </div>
-    <a class="btn btn-outline-secondary" href="/renovation"><i class="bi bi-hammer"></i> Terug naar verbouwen</a>
+    <div class="d-flex flex-wrap gap-2">
+        <a class="btn btn-outline-secondary" href="/renovation"><i class="bi bi-hammer"></i> Terug naar verbouwen</a>
+    </div>
 </div>
 
 <div class="bc-page">
@@ -57,8 +59,11 @@ $statuses = $statuses ?? [];
             <button type="button" class="btn btn-sm btn-outline-secondary" id="renoCalNext" aria-label="Volgende"><i class="bi bi-chevron-right"></i></button>
             <button type="button" class="btn btn-sm btn-dark" id="renoCalToday">Vandaag</button>
         </div>
-        <button type="button" class="btn btn-sm btn-primary" id="renoCalAdd" <?= empty($rooms) ? 'disabled' : '' ?>>
+        <button type="button" class="btn btn-sm btn-outline-primary" id="renoCalAdd" <?= empty($rooms) ? 'disabled' : '' ?>>
             <i class="bi bi-plus"></i> Nieuwe post
+        </button>
+        <button type="button" class="btn btn-sm btn-primary" id="renoCalAddApt">
+            <i class="bi bi-calendar-plus"></i> Nieuwe afspraak
         </button>
     </div>
     <div class="bc-legend">
@@ -67,6 +72,7 @@ $statuses = $statuses ?? [];
         <span><i class="cal-dot in_progress"></i> Bezig</span>
         <span><i class="cal-dot done"></i> Klaar</span>
         <span><i class="cal-dot skipped"></i> Vervalt</span>
+        <span><i class="cal-dot appointment"></i> Afspraak</span>
     </div>
     <div id="renoCalendar" class="reno-calendar bc-body"></div>
     <div id="renoCalUnscheduled" class="reno-cal-unscheduled"></div>
@@ -78,12 +84,14 @@ $statuses = $statuses ?? [];
 
 <?= view('renovation/partials/category_modal', ['returnTo' => 'planning']) ?>
 <?= view('renovation/partials/item_modal', ['returnTo' => 'planning', 'rooms' => $rooms, 'statuses' => $statuses, 'priorities' => $priorities ?? []]) ?>
+<?= view('renovation/partials/appointment_modal') ?>
 <?= $this->endSection() ?>
 
 <?= $this->section('scripts') ?>
 <script>
 window.renoCalItems = <?= json_encode($calendarItems ?? [], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP) ?>;
 window.renoCalCats = <?= json_encode($categories ?? [], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP) ?>;
+window.renoCalAppointments = <?= json_encode($appointments ?? [], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP) ?>;
 </script>
 <script src="/js/renovation-form.js?v=<?= @filemtime(FCPATH . 'js/renovation-form.js') ?: time() ?>"></script>
 <script src="/js/renovation-calendar.js?v=<?= @filemtime(FCPATH . 'js/renovation-calendar.js') ?: time() ?>"></script>

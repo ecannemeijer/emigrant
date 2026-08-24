@@ -10,15 +10,13 @@
 
     const items = window.renoCalItems || [];
     const cats = window.renoCalCats || [];
+    const appointments = window.renoCalAppointments || [];
     let view = 'month';
     let cursor = new Date();
     cursor.setHours(12, 0, 0, 0);
 
     function ymd(d) {
         return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-    }
-    function parseDate(item) {
-        return item.planned_date ? String(item.planned_date).slice(0, 10) : null;
     }
     function mondayOf(d) {
         const x = new Date(d);
@@ -27,16 +25,25 @@
         x.setHours(12, 0, 0, 0);
         return x;
     }
-    function itemsOn(dateStr) {
-        return items.filter(function (it) { return parseDate(it) === dateStr; });
-    }
-    function catFor(name) {
-        return cats.find(function (c) { return c.name === name; }) || null;
-    }
     function escapeHtml(s) {
         return String(s || '').replace(/[&<>"']/g, function (c) {
             return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]);
         });
+    }
+    function itemDate(item) {
+        return item.planned_date ? String(item.planned_date).slice(0, 10) : null;
+    }
+    function aptDate(apt) {
+        return apt.starts_at ? String(apt.starts_at).slice(0, 10) : null;
+    }
+    function aptHour(apt) {
+        if (!apt.starts_at || String(apt.all_day) === '1' || apt.all_day === 1) return null;
+        const h = parseInt(String(apt.starts_at).slice(11, 13), 10);
+        return Number.isFinite(h) ? h : null;
+    }
+    function aptTimeLabel(apt) {
+        if (String(apt.all_day) === '1' || apt.all_day === 1) return '';
+        return String(apt.starts_at || '').slice(11, 16);
     }
     function colorClass(status) {
         const map = {
@@ -48,8 +55,39 @@
         };
         return map[status] || 'blue';
     }
-    function chipHtml(item) {
-        const payload = encodeURIComponent(JSON.stringify(item));
+    function catFor(name) {
+        return cats.find(function (c) { return c.name === name; }) || null;
+    }
+    function eventsOn(dateStr) {
+        const list = [];
+        items.forEach(function (it) {
+            if (itemDate(it) === dateStr) list.push({ kind: 'item', data: it });
+        });
+        appointments.forEach(function (apt) {
+            if (aptDate(apt) === dateStr) list.push({ kind: 'appointment', data: apt });
+        });
+        return list;
+    }
+    function allDayOn(dateStr) {
+        return eventsOn(dateStr).filter(function (ev) {
+            if (ev.kind === 'item') return true;
+            const h = aptHour(ev.data);
+            return h === null || HOURS.indexOf(h) === -1;
+        });
+    }
+    function timedOn(dateStr, hour) {
+        return eventsOn(dateStr).filter(function (ev) {
+            return ev.kind === 'appointment' && aptHour(ev.data) === hour;
+        });
+    }
+    function chipHtml(ev) {
+        const payload = encodeURIComponent(JSON.stringify(ev));
+        if (ev.kind === 'appointment') {
+            const time = aptTimeLabel(ev.data);
+            const label = (time ? time + ' ' : '') + (ev.data.title || 'Afspraak');
+            return '<button type="button" class="cal-chip cal-color-purple" data-payload="' + payload + '">' + escapeHtml(label) + '</button>';
+        }
+        const item = ev.data;
         const cat = item.room ? '<span class="cal-chip-cat">' + escapeHtml(item.room) + '</span> ' : '';
         return '<button type="button" class="cal-chip cal-color-' + colorClass(item.status) + '" data-payload="' + payload + '">' +
             cat + escapeHtml(item.title || 'Post') + '</button>';
@@ -57,7 +95,12 @@
     function bindChip(btn) {
         btn.addEventListener('click', function (e) {
             e.stopPropagation();
-            const item = JSON.parse(decodeURIComponent(this.dataset.payload));
+            const ev = JSON.parse(decodeURIComponent(this.dataset.payload));
+            if (ev.kind === 'appointment') {
+                if (window.renoFillAppointment) window.renoFillAppointment(ev.data);
+                return;
+            }
+            const item = ev.data;
             if (e.target.classList.contains('cal-chip-cat')) {
                 const cat = catFor(item.room);
                 if (cat && window.renoEditCategory) {
@@ -68,15 +111,15 @@
             if (window.renoFillItem) window.renoFillItem(item);
         });
     }
-
-    function openDate(dateStr) {
-        const list = itemsOn(dateStr);
-        if (list.length === 1) {
-            window.renoFillItem(list[0]);
+    function openDate(dateStr, hour) {
+        if (window.renoNewAppointment) {
+            window.renoNewAppointment(dateStr, hour);
             return;
         }
-        window.renoNewItem('', dateStr);
-        bootstrap.Modal.getOrCreateInstance(document.getElementById('itemModal')).show();
+        if (window.renoNewItem) {
+            window.renoNewItem('', dateStr);
+            bootstrap.Modal.getOrCreateInstance(document.getElementById('itemModal')).show();
+        }
     }
 
     function render() {
@@ -102,7 +145,7 @@
             for (let i = 0; i < 42; i++) {
                 const d = new Date(start);
                 d.setDate(start.getDate() + i);
-                html += dayCell(d, false, d.getMonth() !== m);
+                html += dayCell(d, d.getMonth() !== m);
             }
             html += '</div>';
             root.innerHTML = html;
@@ -133,15 +176,12 @@
         });
     }
 
-    function dayCell(d, large, muted) {
+    function dayCell(d, muted) {
         const key = ymd(d);
         const today = ymd(new Date()) === key;
-        const list = itemsOn(key);
-        let extra = '';
-        if (large || view === 'month') {
-            extra = list.slice(0, large ? 12 : 4).map(chipHtml).join('') +
-                (!large && list.length > 4 ? '<span class="cal-more">+' + (list.length - 4) + '</span>' : '');
-        }
+        const list = eventsOn(key);
+        const extra = list.slice(0, 4).map(chipHtml).join('') +
+            (list.length > 4 ? '<span class="cal-more">+' + (list.length - 4) + '</span>' : '');
         return '<div class="cal-day' + (muted ? ' muted' : '') + (today ? ' today' : '') + (list.length ? ' has-items' : '') + '" data-date="' + key + '">' +
             '<span class="cal-num">' + d.getDate() + '</span>' + extra + '</div>';
     }
@@ -156,12 +196,12 @@
             d.setDate(start.getDate() + i);
             const outside = d.getMonth() !== month;
             const key = ymd(d);
-            const list = itemsOn(key);
+            const list = eventsOn(key);
             const cls = ['cal-mini-day'];
             if (outside) cls.push('muted');
             if (ymd(new Date()) === key) cls.push('today');
-            if (list.length) cls.push('has-items', 'cal-color-' + colorClass(list[0].status));
-            html += '<button type="button" class="' + cls.join(' ') + '" data-date="' + key + '" title="' + escapeHtml(list.map(function (it) { return it.title; }).join(', ')) + '">' +
+            if (list.length) cls.push('has-items', list[0].kind === 'appointment' ? 'cal-color-purple' : 'cal-color-' + colorClass(list[0].data.status));
+            html += '<button type="button" class="' + cls.join(' ') + '" data-date="' + key + '" title="' + escapeHtml(list.map(function (ev) { return ev.data.title; }).join(', ')) + '">' +
                 d.getDate() + (list.length > 1 ? '<i>' + list.length + '</i>' : '') + '</button>';
         }
         html += '</div></div>';
@@ -181,7 +221,7 @@
             const key = ymd(d);
             const today = ymd(new Date()) === key;
             head += '<div class="' + (today ? 'today' : '') + '"><span>' + DAYS_LONG[i] + '</span><strong>' + d.getDate() + '</strong></div>';
-            allDay += '<div class="cal-allday-col" data-date="' + key + '">' + itemsOn(key).map(chipHtml).join('') + '</div>';
+            allDay += '<div class="cal-allday-col" data-date="' + key + '">' + allDayOn(key).map(chipHtml).join('') + '</div>';
         }
         head += '</div>';
         allDay += '</div>';
@@ -191,7 +231,8 @@
             for (let i = 0; i < 7; i++) {
                 const d = new Date(start);
                 d.setDate(start.getDate() + i);
-                grid += '<div class="cal-slot" data-date="' + ymd(d) + '"></div>';
+                const key = ymd(d);
+                grid += '<div class="cal-slot" data-date="' + key + '" data-hour="' + h + '">' + timedOn(key, h).map(chipHtml).join('') + '</div>';
             }
             grid += '</div>';
         });
@@ -203,9 +244,10 @@
         const key = ymd(cursor);
         titleEl.textContent = DAYS_LONG[(cursor.getDay() + 6) % 7] + ' ' + cursor.getDate() + ' ' + MONTHS[cursor.getMonth()] + ' ' + cursor.getFullYear();
         let html = '<div class="cal-allday cal-allday-one"><div class="cal-gutter">Hele dag</div><div class="cal-allday-col" data-date="' + key + '">' +
-            itemsOn(key).map(chipHtml).join('') + '</div></div><div class="cal-time-grid cal-time-grid-one">';
+            allDayOn(key).map(chipHtml).join('') + '</div></div><div class="cal-time-grid cal-time-grid-one">';
         HOURS.forEach(function (h) {
-            html += '<div class="cal-time-row"><div class="cal-gutter">' + String(h).padStart(2, '0') + ':00</div><div class="cal-slot" data-date="' + key + '"></div></div>';
+            html += '<div class="cal-time-row"><div class="cal-gutter">' + String(h).padStart(2, '0') + ':00</div><div class="cal-slot" data-date="' + key + '" data-hour="' + h + '">' +
+                timedOn(key, h).map(chipHtml).join('') + '</div></div>';
         });
         html += '</div>';
         root.innerHTML = html;
@@ -213,18 +255,23 @@
 
     function renderAgenda() {
         titleEl.textContent = 'Agenda';
-        const dated = items.filter(function (it) { return parseDate(it); })
-            .slice()
-            .sort(function (a, b) { return parseDate(a).localeCompare(parseDate(b)); });
+        const dated = [];
+        items.forEach(function (it) {
+            if (itemDate(it)) dated.push({ kind: 'item', data: it, sort: itemDate(it) + 'T00:00' });
+        });
+        appointments.forEach(function (apt) {
+            if (aptDate(apt)) dated.push({ kind: 'appointment', data: apt, sort: String(apt.starts_at) });
+        });
+        dated.sort(function (a, b) { return a.sort.localeCompare(b.sort); });
         if (!dated.length) {
-            root.innerHTML = '<p class="text-muted mb-0 p-3">Nog geen posten met een volledige datum. Kies bij een post dag, maand en jaar.</p>';
+            root.innerHTML = '<p class="text-muted mb-0 p-3">Nog geen afspraken of posten met een datum. Klik op een dag of op Nieuwe afspraak.</p>';
             return;
         }
         const groups = {};
-        dated.forEach(function (it) {
-            const k = parseDate(it);
+        dated.forEach(function (ev) {
+            const k = ev.kind === 'appointment' ? aptDate(ev.data) : itemDate(ev.data);
             if (!groups[k]) groups[k] = [];
-            groups[k].push(it);
+            groups[k].push(ev);
         });
         let html = '<div class="cal-agenda">';
         Object.keys(groups).forEach(function (k) {
@@ -232,7 +279,7 @@
             html += '<div class="cal-agenda-day"><div class="cal-agenda-date">' +
                 '<strong>' + d.getDate() + ' ' + MONTHS[d.getMonth()] + '</strong>' +
                 '<span>' + DAYS_LONG[(d.getDay() + 6) % 7] + ' ' + d.getFullYear() + '</span></div><div class="cal-agenda-list">';
-            groups[k].forEach(function (it) { html += chipHtml(it); });
+            groups[k].forEach(function (ev) { html += chipHtml(ev); });
             html += '</div></div>';
         });
         html += '</div>';
@@ -244,16 +291,24 @@
         root.querySelectorAll('.cal-day, .cal-allday-col, .cal-slot').forEach(function (cell) {
             cell.addEventListener('click', function (e) {
                 if (e.target.closest('.cal-chip')) return;
-                if (this.dataset.date) openDate(this.dataset.date);
+                if (!this.dataset.date) return;
+                const hour = this.dataset.hour !== undefined ? parseInt(this.dataset.hour, 10) : undefined;
+                openDate(this.dataset.date, hour);
             });
         });
         root.querySelectorAll('.cal-mini-day').forEach(function (btn) {
             btn.addEventListener('click', function () {
                 const dateStr = this.dataset.date;
-                const list = itemsOn(dateStr);
+                const list = eventsOn(dateStr);
                 if (list.length === 1) {
-                    window.renoFillItem(list[0]);
-                    return;
+                    if (list[0].kind === 'appointment' && window.renoFillAppointment) {
+                        window.renoFillAppointment(list[0].data);
+                        return;
+                    }
+                    if (list[0].kind === 'item' && window.renoFillItem) {
+                        window.renoFillItem(list[0].data);
+                        return;
+                    }
                 }
                 if (list.length > 1) {
                     cursor = new Date(dateStr + 'T12:00:00');
@@ -268,12 +323,12 @@
 
     function renderUnscheduled() {
         if (!unscheduledEl) return;
-        const loose = items.filter(function (it) { return !parseDate(it); });
+        const loose = items.filter(function (it) { return !itemDate(it); }).map(function (it) { return { kind: 'item', data: it }; });
         if (!loose.length) {
             unscheduledEl.innerHTML = '';
             return;
         }
-        unscheduledEl.innerHTML = '<p class="small mb-2">Nog zonder volledige datum — klik om dag, maand en jaar te zetten</p><div class="d-flex flex-wrap gap-2">' +
+        unscheduledEl.innerHTML = '<p class="small mb-2">Verbouwposten zonder datum — klik om een dag te zetten</p><div class="d-flex flex-wrap gap-2">' +
             loose.map(chipHtml).join('') + '</div>';
         unscheduledEl.querySelectorAll('.cal-chip').forEach(bindChip);
     }
@@ -314,6 +369,12 @@
         addBtn.addEventListener('click', function () {
             window.renoNewItem('', ymd(cursor));
             bootstrap.Modal.getOrCreateInstance(document.getElementById('itemModal')).show();
+        });
+    }
+    const addApt = document.getElementById('renoCalAddApt');
+    if (addApt) {
+        addApt.addEventListener('click', function () {
+            openDate(ymd(cursor));
         });
     }
 

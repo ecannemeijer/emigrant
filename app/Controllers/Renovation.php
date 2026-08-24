@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Libraries\NoteSanitizer;
+use App\Models\AppointmentModel;
 use App\Models\RenovationCategoryModel;
 use App\Models\RenovationItemModel;
 use App\Models\RenovationSettingModel;
@@ -175,6 +176,13 @@ class Renovation extends BaseController
             $calendarItems[] = $cal;
         }
 
+        $appointments = [];
+        try {
+            $appointments = (new AppointmentModel())->forUser((int) $userId);
+        } catch (\Throwable $e) {
+            log_message('error', 'Appointments table missing: ' . $e->getMessage());
+        }
+
         return [
             'items' => $items,
             'grouped' => $grouped,
@@ -187,6 +195,7 @@ class Renovation extends BaseController
             'rooms' => array_keys($grouped),
             'statuses' => RenovationItemModel::STATUSES,
             'priorities' => RenovationItemModel::PRIORITIES,
+            'appointments' => $appointments,
         ];
     }
 
