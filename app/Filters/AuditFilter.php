@@ -147,6 +147,7 @@ class AuditFilter implements FilterInterface
             '#^GET:scenarios/view/\d+$#'          => 'Scenario bekeken',
             '#^POST:scenarios/delete/\d+$#'        => 'Scenario verwijderd',
             '#^GET:admin/users/edit/\d+$#'         => 'Admin: gebruiker bewerken bekeken',
+            '#^GET:admin/users/finance/\d+$#'      => 'Admin: gebruikersprojectie bekeken',
             '#^POST:admin/users/update/\d+$#'      => 'Admin: gebruiker bijgewerkt',
             '#^POST:admin/users/delete/\d+$#'      => 'Admin: gebruiker verwijderd',
             '#^GET:password-reset/reset/[a-z0-9]+$#i' => 'Wachtwoord reset pagina bezocht',

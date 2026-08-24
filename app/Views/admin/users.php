@@ -91,7 +91,10 @@ $sourceLabels = [
                     </td>
                     <td><?= date('d-m-Y', strtotime($user['created_at'])) ?></td>
                     <td>
-                        <a href="/admin/users/edit/<?= $user['id'] ?>" class="btn btn-sm btn-outline-primary">
+                        <a href="/admin/users/finance/<?= $user['id'] ?>" class="btn btn-sm btn-outline-success" title="Financiële projectie">
+                            <i class="bi bi-graph-up"></i>
+                        </a>
+                        <a href="/admin/users/edit/<?= $user['id'] ?>" class="btn btn-sm btn-outline-primary" title="Bewerken">
                             <i class="bi bi-pencil"></i>
                         </a>
                         <?php if ($user['id'] != session()->get('userId')): ?>

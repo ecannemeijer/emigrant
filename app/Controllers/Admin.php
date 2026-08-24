@@ -120,6 +120,37 @@ class Admin extends BaseController
         return view('admin/edit_user', $data);
     }
 
+    public function userFinance($userId)
+    {
+        $userModel = new UserModel();
+        $user = $userModel->getUserWithProfile($userId);
+        if (!$user) {
+            return redirect()->to('/admin/users')->with('error', 'Gebruiker niet gevonden.');
+        }
+
+        $result = [
+            'calculations' => [],
+            'yearlyProjections' => [],
+            'warnings' => [],
+            'raw' => ['profile' => null],
+        ];
+        try {
+            $result = Dashboard::analyzeForUser((int) $userId);
+        } catch (\Throwable $e) {
+            log_message('error', 'Admin finance view failed: ' . $e->getMessage());
+            $result['warnings'] = ['Projectie kon niet worden berekend.'];
+        }
+
+        return view('admin/user_finance', [
+            'title' => 'Projectie — ' . ($user['username'] ?? ''),
+            'user' => $user,
+            'profile' => $result['raw']['profile'] ?? null,
+            'calculations' => $result['calculations'] ?? [],
+            'yearlyProjections' => $result['yearlyProjections'] ?? [],
+            'warnings' => $result['warnings'] ?? [],
+        ]);
+    }
+
     public function updateUser($userId)
     {
         $userModel = new UserModel();

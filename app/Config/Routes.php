@@ -124,6 +124,7 @@ $routes->group('admin', ['filter' => 'admin'], function ($routes) {
     $routes->get('users/create', 'Admin::createUser');
     $routes->post('users/store', 'Admin::storeUser');
     $routes->get('users/edit/(:num)', 'Admin::editUser/$1');
+    $routes->get('users/finance/(:num)', 'Admin::userFinance/$1');
     $routes->post('users/update/(:num)', 'Admin::updateUser/$1');
     $routes->post('users/delete/(:num)', 'Admin::deleteUser/$1');
     $routes->get('audit-logs', 'Admin::auditLogs');

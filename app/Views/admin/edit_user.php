@@ -1,9 +1,14 @@
 <?= $this->extend('layout') ?>
 
 <?= $this->section('content') ?>
-<div class="mb-4">
-    <h1><i class="bi bi-pencil"></i> Gebruiker Bewerken</h1>
-    <p class="text-muted">Wijzig gebruikersgegevens</p>
+<div class="mb-4 d-flex flex-wrap justify-content-between align-items-start gap-3">
+    <div>
+        <h1><i class="bi bi-pencil"></i> Gebruiker bewerken</h1>
+        <p class="text-muted mb-0">Wijzig gebruikersgegevens</p>
+    </div>
+    <a href="/admin/users/finance/<?= (int) $user['id'] ?>" class="btn btn-outline-success">
+        <i class="bi bi-graph-up"></i> Financiële projectie
+    </a>
 </div>
 
 <div class="row">
