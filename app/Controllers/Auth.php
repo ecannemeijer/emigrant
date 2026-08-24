@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Libraries\BillingService;
+use App\Libraries\RequestThrottle;
 use App\Models\UserModel;
 use App\Models\UserProfileModel;
 
@@ -19,11 +20,14 @@ class Auth extends BaseController
 
     public function attemptLogin()
     {
-        $userModel = new UserModel();
-        
-        $email = $this->request->getPost('email');
-        $password = $this->request->getPost('password');
+        $email = (string) $this->request->getPost('email');
+        $password = (string) $this->request->getPost('password');
 
+        if (!RequestThrottle::allow('login', 5, MINUTE, $email)) {
+            return redirect()->back()->with('error', 'Email of wachtwoord is onjuist.');
+        }
+
+        $userModel = new UserModel();
         $user = $userModel->where('email', $email)->first();
 
         if (!$user) {
@@ -38,6 +42,7 @@ class Auth extends BaseController
             return redirect()->back()->with('error', 'Account is gedeactiveerd.');
         }
 
+        session()->regenerate(true);
         session()->set([
             'userId' => $user['id'],
             'username' => $user['username'],
@@ -56,7 +61,7 @@ class Auth extends BaseController
             log_message('error', 'Billing check at login failed: ' . $e->getMessage());
         }
 
-        return redirect()->to($target)->with('success', 'Welkom terug, ' . $user['username'] . '!');
+        return redirect()->to($target)->with('success', 'Welkom terug.');
     }
 
     public function register()
@@ -70,6 +75,9 @@ class Auth extends BaseController
 
     public function attemptRegister()
     {
+        if (!RequestThrottle::allow('register', 10, HOUR)) {
+            return redirect()->back()->withInput()->with('error', 'Te veel pogingen. Probeer het later opnieuw.');
+        }
         $userModel = new UserModel();
         $profileModel = new UserProfileModel();
 
@@ -87,11 +95,9 @@ class Auth extends BaseController
         $password = $this->request->getPost('password');
         
         $userData = [
-            'username' => $email, // Auto-set to email (username field removed from registration)
+            'username' => $email,
             'email' => $email,
-            'password' => password_hash($password, PASSWORD_DEFAULT),
-            'role' => 'user',
-            'is_active' => 1,
+            'password' => $password,
         ];
 
         $userId = $userModel->insert($userData);

@@ -257,7 +257,14 @@
                                     <li><a class="dropdown-item" href="/admin"><i class="bi bi-shield-lock"></i> Admin</a></li>
                                 <?php endif; ?>
                                 <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="/logout"><i class="bi bi-box-arrow-right"></i> Uitloggen</a></li>
+                                <li>
+                                    <form action="/logout" method="post" class="mb-0">
+                                        <?= csrf_field() ?>
+                                        <button type="submit" class="dropdown-item">
+                                            <i class="bi bi-box-arrow-right"></i> Uitloggen
+                                        </button>
+                                    </form>
+                                </li>
                             </ul>
                         </li>
                     </ul>
@@ -332,21 +339,32 @@
                     <!-- Flash Messages -->
                     <?php if (session()->getFlashdata('success')): ?>
                         <div class="alert alert-success alert-dismissible fade show" role="alert">
-                            <i class="bi bi-check-circle"></i> <?= session()->getFlashdata('success') ?>
+                            <i class="bi bi-check-circle"></i> <?= esc(session()->getFlashdata('success')) ?>
                             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                         </div>
                     <?php endif; ?>
 
                     <?php if (session()->getFlashdata('error')): ?>
                         <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                            <i class="bi bi-exclamation-triangle"></i> <?= session()->getFlashdata('error') ?>
+                            <i class="bi bi-exclamation-triangle"></i> <?= esc(session()->getFlashdata('error')) ?>
                             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                         </div>
                     <?php endif; ?>
 
                     <?php if (session()->getFlashdata('info')): ?>
                         <div class="alert alert-info alert-dismissible fade show" role="alert">
-                            <i class="bi bi-info-circle"></i> <?= session()->getFlashdata('info') ?>
+                            <i class="bi bi-info-circle"></i> <?= esc(session()->getFlashdata('info')) ?>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    <?php endif; ?>
+
+                    <?php if (session()->getFlashdata('errors')): ?>
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <ul class="mb-0">
+                                <?php foreach (session()->getFlashdata('errors') as $error): ?>
+                                    <li><?= esc($error) ?></li>
+                                <?php endforeach; ?>
+                            </ul>
                             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                         </div>
                     <?php endif; ?>

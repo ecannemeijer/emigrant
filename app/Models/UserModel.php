@@ -12,7 +12,7 @@ class UserModel extends Model
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = ['username', 'email', 'password', 'role', 'is_active'];
+    protected $allowedFields    = ['username', 'email', 'password'];
 
     // Dates
     protected $useTimestamps = true;
@@ -52,5 +52,35 @@ class UserModel extends Model
             ->join('user_profiles', 'user_profiles.user_id = users.id', 'left')
             ->where('users.id', $userId)
             ->first();
+    }
+
+    public function countActiveAdmins(): int
+    {
+        return $this->where('role', 'admin')->where('is_active', 1)->countAllResults();
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     */
+    public function savePrivileged(int $userId, array $data): bool
+    {
+        $this->protect(false);
+        $ok = $this->update($userId, $data);
+        $this->protect(true);
+
+        return (bool) $ok;
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     * @return int|string|false
+     */
+    public function insertPrivileged(array $data)
+    {
+        $this->protect(false);
+        $id = $this->insert($data);
+        $this->protect(true);
+
+        return $id;
     }
 }

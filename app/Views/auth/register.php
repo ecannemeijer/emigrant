@@ -23,7 +23,7 @@
                         
                         <div class="mb-3">
                             <label for="email" class="form-label">Email</label>
-                            <input type="email" class="form-control" id="email" name="email" value="<?= old('email') ?>" required>
+                            <input type="email" class="form-control" id="email" name="email" value="<?= esc(old('email')) ?>" required>
                             <div class="form-text">Je e-mailadres wordt gebruikt om in te loggen</div>
                         </div>
 

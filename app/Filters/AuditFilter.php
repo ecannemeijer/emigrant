@@ -15,7 +15,7 @@ class AuditFilter implements FilterInterface
     private array $actionMap = [
         // Auth
         'POST:login'                => 'Ingelogd',
-        'GET:logout'                => 'Uitgelogd',
+        'POST:logout'               => 'Uitgelogd',
         'POST:register'             => 'Geregistreerd',
         'POST:password-reset'       => 'Wachtwoord reset aangevraagd',
         'POST:password-reset/reset' => 'Wachtwoord gewijzigd',

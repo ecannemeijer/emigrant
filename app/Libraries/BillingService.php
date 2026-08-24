@@ -395,8 +395,8 @@ class BillingService
     public function verifyWebhookSignature(string $rawBody, array $headers): bool
     {
         if ($this->paypal->webhookId === '') {
-            log_message('warning', 'PayPal webhook received without webhookId configured; skipping signature check.');
-            return true;
+            log_message('error', 'PayPal webhook rejected: webhookId is not configured.');
+            return false;
         }
 
         $payload = [

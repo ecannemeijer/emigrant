@@ -12,14 +12,14 @@
             <div class="card-body">
                 <?php if (session()->getFlashdata('success')): ?>
                     <div class="alert alert-success alert-dismissible fade show">
-                        <i class="bi bi-check-circle"></i> <?= session()->getFlashdata('success') ?>
+                        <i class="bi bi-check-circle"></i> <?= esc(session()->getFlashdata('success')) ?>
                         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     </div>
                 <?php endif; ?>
 
                 <?php if (session()->getFlashdata('error')): ?>
                     <div class="alert alert-danger alert-dismissible fade show">
-                        <i class="bi bi-exclamation-triangle"></i> <?= session()->getFlashdata('error') ?>
+                        <i class="bi bi-exclamation-triangle"></i> <?= esc(session()->getFlashdata('error')) ?>
                         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     </div>
                 <?php endif; ?>
@@ -41,25 +41,25 @@
                     <div class="mb-3">
                         <label for="name" class="form-label">Naam *</label>
                         <input type="text" class="form-control" id="name" name="name" 
-                               value="<?= old('name', session()->get('username') ?? '') ?>" required>
+                               value="<?= esc(old('name', session()->get('username') ?? '')) ?>" required>
                     </div>
 
                     <div class="mb-3">
                         <label for="email" class="form-label">E-mailadres *</label>
                         <input type="email" class="form-control" id="email" name="email" 
-                               value="<?= old('email', session()->get('email') ?? '') ?>" required>
+                               value="<?= esc(old('email', session()->get('email') ?? '')) ?>" required>
                         <small class="text-muted">We gebruiken dit om contact met je op te nemen</small>
                     </div>
 
                     <div class="mb-3">
                         <label for="subject" class="form-label">Onderwerp *</label>
                         <input type="text" class="form-control" id="subject" name="subject" 
-                               value="<?= old('subject') ?>" required>
+                               value="<?= esc(old('subject')) ?>" required>
                     </div>
 
                     <div class="mb-3">
                         <label for="message" class="form-label">Bericht *</label>
-                        <textarea class="form-control" id="message" name="message" rows="8" required><?= old('message') ?></textarea>
+                        <textarea class="form-control" id="message" name="message" rows="8" required><?= esc(old('message')) ?></textarea>
                         <small class="text-muted">Minimaal 10 tekens</small>
                     </div>
 

@@ -66,7 +66,7 @@ class Admin extends BaseController
             'is_active' => $this->request->getPost('is_active') ? 1 : 0,
         ];
 
-        $userId = $userModel->insert($userData);
+        $userId = $userModel->insertPrivileged($userData);
 
         if ($userId) {
             $profileModel->insert([
@@ -129,11 +129,31 @@ class Admin extends BaseController
             return redirect()->to('/admin/users')->with('error', 'Gebruiker niet gevonden.');
         }
 
+        $rules = [
+            'username' => "required|min_length[3]|max_length[50]|is_unique[users.username,id,{$userId}]",
+            'email' => "required|valid_email|is_unique[users.email,id,{$userId}]",
+            'role' => 'required|in_list[admin,user]',
+        ];
+        if ($this->request->getPost('password')) {
+            $rules['password'] = 'min_length[8]';
+        }
+
+        if (!$this->validate($rules)) {
+            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
+        }
+
+        $newRole = (string) $this->request->getPost('role');
+        $newActive = $this->request->getPost('is_active') ? 1 : 0;
+        $isCurrentlyAdmin = ($user['role'] ?? '') === 'admin' && !empty($user['is_active']);
+        if ($isCurrentlyAdmin && ($newRole !== 'admin' || !$newActive) && $userModel->countActiveAdmins() <= 1) {
+            return redirect()->back()->withInput()->with('error', 'Je kunt de laatste actieve admin niet demoten of deactiveren.');
+        }
+
         $userData = [
             'username' => $this->request->getPost('username'),
             'email' => $this->request->getPost('email'),
-            'role' => $this->request->getPost('role'),
-            'is_active' => $this->request->getPost('is_active') ? 1 : 0,
+            'role' => $newRole,
+            'is_active' => $newActive,
         ];
 
         // Update password only if provided
@@ -142,7 +162,7 @@ class Admin extends BaseController
             $userData['password'] = $newPassword;
         }
 
-        $userModel->update($userId, $userData);
+        $userModel->savePrivileged((int) $userId, $userData);
 
         // Update profile
         $profile = $profileModel->where('user_id', $userId)->first();
@@ -189,6 +209,11 @@ class Admin extends BaseController
         // Prevent admin from deleting themselves
         if ($userId == session()->get('userId')) {
             return redirect()->to('/admin/users')->with('error', 'Je kunt jezelf niet verwijderen.');
+        }
+
+        $target = $userModel->find($userId);
+        if ($target && ($target['role'] ?? '') === 'admin' && !empty($target['is_active']) && $userModel->countActiveAdmins() <= 1) {
+            return redirect()->to('/admin/users')->with('error', 'Je kunt de laatste actieve admin niet verwijderen.');
         }
 
         $userModel->delete($userId);

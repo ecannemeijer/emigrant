@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Libraries\RequestThrottle;
 use App\Models\UserModel;
 use CodeIgniter\I18n\Time;
 
@@ -19,6 +20,10 @@ class PasswordReset extends BaseController
     public function sendResetLink()
     {
         $email = $this->request->getPost('email');
+
+        if (!RequestThrottle::allow('password-reset', 5, HOUR, is_string($email) ? $email : null)) {
+            return redirect()->to('/login')->with('success', 'Als dit e-mailadres bij een account hoort, ontvang je binnen enkele minuten een wachtwoord reset link.');
+        }
 
         if (!$email || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
             return redirect()->back()->with('error', 'Voer een geldig e-mailadres in.');

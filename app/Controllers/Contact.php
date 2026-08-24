@@ -2,6 +2,8 @@
 
 namespace App\Controllers;
 
+use App\Libraries\RequestThrottle;
+
 class Contact extends BaseController
 {
     public function index()
@@ -15,6 +17,9 @@ class Contact extends BaseController
 
     public function send()
     {
+        if (!RequestThrottle::allow('contact', 5, HOUR)) {
+            return redirect()->back()->withInput()->with('error', 'Te veel pogingen. Probeer het later opnieuw.');
+        }
         $rules = [
             'name' => 'required|min_length[3]|max_length[100]',
             'email' => 'required|valid_email',
