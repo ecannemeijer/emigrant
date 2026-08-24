@@ -3,6 +3,8 @@
 namespace App\Controllers;
 
 use App\Libraries\BillingService;
+use App\Libraries\DatabaseBackup;
+use App\Libraries\MaintenanceService;
 use App\Models\UserModel;
 use App\Models\UserProfileModel;
 use App\Models\AuditLogModel;
@@ -266,6 +268,7 @@ class Admin extends BaseController
         return view('admin/config', [
             'title' => 'Config',
             'settings' => $billing->getSettings(),
+            'maintenance' => (new MaintenanceService())->isEnabled(),
         ]);
     }
 
@@ -311,6 +314,35 @@ class Admin extends BaseController
         $billing->setDiscount($discountEnabled, $percent, $until);
 
         return redirect()->to('/admin/config')->with('success', 'Configuratie opgeslagen.');
+    }
+
+    public function setMaintenance()
+    {
+        $enabled = $this->request->getPost('maintenance_mode') === '1';
+        (new MaintenanceService())->setEnabled($enabled);
+
+        $msg = $enabled
+            ? 'Onderhoudsmodus staat aan. Bezoekers zien de onderhoudspagina. Jij blijft als beheerder binnen.'
+            : 'Onderhoudsmodus is uit. De site is weer bereikbaar.';
+
+        return redirect()->to('/admin/config')->with('success', $msg);
+    }
+
+    public function backupDatabase()
+    {
+        try {
+            $sql = (new DatabaseBackup())->dump();
+        } catch (\Throwable $e) {
+            log_message('error', 'Database backup failed: ' . $e->getMessage());
+            return redirect()->to('/admin/config')->with('error', 'Backup maken is mislukt.');
+        }
+
+        $filename = 'emigreeritalia-' . date('Y-m-d-His') . '.sql';
+
+        return $this->response
+            ->setHeader('Content-Type', 'application/sql; charset=utf-8')
+            ->setHeader('Content-Disposition', 'attachment; filename="' . $filename . '"')
+            ->setBody($sql);
     }
 
     public function payments()

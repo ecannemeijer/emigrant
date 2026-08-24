@@ -33,6 +33,7 @@ class Filters extends BaseFilters
         'admin'         => \App\Filters\AdminFilter::class,
         'subscription'  => \App\Filters\SubscriptionFilter::class,
         'audit'         => \App\Filters\AuditFilter::class,
+        'maintenance'   => \App\Filters\MaintenanceFilter::class,
     ];
 
     /**
@@ -57,6 +58,7 @@ class Filters extends BaseFilters
         'before' => [
             'csrf' => ['except' => ['webhooks/paypal']],
             'invalidchars',
+            'maintenance',
         ],
         'after' => [
             'secureheaders',

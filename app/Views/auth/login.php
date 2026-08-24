@@ -10,6 +10,9 @@
                         <i class="bi bi-box-arrow-in-right"></i> Inloggen
                     </h2>
                     <p class="text-center text-muted mb-4">Welkom terug bij EmigreerItalia</p>
+                    <?php if (!empty($maintenance)): ?>
+                        <div class="alert alert-warning">De site is in onderhoud. Alleen beheerders kunnen inloggen.</div>
+                    <?php endif; ?>
 
                     <?php if (session()->getFlashdata('error')): ?>
                         <div class="alert alert-danger"><?= esc(session()->getFlashdata('error')) ?></div>

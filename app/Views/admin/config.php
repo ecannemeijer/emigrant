@@ -106,6 +106,43 @@
         </div>
     </div>
     <div class="col-lg-5">
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Onderhoudsmodus</h5>
+                <?php if (!empty($maintenance)): ?>
+                    <p class="mb-3">
+                        <span class="badge bg-warning text-dark">Aan</span>
+                        Bezoekers zien nu de onderhoudspagina. Jij blijft als beheerder bij Config en de rest van de app.
+                    </p>
+                    <form action="/admin/config/maintenance" method="post">
+                        <?= csrf_field() ?>
+                        <input type="hidden" name="maintenance_mode" value="0">
+                        <button type="submit" class="btn btn-success">Onderhoud uitzetten</button>
+                    </form>
+                <?php else: ?>
+                    <p class="text-muted mb-3">
+                        Zet de site tijdelijk offline. Alleen beheerders kunnen nog inloggen. PayPal-webhooks blijven werken.
+                    </p>
+                    <form action="/admin/config/maintenance" method="post" onsubmit="return confirm('Bezoekers zien daarna de onderhoudspagina. Doorgaan?');">
+                        <?= csrf_field() ?>
+                        <input type="hidden" name="maintenance_mode" value="1">
+                        <button type="submit" class="btn btn-outline-warning">Onderhoud aanzetten</button>
+                    </form>
+                <?php endif; ?>
+            </div>
+        </div>
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Databasebackup</h5>
+                <p class="text-muted small">Download een .sql-bestand van de hele database. Bewaar het buiten de server.</p>
+                <form action="/admin/config/backup" method="post">
+                    <?= csrf_field() ?>
+                    <button type="submit" class="btn btn-outline-primary">
+                        <i class="bi bi-download"></i> Backup downloaden
+                    </button>
+                </form>
+            </div>
+        </div>
         <div class="card">
             <div class="card-body">
                 <h5 class="card-title">PayPal</h5>

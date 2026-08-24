@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Libraries\BillingService;
+use App\Libraries\MaintenanceService;
 use App\Libraries\RequestThrottle;
 use App\Models\UserModel;
 use App\Models\UserProfileModel;
@@ -15,7 +16,17 @@ class Auth extends BaseController
             return redirect()->to('/dashboard');
         }
 
-        return view('auth/login', ['title' => 'Inloggen']);
+        $maintenance = false;
+        try {
+            $maintenance = (new MaintenanceService())->isEnabled();
+        } catch (\Throwable $e) {
+            $maintenance = false;
+        }
+
+        return view('auth/login', [
+            'title' => 'Inloggen',
+            'maintenance' => $maintenance,
+        ]);
     }
 
     public function attemptLogin()
@@ -40,6 +51,14 @@ class Auth extends BaseController
 
         if (!$user['is_active']) {
             return redirect()->back()->with('error', 'Account is gedeactiveerd.');
+        }
+
+        try {
+            if ((new MaintenanceService())->isEnabled() && ($user['role'] ?? '') !== 'admin') {
+                return redirect()->back()->with('error', 'De site is in onderhoud. Probeer het later opnieuw.');
+            }
+        } catch (\Throwable $e) {
+            // ga door met inloggen
         }
 
         session()->regenerate(true);

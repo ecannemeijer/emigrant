@@ -74,6 +74,8 @@ class AuditFilter implements FilterInterface
         'GET:subscription/return'   => 'PayPal betaling terugkeer',
         'GET:admin/config'          => 'Admin: config bekeken',
         'POST:admin/config'         => 'Admin: config opgeslagen',
+        'POST:admin/config/backup'  => 'Admin: databasebackup gedownload',
+        'POST:admin/config/maintenance' => 'Admin: onderhoudsmodus gewijzigd',
         'GET:admin/payments'        => 'Admin: betalingen bekeken',
         'GET:renovation/planning'   => 'Planning bekeken',
         'POST:renovation/appointment' => 'Afspraak opgeslagen',

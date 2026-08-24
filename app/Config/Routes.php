@@ -131,6 +131,8 @@ $routes->group('admin', ['filter' => 'admin'], function ($routes) {
     $routes->post('audit-logs/delete-old', 'Admin::deleteOldLogs');
     $routes->get('config', 'Admin::config');
     $routes->post('config', 'Admin::saveConfig');
+    $routes->post('config/backup', 'Admin::backupDatabase');
+    $routes->post('config/maintenance', 'Admin::setMaintenance');
     $routes->get('payments', 'Admin::payments');
 });
 
