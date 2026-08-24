@@ -77,6 +77,84 @@ class BillingService
         return $this->subscriptions->getByUserId($userId);
     }
 
+    /**
+     * @return array<int, array>
+     */
+    public function subscriptionsByUserId(): array
+    {
+        $rows = $this->subscriptions->findAll();
+        $map = [];
+        foreach ($rows as $row) {
+            $map[(int) $row['user_id']] = $row;
+        }
+
+        return $map;
+    }
+
+    /**
+     * @return list<array>
+     */
+    public function listPayments(?int $userId = null): array
+    {
+        $builder = $this->payments
+            ->select('payments.*, users.username, users.email')
+            ->join('users', 'users.id = payments.user_id', 'left')
+            ->orderBy('payments.created_at', 'DESC');
+
+        if ($userId) {
+            $builder->where('payments.user_id', $userId);
+        }
+
+        return $builder->findAll();
+    }
+
+    /**
+     * @return list<array>
+     */
+    public function paymentsForUser(int $userId): array
+    {
+        return $this->payments
+            ->where('user_id', $userId)
+            ->orderBy('created_at', 'DESC')
+            ->findAll();
+    }
+
+    public function setManualSubscription(
+        int $userId,
+        string $startsAt,
+        string $endsAt,
+        string $plan = self::PLAN_YEAR,
+        string $source = 'admin'
+    ): array {
+        if (!in_array($plan, [self::PLAN_MONTH, self::PLAN_YEAR], true)) {
+            $plan = self::PLAN_YEAR;
+        }
+
+        $allowedSources = ['complimentary', 'paypal', 'admin'];
+        if (!in_array($source, $allowedSources, true)) {
+            $source = 'admin';
+        }
+
+        $status = strtotime($endsAt) > time() ? 'active' : 'expired';
+        $existing = $this->getSubscription($userId);
+        $data = [
+            'user_id' => $userId,
+            'plan' => $plan,
+            'source' => $source,
+            'status' => $status,
+            'starts_at' => $startsAt,
+            'ends_at' => $endsAt,
+        ];
+
+        if ($existing) {
+            $this->subscriptions->update($existing['id'], $data);
+        } else {
+            $this->subscriptions->insert($data);
+        }
+
+        return $this->getSubscription($userId);
+    }
+
     public function hasAccess(int $userId): bool
     {
         if (!$this->isBillingEnabled()) {

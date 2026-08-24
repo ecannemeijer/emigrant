@@ -17,10 +17,17 @@ class Admin extends BaseController
     public function users()
     {
         $userModel = new UserModel();
-        
+        $subscriptions = [];
+        try {
+            $subscriptions = (new BillingService())->subscriptionsByUserId();
+        } catch (\Throwable $e) {
+            log_message('error', 'Could not load subscriptions: ' . $e->getMessage());
+        }
+
         $data = [
             'title' => 'Gebruikersbeheer',
-            'users' => $userModel->findAll(),
+            'users' => $userModel->orderBy('id', 'ASC')->findAll(),
+            'subscriptions' => $subscriptions,
         ];
 
         return view('admin/users', $data);
@@ -91,9 +98,21 @@ class Admin extends BaseController
             return redirect()->to('/admin/users')->with('error', 'Gebruiker niet gevonden.');
         }
 
+        $billing = new BillingService();
+        $subscription = null;
+        $payments = [];
+        try {
+            $subscription = $billing->getSubscription((int) $userId);
+            $payments = $billing->paymentsForUser((int) $userId);
+        } catch (\Throwable $e) {
+            log_message('error', 'Could not load billing for user: ' . $e->getMessage());
+        }
+
         $data = [
             'title' => 'Gebruiker bewerken',
             'user' => $user,
+            'subscription' => $subscription,
+            'payments' => $payments,
         ];
 
         return view('admin/edit_user', $data);
@@ -134,6 +153,30 @@ class Admin extends BaseController
 
         if ($profile) {
             $profileModel->update($profile['id'], $profileData);
+        }
+
+        $startsRaw = trim((string) $this->request->getPost('subscription_starts_at'));
+        $endsRaw = trim((string) $this->request->getPost('subscription_ends_at'));
+        if ($startsRaw !== '' xor $endsRaw !== '') {
+            return redirect()->back()->withInput()->with('error', 'Vul zowel start- als einddatum van het abonnement in.');
+        }
+        if ($startsRaw !== '' && $endsRaw !== '') {
+            $startsAt = date('Y-m-d H:i:s', strtotime($startsRaw));
+            $endsAt = date('Y-m-d H:i:s', strtotime($endsRaw));
+            if ($startsAt && $endsAt && strtotime($endsAt) > 0) {
+                try {
+                    (new BillingService())->setManualSubscription(
+                        (int) $userId,
+                        $startsAt,
+                        $endsAt,
+                        (string) $this->request->getPost('subscription_plan') ?: 'year',
+                        (string) $this->request->getPost('subscription_source') ?: 'admin'
+                    );
+                } catch (\Throwable $e) {
+                    log_message('error', 'Admin subscription update failed: ' . $e->getMessage());
+                    return redirect()->back()->withInput()->with('error', 'Gebruiker opgeslagen, maar abonnement kon niet worden bijgewerkt.');
+                }
+            }
         }
 
         return redirect()->to('/admin/users')->with('success', 'Gebruiker bijgewerkt!');
@@ -227,5 +270,24 @@ class Admin extends BaseController
         $billing->setPrices($month, $year);
 
         return redirect()->to('/admin/config')->with('success', 'Configuratie opgeslagen.');
+    }
+
+    public function payments()
+    {
+        $userId = $this->request->getGet('user_id');
+        $payments = [];
+        try {
+            $billing = new BillingService();
+            $payments = $billing->listPayments($userId ? (int) $userId : null);
+        } catch (\Throwable $e) {
+            log_message('error', 'Could not load payments: ' . $e->getMessage());
+        }
+
+        return view('admin/payments', [
+            'title' => 'Betalingen',
+            'payments' => $payments,
+            'filterUser' => $userId,
+            'users' => (new UserModel())->orderBy('username', 'ASC')->findAll(),
+        ]);
     }
 }

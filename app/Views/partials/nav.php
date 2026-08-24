@@ -30,7 +30,8 @@ $items = [
     <?php if (session()->get('role') === 'admin'): ?>
         <li class="nav-item mt-3"><hr><small class="text-muted px-3">Admin</small></li>
         <li class="nav-item"><a class="nav-link <?= $uri === 'admin/config' ? 'active' : '' ?>" href="/admin/config"><i class="bi bi-sliders"></i> Config</a></li>
-        <li class="nav-item"><a class="nav-link" href="/admin/users"><i class="bi bi-people"></i> Gebruikers</a></li>
-        <li class="nav-item"><a class="nav-link" href="/admin/audit-logs"><i class="bi bi-journal-text"></i> Audit log</a></li>
+        <li class="nav-item"><a class="nav-link <?= str_starts_with($uri, 'admin/users') ? 'active' : '' ?>" href="/admin/users"><i class="bi bi-people"></i> Gebruikers</a></li>
+        <li class="nav-item"><a class="nav-link <?= $uri === 'admin/payments' ? 'active' : '' ?>" href="/admin/payments"><i class="bi bi-paypal"></i> Betalingen</a></li>
+        <li class="nav-item"><a class="nav-link <?= str_starts_with($uri, 'admin/audit-logs') ? 'active' : '' ?>" href="/admin/audit-logs"><i class="bi bi-journal-text"></i> Audit log</a></li>
     <?php endif; ?>
 </ul>

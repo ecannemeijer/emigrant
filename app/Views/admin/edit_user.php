@@ -64,6 +64,51 @@
                         </div>
                     </div>
 
+                    <?php
+                        $sub = $subscription ?? null;
+                        $toLocal = static function (?string $dt): string {
+                            if (!$dt) {
+                                return '';
+                            }
+                            $ts = strtotime($dt);
+                            return $ts ? date('Y-m-d\TH:i', $ts) : '';
+                        };
+                    ?>
+                    <hr>
+                    <h5 class="mb-3">Abonnement</h5>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="subscription_starts_at" class="form-label">Start</label>
+                            <input type="datetime-local" class="form-control" id="subscription_starts_at"
+                                   name="subscription_starts_at"
+                                   value="<?= esc(old('subscription_starts_at', $toLocal($sub['starts_at'] ?? null))) ?>">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="subscription_ends_at" class="form-label">Geldig tot</label>
+                            <input type="datetime-local" class="form-control" id="subscription_ends_at"
+                                   name="subscription_ends_at"
+                                   value="<?= esc(old('subscription_ends_at', $toLocal($sub['ends_at'] ?? null))) ?>">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="subscription_plan" class="form-label">Plan</label>
+                            <select class="form-select" id="subscription_plan" name="subscription_plan">
+                                <option value="year" <?= ($sub['plan'] ?? 'year') === 'year' ? 'selected' : '' ?>>Jaar</option>
+                                <option value="month" <?= ($sub['plan'] ?? '') === 'month' ? 'selected' : '' ?>>Maand</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="subscription_source" class="form-label">Bron</label>
+                            <select class="form-select" id="subscription_source" name="subscription_source">
+                                <option value="complimentary" <?= ($sub['source'] ?? '') === 'complimentary' ? 'selected' : '' ?>>Gratis jaar</option>
+                                <option value="paypal" <?= ($sub['source'] ?? '') === 'paypal' ? 'selected' : '' ?>>PayPal</option>
+                                <option value="admin" <?= ($sub['source'] ?? 'admin') === 'admin' ? 'selected' : '' ?>>Handmatig</option>
+                            </select>
+                        </div>
+                    </div>
+                    <p class="form-text">Vul start- en einddatum in om het abonnement te zetten of te verlengen. Einddatum in de toekomst = actief.</p>
+
                     <button type="submit" class="btn btn-primary">
                         <i class="bi bi-save"></i> Opslaan
                     </button>
@@ -71,6 +116,32 @@
                         <i class="bi bi-x-circle"></i> Annuleren
                     </a>
                 </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">PayPal-betalingen</h5>
+                <?php if (empty($payments)): ?>
+                    <p class="text-muted mb-0">Nog geen betalingen voor deze gebruiker.</p>
+                <?php else: ?>
+                    <ul class="list-unstyled mb-0">
+                        <?php foreach ($payments as $payment): ?>
+                            <li class="border-bottom py-2">
+                                <div class="fw-semibold">
+                                    € <?= number_format((float) $payment['amount'], 2, ',', '.') ?>
+                                    · <?= ($payment['plan'] ?? '') === 'month' ? 'Maand' : 'Jaar' ?>
+                                </div>
+                                <div class="small text-muted">
+                                    <?= date('d-m-Y H:i', strtotime($payment['created_at'])) ?>
+                                    · <?= esc($payment['status']) ?>
+                                </div>
+                            </li>
+                        <?php endforeach; ?>
+                    </ul>
+                    <a href="/admin/payments?user_id=<?= (int) $user['id'] ?>" class="btn btn-sm btn-outline-primary mt-3">Alle betalingen</a>
+                <?php endif; ?>
             </div>
         </div>
     </div>
