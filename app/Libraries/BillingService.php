@@ -41,12 +41,75 @@ class BillingService
         return strtoupper($this->settings->getValue('currency', 'EUR') ?: 'EUR');
     }
 
-    public function getPrice(string $plan): float
+    public function getListPrice(string $plan): float
     {
         $key = $plan === self::PLAN_MONTH ? 'price_month' : 'price_year';
         $default = $plan === self::PLAN_MONTH ? '9.90' : '69.00';
 
         return (float) $this->settings->getValue($key, $default);
+    }
+
+    public function getPrice(string $plan): float
+    {
+        return $this->getPayablePrice($plan);
+    }
+
+    public function getPayablePrice(string $plan): float
+    {
+        $list = $this->getListPrice($plan);
+        if (!$this->isDiscountActive()) {
+            return round($list, 2);
+        }
+
+        $sale = round($list * (1 - ($this->getDiscountPercent() / 100)), 2);
+        if ($list > 0 && $sale < 0.01) {
+            return 0.01;
+        }
+
+        return max(0, $sale);
+    }
+
+    public function getDiscountPercent(): float
+    {
+        $raw = $this->settings->getValue('discount_percent', '0');
+
+        return max(0, min(100, (float) $raw));
+    }
+
+    public function getDiscountUntil(): string
+    {
+        $until = trim((string) $this->settings->getValue('discount_until', ''));
+        if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $until)) {
+            return '';
+        }
+
+        return $until;
+    }
+
+    public function isDiscountEnabled(): bool
+    {
+        return $this->settings->getValue('discount_enabled', '0') === '1';
+    }
+
+    public function isDiscountActive(): bool
+    {
+        if (!$this->isDiscountEnabled() || $this->getDiscountPercent() <= 0) {
+            return false;
+        }
+
+        $until = $this->getDiscountUntil();
+        if ($until === '') {
+            return false;
+        }
+
+        $tz = new \DateTimeZone('Europe/Amsterdam');
+        $now = new \DateTime('now', $tz);
+        $end = \DateTime::createFromFormat('Y-m-d H:i:s', $until . ' 23:59:59', $tz);
+        if (!$end) {
+            return false;
+        }
+
+        return $now <= $end;
     }
 
     public function setPrices(float $month, float $year): void
@@ -55,12 +118,30 @@ class BillingService
         $this->settings->setValue('price_year', number_format($year, 2, '.', ''));
     }
 
+    public function setDiscount(bool $enabled, float $percent, string $until): void
+    {
+        $this->settings->setValue('discount_enabled', $enabled ? '1' : '0');
+        $this->settings->setValue('discount_percent', number_format(max(0, min(100, $percent)), 2, '.', ''));
+        $until = preg_match('/^\d{4}-\d{2}-\d{2}$/', $until) ? $until : '';
+        $this->settings->setValue('discount_until', $until);
+    }
+
     public function getSettings(): array
     {
+        $until = $this->getDiscountUntil();
+        $untilLabel = $until !== '' ? date('d-m-Y', strtotime($until . ' 12:00:00')) : null;
+
         return [
             'billing_enabled' => $this->isBillingEnabled(),
-            'price_month' => $this->getPrice(self::PLAN_MONTH),
-            'price_year' => $this->getPrice(self::PLAN_YEAR),
+            'price_month' => $this->getListPrice(self::PLAN_MONTH),
+            'price_year' => $this->getListPrice(self::PLAN_YEAR),
+            'sale_price_month' => $this->getPayablePrice(self::PLAN_MONTH),
+            'sale_price_year' => $this->getPayablePrice(self::PLAN_YEAR),
+            'discount_enabled' => $this->isDiscountEnabled(),
+            'discount_active' => $this->isDiscountActive(),
+            'discount_percent' => $this->getDiscountPercent(),
+            'discount_until' => $until,
+            'discount_until_label' => $untilLabel,
             'currency' => $this->getCurrency(),
             'paypal_configured' => $this->isPayPalConfigured(),
             'paypal_mode' => $this->paypal->mode ?: 'sandbox',
@@ -248,9 +329,13 @@ class BillingService
             return ['ok' => false, 'error' => 'PayPal is nog niet geconfigureerd.'];
         }
 
-        $amount = number_format($this->getPrice($plan), 2, '.', '');
+        $amount = number_format($this->getPayablePrice($plan), 2, '.', '');
         $currency = $this->getCurrency();
         $label = $plan === self::PLAN_MONTH ? 'Maandabonnement' : 'Jaarabonnement';
+        if ($this->isDiscountActive()) {
+            $pct = rtrim(rtrim(number_format($this->getDiscountPercent(), 2, '.', ''), '0'), '.');
+            $label .= ' (' . $pct . '% korting)';
+        }
 
         $payload = [
             'intent' => 'CAPTURE',
@@ -365,7 +450,7 @@ class BillingService
             return ['ok' => false, 'error' => 'Deze betaling hoort bij een ander account.'];
         }
 
-        $amount = $capture['amount']['value'] ?? $this->getPrice($plan);
+        $amount = $capture['amount']['value'] ?? $this->getPayablePrice($plan);
         $currency = $capture['amount']['currency_code'] ?? $this->getCurrency();
 
         $payment = $orderId !== '' ? $this->payments->findByOrderId($orderId) : null;

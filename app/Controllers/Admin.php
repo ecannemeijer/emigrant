@@ -290,9 +290,25 @@ class Admin extends BaseController
         $month = (float) $monthRaw;
         $year = (float) $yearRaw;
 
+        $discountEnabled = (bool) $this->request->getPost('discount_enabled');
+        $percentRaw = str_replace(',', '.', (string) $this->request->getPost('discount_percent'));
+        $until = trim((string) $this->request->getPost('discount_until'));
+
+        if ($discountEnabled) {
+            if (!is_numeric($percentRaw) || (float) $percentRaw < 1 || (float) $percentRaw > 100) {
+                return redirect()->back()->withInput()->with('error', 'Vul een kortingspercentage tussen 1 en 100 in.');
+            }
+            if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $until)) {
+                return redirect()->back()->withInput()->with('error', 'Kies tot wanneer de korting loopt.');
+            }
+        }
+
+        $percent = is_numeric($percentRaw) ? (float) $percentRaw : 0.0;
+
         $billing = new BillingService();
         $billing->setBillingEnabled((bool) $this->request->getPost('billing_enabled'));
         $billing->setPrices($month, $year);
+        $billing->setDiscount($discountEnabled, $percent, $until);
 
         return redirect()->to('/admin/config')->with('success', 'Configuratie opgeslagen.');
     }

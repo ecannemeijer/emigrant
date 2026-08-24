@@ -11,6 +11,8 @@ $sourceLabel = [
 ][$subscription['source'] ?? ''] ?? ($subscription['source'] ?? '');
 $planLabel = ($subscription['plan'] ?? '') === 'month' ? 'Maand' : 'Jaar';
 $fmt = fn (float $n) => '€ ' . number_format($n, 2, ',', '.');
+$saleOn = !empty($settings['discount_active']);
+$pctLabel = rtrim(rtrim(number_format((float) ($settings['discount_percent'] ?? 0), 1, ',', ''), '0'), ',');
 ?>
 
 <div class="billing-hero mb-4">
@@ -40,6 +42,17 @@ $fmt = fn (float $n) => '€ ' . number_format($n, 2, ',', '.');
     </div>
 </div>
 
+<?php if ($saleOn): ?>
+    <div class="billing-sale mb-4">
+        <div class="billing-sale-pct">−<?= esc($pctLabel) ?>%</div>
+        <div class="billing-sale-copy">
+            <p class="billing-sale-kicker mb-1">Tijdelijke actie</p>
+            <h2 class="h4 mb-1">Korting op maand- en jaarabonnement</h2>
+            <p class="mb-0">Geldig tot en met <strong><?= esc($settings['discount_until_label']) ?></strong>. Daarna gelden weer de gewone prijzen.</p>
+        </div>
+    </div>
+<?php endif; ?>
+
 <div class="row g-4">
     <div class="col-lg-5">
         <div class="card h-100">
@@ -63,10 +76,17 @@ $fmt = fn (float $n) => '€ ' . number_format($n, 2, ',', '.');
     <div class="col-lg-7">
         <div class="row g-3">
             <div class="col-md-6">
-                <div class="card billing-plan h-100">
+                <div class="card billing-plan h-100<?= $saleOn ? ' is-sale' : '' ?>">
                     <div class="card-body d-flex flex-column">
+                        <?php if ($saleOn): ?><span class="billing-sale-tag">Actieprijs</span><?php endif; ?>
                         <h5>Maand</h5>
-                        <p class="display-6 mb-2"><?= $fmt((float) $settings['price_month']) ?></p>
+                        <?php if ($saleOn): ?>
+                            <p class="billing-price-old mb-0"><?= $fmt((float) $settings['price_month']) ?></p>
+                            <p class="display-6 billing-price-now mb-1"><?= $fmt((float) $settings['sale_price_month']) ?></p>
+                            <p class="billing-save mb-2">Je bespaart <?= $fmt((float) $settings['price_month'] - (float) $settings['sale_price_month']) ?> · tot <?= esc($settings['discount_until_label']) ?></p>
+                        <?php else: ?>
+                            <p class="display-6 mb-2"><?= $fmt((float) $settings['price_month']) ?></p>
+                        <?php endif; ?>
                         <p class="text-muted">Een maand extra toegang. Verlengt vanaf de huidige einddatum.</p>
                         <?php if ($settings['billing_enabled'] && $settings['paypal_configured'] && !$isAdmin): ?>
                             <form action="/subscription/checkout/month" method="post" class="mt-auto">
@@ -84,10 +104,17 @@ $fmt = fn (float $n) => '€ ' . number_format($n, 2, ',', '.');
                 </div>
             </div>
             <div class="col-md-6">
-                <div class="card billing-plan billing-plan-year h-100">
+                <div class="card billing-plan billing-plan-year h-100<?= $saleOn ? ' is-sale' : '' ?>">
                     <div class="card-body d-flex flex-column">
+                        <?php if ($saleOn): ?><span class="billing-sale-tag">Actieprijs</span><?php endif; ?>
                         <h5>Jaar</h5>
-                        <p class="display-6 mb-2"><?= $fmt((float) $settings['price_year']) ?></p>
+                        <?php if ($saleOn): ?>
+                            <p class="billing-price-old mb-0"><?= $fmt((float) $settings['price_year']) ?></p>
+                            <p class="display-6 billing-price-now mb-1"><?= $fmt((float) $settings['sale_price_year']) ?></p>
+                            <p class="billing-save mb-2">Je bespaart <?= $fmt((float) $settings['price_year'] - (float) $settings['sale_price_year']) ?> · tot <?= esc($settings['discount_until_label']) ?></p>
+                        <?php else: ?>
+                            <p class="display-6 mb-2"><?= $fmt((float) $settings['price_year']) ?></p>
+                        <?php endif; ?>
                         <p class="text-muted">Twaalf maanden extra toegang. Voordeliger dan maandelijks.</p>
                         <?php if ($settings['billing_enabled'] && $settings['paypal_configured'] && !$isAdmin): ?>
                             <form action="/subscription/checkout/year" method="post" class="mt-auto">

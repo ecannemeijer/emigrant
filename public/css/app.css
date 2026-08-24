@@ -211,11 +211,86 @@ h1, h2, .navbar-brand, .landing h1 {
     box-shadow: var(--shadow);
 }
 .billing-hero h1 { font-family: "Fraunces", Georgia, serif; }
-.billing-plan { border-top: 3px solid var(--it-green) !important; }
+.billing-plan { border-top: 3px solid var(--it-green) !important; position: relative; overflow: hidden; }
 .billing-plan-year { border-top-color: var(--it-gold) !important; }
+.billing-plan.is-sale { box-shadow: 0 16px 36px rgba(205, 33, 42, .12); }
+.billing-plan.is-sale h5 { padding-right: 4.5rem; }
+.billing-sale {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 20px 24px;
+    border-radius: 20px;
+    background:
+        linear-gradient(120deg, rgba(205, 33, 42, .12), rgba(198, 166, 100, .18)),
+        #fff;
+    border: 1px solid rgba(205, 33, 42, .18);
+    box-shadow: var(--shadow);
+}
+.billing-sale-pct {
+    flex: 0 0 auto;
+    min-width: 88px;
+    height: 88px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    font-family: "Fraunces", Georgia, serif;
+    font-size: 1.55rem;
+    font-weight: 700;
+    color: #fff;
+    background: radial-gradient(circle at 30% 30%, #e23a42, #9E181F);
+    box-shadow: 0 8px 18px rgba(158, 24, 31, .28);
+}
+.billing-sale-kicker {
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    font-size: .75rem;
+    color: var(--it-red);
+    font-weight: 700;
+}
+.billing-sale-tag {
+    position: absolute;
+    top: 14px;
+    right: -28px;
+    transform: rotate(32deg);
+    background: var(--it-red);
+    color: #fff;
+    font-size: .72rem;
+    font-weight: 700;
+    letter-spacing: .04em;
+    padding: 4px 36px;
+}
+.billing-price-old {
+    display: inline-block;
+    color: var(--muted);
+    text-decoration: line-through;
+    text-decoration-thickness: 2px;
+    margin-right: .4rem;
+}
+.billing-price-now {
+    color: var(--it-green-dark);
+    font-family: "Fraunces", Georgia, serif;
+}
+.billing-save {
+    color: var(--it-red-dark);
+    font-weight: 600;
+    font-size: .9rem;
+}
+.billing-config-preview {
+    background: var(--cream);
+    border-radius: 14px;
+    padding: 14px 16px;
+    border: 1px dashed rgba(0, 140, 69, .25);
+}
+.billing-config-preview.is-on {
+    border-style: solid;
+    border-color: rgba(205, 33, 42, .28);
+    background: #fff8f6;
+}
 
 @media (max-width: 767.98px) {
     .billing-hero { flex-direction: column; align-items: stretch; padding: 24px; }
+    .billing-sale { flex-direction: column; align-items: flex-start; }
 }
 
 @media (max-width: 767.98px) {
