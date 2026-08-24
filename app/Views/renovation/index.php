@@ -28,10 +28,10 @@ $prioClass = ['high' => 'prio-high', 'medium' => 'prio-mid', 'low' => 'prio-low'
     <div>
         <p class="reno-kicker mb-1">Casa nuova · Cantiere</p>
         <h1 class="mb-2">Verbouwen</h1>
-        <p class="mb-0 reno-lead">Begroting, offertes en uitvoering van je Italiaanse huis — met notities per post, kosten en impact op je vermogen.</p>
+        <p class="mb-0 reno-lead">Maak zelf categorieën (keuken, dak, elektra) en voeg daarna posten met kosten toe. Die kosten gaan van je vermogen op het dashboard.</p>
     </div>
-    <button class="btn btn-light" type="button" data-bs-toggle="modal" data-bs-target="#itemModal" onclick="renoNewItem()">
-        <i class="bi bi-plus-lg"></i> Nieuwe post
+    <button class="btn btn-light" type="button" data-bs-toggle="modal" data-bs-target="#categoryModal" onclick="renoNewCategory()">
+        <i class="bi bi-folder-plus"></i> Nieuwe categorie
     </button>
 </div>
 
@@ -117,27 +117,56 @@ $prioClass = ['high' => 'prio-high', 'medium' => 'prio-mid', 'low' => 'prio-low'
     <?php endforeach; ?>
 </div>
 
-<?php if (empty($items)): ?>
-    <div class="card">
+<?php
+$catByName = [];
+foreach ($categories ?? [] as $cat) {
+    $catByName[$cat['name']] = $cat;
+}
+?>
+<?php if (empty($grouped)): ?>
+    <div class="reno-empty-cats card">
         <div class="card-body text-center py-5">
-            <p class="text-muted mb-3">Nog geen verbouwposten. Voeg keuken, dak, elektra of een eigen post toe.</p>
-            <button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#itemModal" onclick="renoNewItem()">Eerste post</button>
+            <div class="reno-empty-icon mb-3"><i class="bi bi-folder"></i></div>
+            <h2 class="h5">Nog geen categorieën</h2>
+            <p class="text-muted mb-3">Begin met een categorie, bijvoorbeeld Keuken of Dak. Daarna voeg je per categorie verbouwposten toe.</p>
+            <button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#categoryModal" onclick="renoNewCategory()">Eerste categorie</button>
         </div>
     </div>
 <?php endif; ?>
 
 <?php foreach ($grouped as $room => $roomItems): ?>
-    <div class="reno-room mb-4">
-        <div class="reno-room-head">
-            <h2 class="h5 mb-0"><?= esc($room) ?></h2>
-            <?php
-                $roomSum = 0;
-                foreach ($roomItems as $ri) {
-                    $roomSum += $lineCost($ri);
-                }
-            ?>
-            <span class="text-muted">€ <?= number_format($roomSum, 0, ',', '.') ?></span>
-        </div>
+    <?php
+        $cat = $catByName[$room] ?? null;
+        $roomSum = 0;
+        foreach ($roomItems as $ri) {
+            $roomSum += $lineCost($ri);
+        }
+    ?>
+    <section class="reno-cat mb-4">
+        <header class="reno-cat-head">
+            <div>
+                <p class="reno-cat-kicker mb-0">Categorie</p>
+                <h2 class="h4 mb-0"><?= esc($room) ?></h2>
+            </div>
+            <div class="reno-cat-actions">
+                <span class="reno-cat-sum">€ <?= number_format($roomSum, 0, ',', '.') ?></span>
+                <?php if ($cat): ?>
+                    <button type="button" class="btn btn-sm btn-outline-light"
+                            onclick="renoEditCategory(<?= (int) $cat['id'] ?>, <?= json_encode($cat['name'], JSON_HEX_TAG | JSON_HEX_APOS | JSON_UNESCAPED_UNICODE) ?>)">
+                        <i class="bi bi-pencil"></i> Hernoemen
+                    </button>
+                    <form action="/renovation/category/delete/<?= (int) $cat['id'] ?>" method="post" class="d-inline"
+                          onsubmit="return confirm('Categorie verwijderen? Posten blijven bestaan.');">
+                        <?= csrf_field() ?>
+                        <button class="btn btn-sm btn-outline-light" type="submit"><i class="bi bi-folder-x"></i></button>
+                    </form>
+                <?php endif; ?>
+            </div>
+        </header>
+        <div class="reno-cat-body">
+            <?php if (empty($roomItems)): ?>
+                <p class="text-muted small mb-3">Nog geen posten in deze categorie.</p>
+            <?php else: ?>
         <div class="row g-3">
             <?php foreach ($roomItems as $item): ?>
                 <?php
@@ -209,10 +238,42 @@ $prioClass = ['high' => 'prio-high', 'medium' => 'prio-mid', 'low' => 'prio-low'
                 </div>
             <?php endforeach; ?>
         </div>
-    </div>
+            <?php endif; ?>
+            <button type="button" class="reno-add-post" data-bs-toggle="modal" data-bs-target="#itemModal"
+                    onclick="renoNewItem(<?= json_encode($room, JSON_HEX_TAG | JSON_HEX_APOS | JSON_UNESCAPED_UNICODE) ?>)">
+                <i class="bi bi-plus-circle"></i>
+                <span>Nieuwe post in <?= esc($room) ?></span>
+                <small>Kosten, offerte, aannemer</small>
+            </button>
+        </div>
+    </section>
 <?php endforeach; ?>
 
 <p class="small text-muted mt-2">Kosten zijn wat je verwacht te betalen (inclusief btw tenzij je anders noteert). IVA 10% is gebruikelijk bij veel verbouwingen in Italië, 22% bij nieuw werk — check dit met je geometra. Dit is geen bouwkundig advies.</p>
+
+<div class="modal fade" id="categoryModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content reno-cat-modal">
+            <form action="/renovation/category" method="post">
+                <?= csrf_field() ?>
+                <input type="hidden" name="id" id="category_id" value="">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="categoryModalTitle">Nieuwe categorie</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Sluiten"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="small text-muted">Een categorie is een groep, zoals Keuken of Dak. Posten (kosten) voeg je daarna toe.</p>
+                    <label class="form-label" for="category_name">Naam</label>
+                    <input type="text" class="form-control" name="name" id="category_name" required maxlength="80" placeholder="Bijv. Keuken">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuleren</button>
+                    <button type="submit" class="btn btn-dark"><i class="bi bi-folder-plus"></i> Categorie opslaan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
 <div class="modal fade" id="itemModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg">
@@ -231,11 +292,15 @@ $prioClass = ['high' => 'prio-high', 'medium' => 'prio-mid', 'low' => 'prio-low'
                     </div>
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label" for="item_room">Ruimte / categorie</label>
-                            <select class="form-select" name="room" id="item_room">
-                                <?php foreach ($rooms as $room): ?>
-                                    <option value="<?= esc($room, 'attr') ?>"><?= esc($room) ?></option>
-                                <?php endforeach; ?>
+                            <label class="form-label" for="item_room">Categorie</label>
+                            <select class="form-select" name="room" id="item_room" required>
+                                <?php if (empty($rooms)): ?>
+                                    <option value="">Maak eerst een categorie</option>
+                                <?php else: ?>
+                                    <?php foreach ($rooms as $room): ?>
+                                        <option value="<?= esc($room, 'attr') ?>"><?= esc($room) ?></option>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
                             </select>
                         </div>
                         <div class="col-md-3 mb-3">
@@ -345,11 +410,29 @@ $prioClass = ['high' => 'prio-high', 'medium' => 'prio-mid', 'low' => 'prio-low'
 const renoNotes = <?= json_encode($notesById ?? [], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP) ?>;
 const itemModal = document.getElementById('itemModal');
 
-function renoNewItem() {
+function renoNewCategory() {
+    document.getElementById('categoryModalTitle').textContent = 'Nieuwe categorie';
+    document.getElementById('category_id').value = '';
+    document.getElementById('category_name').value = '';
+}
+
+function renoEditCategory(id, name) {
+    document.getElementById('categoryModalTitle').textContent = 'Categorie hernoemen';
+    document.getElementById('category_id').value = id;
+    document.getElementById('category_name').value = name;
+    bootstrap.Modal.getOrCreateInstance(document.getElementById('categoryModal')).show();
+}
+
+function renoNewItem(room) {
     document.getElementById('itemModalTitle').textContent = 'Nieuwe verbouwpost';
     document.getElementById('item_id').value = '';
     document.getElementById('item_title').value = '';
-    document.getElementById('item_room').selectedIndex = 0;
+    const roomSelect = document.getElementById('item_room');
+    if (room) {
+        roomSelect.value = room;
+    } else {
+        roomSelect.selectedIndex = 0;
+    }
     document.getElementById('item_status').value = 'planned';
     document.getElementById('item_priority').value = 'medium';
     document.getElementById('item_estimated').value = 0;

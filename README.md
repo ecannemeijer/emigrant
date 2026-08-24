@@ -17,8 +17,9 @@ Een complete CodeIgniter 4 webapplicatie voor het doorrekenen van je emigratie n
 - **Dashboard**: Visueel overzicht met grafieken (Chart.js)
 - **Scenario's**: Sla verschillende financiële scenario's op en vergelijk
 - **Export**: CSV export van alle data
-- **Authenticatie**: Veilig login systeem met rollen (Admin/User)
-- **Gebruikersbeheer**: CRUD functionaliteit voor admins
+- **Authenticatie**: Login met rollen (Admin/User), rate limiting, sessie-regeneratie
+- **Abonnement**: Maand/jaar via PayPal Checkout (eenmalige betaling); tot het admin-vinkje aanstaat krijgen nieuwe gebruikers 1 maand gratis
+- **Gebruikersbeheer**: CRUD, abonnementsdata, PayPal-betalingen, Config-menu
 
 ## 🚀 Technische Stack
 
@@ -87,6 +88,8 @@ php spark db:seed DatabaseSeeder
 Dit maakt aan:
 - **Admin**: admin@example.com / admin123
 - **Demo User**: demo@example.com / demo123
+
+**Niet in productie seeden.** Wijzig of verwijder deze accounts; `admin123` is publiek bekend.
 
 ### 6. Start de development server
 
@@ -254,14 +257,120 @@ Export je financiële data naar CSV voor:
 - Verblijfsvergunning aanvraag
 - Banken/hypotheekverstrekkers
 
-## 🔒 Beveiliging
+## Abonnementen en PayPal — wat al in de code zit
 
-- Password hashing (PHP password_hash)
-- CSRF protection
-- SQL injection preventie (Query Builder)
-- XSS preventie (Output escaping)
-- Session-based authenticatie
-- Role-based access control
+Betalen is **eenmalige PayPal Checkout** (Orders API v2): maand of jaar. Er is **geen** automatische PayPal-verlenging; na afloop koopt de gebruiker opnieuw.
+
+| Onderdeel | Status |
+|-----------|--------|
+| Tabellen `app_settings`, `subscriptions`, `payments` | In migratie `2026-08-24-130000_CreateBillingTables` |
+| Admin **Config** (`/admin/config`): vinkje “Betaling verplicht”, prijzen | Klaar (standaard **uit**) |
+| Nieuwe users: 1 maand complimentary zolang het vinkje uit staat | Klaar (na `php spark migrate`) |
+| Paywall (`SubscriptionFilter`) als billing aan staat | Klaar; admins altijd door |
+| Checkout `/subscription`, return/cancel, webhook `/webhooks/paypal` | Klaar in code |
+| Admin: wie is geabonneerd tot wanneer, datums aanpassen, betalingenlijst | Klaar (`/admin/users`, `/admin/payments`) |
+
+**Zolang het vinkje uit staat:** site blijft vrij toegankelijk; betalen is niet verplicht.
+
+---
+
+## Nog te doen (checklist livegang / PayPal)
+
+Doe dit in deze volgorde als je écht wilt laten betalen.
+
+### 1. Database
+
+- [ ] `php spark migrate` op de server (billing-tabellen; bestaande users zonder abonnement krijgen 1 maand)
+- [ ] Verbouw-tabellen: `2026-08-24-120000_CreateRenovationTables` en `2026-08-24-140000_CreateRenovationCategories`
+
+### 2. PayPal Developer-app
+
+- [ ] Account op [developer.paypal.com](https://developer.paypal.com)
+- [ ] App aanmaken: eerst **Sandbox**, later **Live**
+- [ ] REST credentials kopiëren: Client ID + Secret
+- [ ] Webhook toevoegen op URL: `https://jouwdomein.nl/webhooks/paypal`
+- [ ] Events minstens: `PAYMENT.CAPTURE.COMPLETED` (optioneel `CHECKOUT.ORDER.APPROVED`)
+- [ ] Webhook ID kopiëren — **verplicht**. Zonder `paypal.webhookId` weigert de app alle webhooks (bewust, tegen valse “betaald”-berichten)
+
+### 3. `.env` op de server
+
+```env
+paypal.mode = sandbox
+paypal.clientId = ...
+paypal.clientSecret = ...
+paypal.webhookId = ...
+```
+
+Voor live: `paypal.mode = live` en de **live** client/secret/webhook-id.
+
+Ook:
+
+- [ ] `app.baseURL` = echte HTTPS-URL (PayPal return-URL’s hangen hiervan af)
+- [ ] `encryption.key` gegenereerd (`php spark key:generate`)
+- [ ] E-mail SMTP werkend (welkom / wachtwoord reset)
+
+### 4. Pas daarna betalen aanzetten
+
+- [ ] Inloggen als admin → **Config**
+- [ ] Prijzen controleren (standaard €9,90 / maand, €99 / jaar)
+- [ ] Vinkje **Betaling verplicht (PayPal)** aanzetten
+- [ ] Testen: nieuw account zonder abonnement komt op `/subscription` en kan via PayPal betalen
+- [ ] Testen: bestaand account met complimentary toegang blijft binnen tot de einddatum
+- [ ] Sandbox-betaling controleren onder **Admin → Betalingen**
+
+Als het vinkje aan gaat **zonder** PayPal-keys: gebruikers zien de paywall maar knoppen blijven uit (“PayPal nog niet ingesteld”).
+
+### 5. Productie-beveiliging
+
+Zet `CI_ENVIRONMENT = production`. Dan dwingt de app HTTPS af en `Secure` cookies.
+
+```env
+CI_ENVIRONMENT = production
+app.baseURL = 'https://jouwdomein.nl/'
+app.forceGlobalSecureRequests = true
+cookie.secure = true
+```
+
+- [ ] Webroot van Apache/Nginx = map **`public/`** (niet de projectroot; anders kan `.env` leesbaar zijn)
+- [ ] Geen `DatabaseSeeder` op productie
+- [ ] Standaard admin-wachtwoord wijzigen
+- [ ] Debug toolbar staat uit in production; CSRF-debug alleen in development
+
+### 6. Bewust nog niet gedaan
+
+- Geen PayPal-abonnementen met automatische verlenging (alleen eenmalige betaling)
+- Geen strikte Content-Security-Policy (zou Bootstrap-CDN en inline JS breken)
+- Notities (checklist/verbouwen) blijven beperkte HTML via `NoteSanitizer`
+
+---
+
+## Admin-schermen (abonnement)
+
+| Pagina | Wat |
+|--------|-----|
+| `/admin/config` | Betaling verplicht, maand- en jaarprijs, PayPal-status |
+| `/admin/users` | Abonnement actief/verlopen, geldig tot |
+| `/admin/users/edit/{id}` | Start-/einddatum handmatig, plan, bron |
+| `/admin/payments` | Wie heeft wanneer via PayPal betaald |
+
+---
+
+## Beveiliging (al ingebouwd)
+
+- Wachtwoorden: `password_hash` / `password_verify`
+- CSRF op alle POST’s behalve `POST /webhooks/paypal`
+- Query Builder (geen ruwe SQL met user-input)
+- `esc()` op flash messages en formulier-`old()`-waarden
+- Login: max. 5 pogingen per minuut per IP én e-mail; register/reset/contact ook begrensd
+- Sessie-ID opnieuw na login (`session()->regenerate`)
+- Uitloggen alleen via POST + CSRF
+- Admin-filter leest `role` + `is_active` uit de database (demotie werkt meteen)
+- `role` / `is_active` niet mass-assignable via het gewone User-model
+- Laatste actieve admin kan niet worden verwijderd of gedemoteerd
+- PayPal-webhook: handtekening verplicht; leeg `webhookId` = weigeren
+- Abonnementsfilter faalt **dicht** (geen stille toegang bij een databasefout)
+- Security-headers; geen globale page cache van ingelogde pagina’s
+- HTTPS + secure cookies automatisch als `CI_ENVIRONMENT = production`
 
 ## 🌐 Multi-language Support (Bonus)
 

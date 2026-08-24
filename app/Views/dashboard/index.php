@@ -31,9 +31,10 @@
             <div class="card-body">
                 <div class="stat-label">Resterend Vermogen</div>
                 <div class="stat-value">€ <?= number_format($calculations['remaining_capital'] ?? 0, 0, ',', '.') ?></div>
-                <?php if (($calculations['renovation_outlay'] ?? 0) > 0): ?>
-                    <div class="small text-muted">Na verbouw € <?= number_format($calculations['renovation_outlay'], 0, ',', '.') ?></div>
-                <?php endif; ?>
+                <div class="small text-muted">
+                    Verbouw afgetrokken: € <?= number_format($calculations['renovation_outlay'] ?? 0, 0, ',', '.') ?>
+                    <a href="/renovation" class="ms-1">begroting</a>
+                </div>
             </div>
         </div>
     </div>

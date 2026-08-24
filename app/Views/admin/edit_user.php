@@ -101,7 +101,7 @@
                         <div class="col-md-6 mb-3">
                             <label for="subscription_source" class="form-label">Bron</label>
                             <select class="form-select" id="subscription_source" name="subscription_source">
-                                <option value="complimentary" <?= ($sub['source'] ?? '') === 'complimentary' ? 'selected' : '' ?>>Gratis jaar</option>
+                                <option value="complimentary" <?= ($sub['source'] ?? '') === 'complimentary' ? 'selected' : '' ?>>Gratis maand</option>
                                 <option value="paypal" <?= ($sub['source'] ?? '') === 'paypal' ? 'selected' : '' ?>>PayPal</option>
                                 <option value="admin" <?= ($sub['source'] ?? 'admin') === 'admin' ? 'selected' : '' ?>>Handmatig</option>
                             </select>

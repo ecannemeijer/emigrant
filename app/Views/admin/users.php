@@ -3,7 +3,7 @@
 <?= $this->section('content') ?>
 <?php
 $sourceLabels = [
-    'complimentary' => 'Gratis jaar',
+    'complimentary' => 'Gratis maand',
     'paypal' => 'PayPal',
     'admin' => 'Handmatig',
 ];

@@ -27,7 +27,7 @@
                         <label class="form-check-label" for="billing_enabled">
                             <strong>Betaling verplicht (PayPal)</strong>
                             <div class="text-muted small">
-                                Aan: nieuwe gebruikers moeten betalen. Uit: nieuwe gebruikers krijgen 1 jaar gratis.
+                                Aan: nieuwe gebruikers moeten betalen. Uit: nieuwe gebruikers krijgen 1 maand gratis.
                             </div>
                         </label>
                     </div>

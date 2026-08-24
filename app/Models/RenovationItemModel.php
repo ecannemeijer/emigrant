@@ -21,19 +21,7 @@ class RenovationItemModel extends Model
     protected $createdField  = 'created_at';
     protected $updatedField  = 'updated_at';
 
-    public const ROOMS = [
-        'Dak & constructie',
-        'Gevel & isolatie',
-        'Elektra',
-        'Water & sanitair',
-        'Keuken',
-        'Badkamer',
-        'Vloeren & afwerking',
-        'Ramen & deuren',
-        'Tuin & buiten',
-        'Vergunningen & extra',
-        'Overig',
-    ];
+    public const ROOMS = [];
 
     public const STATUSES = [
         'planned' => 'Gepland',
@@ -51,34 +39,12 @@ class RenovationItemModel extends Model
 
     public static function templates(): array
     {
-        return [
-            ['room' => 'Dak & constructie', 'title' => 'Dakherstel / isolatie dak', 'priority' => 'high', 'sort_order' => 10],
-            ['room' => 'Gevel & isolatie', 'title' => 'Gevelisolatie of voegwerk', 'priority' => 'high', 'sort_order' => 20],
-            ['room' => 'Elektra', 'title' => 'Elektra vernieuwen / meterkast', 'priority' => 'high', 'sort_order' => 30],
-            ['room' => 'Water & sanitair', 'title' => 'Leidingen en cv/warmtepomp', 'priority' => 'high', 'sort_order' => 40],
-            ['room' => 'Keuken', 'title' => 'Keuken (meubels, apparatuur, tegels)', 'priority' => 'medium', 'sort_order' => 50],
-            ['room' => 'Badkamer', 'title' => 'Badkamer 1', 'priority' => 'medium', 'sort_order' => 60],
-            ['room' => 'Vloeren & afwerking', 'title' => 'Vloeren, stucwerk, verf', 'priority' => 'medium', 'sort_order' => 70],
-            ['room' => 'Ramen & deuren', 'title' => 'Ramen (dubbel glas / infissi)', 'priority' => 'medium', 'sort_order' => 80],
-            ['room' => 'Tuin & buiten', 'title' => 'Tuin, terras, hekwerk', 'priority' => 'low', 'sort_order' => 90],
-            ['room' => 'Vergunningen & extra', 'title' => 'Vergunningen, geometra, onvoorzien', 'priority' => 'high', 'sort_order' => 100],
-        ];
+        return [];
     }
 
     public function ensureTemplates(int $userId): void
     {
-        if ($this->where('user_id', $userId)->countAllResults() > 0) {
-            return;
-        }
-        foreach (self::templates() as $item) {
-            $item['user_id'] = $userId;
-            $item['status'] = 'planned';
-            $item['estimated_cost'] = 0;
-            $item['actual_cost'] = 0;
-            $item['vat_rate'] = 10;
-            $item['include_in_capital'] = 1;
-            $this->insert($item);
-        }
+        // Categorieën en posten start leeg; gebruiker maakt ze zelf.
     }
 
     public function forUser(int $userId): array

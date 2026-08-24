@@ -175,10 +175,15 @@ class BillingService
             return $this->getSubscription($userId);
         }
 
-        return $this->grantComplimentaryYear($userId);
+        return $this->grantComplimentaryMonth($userId);
     }
 
     public function grantComplimentaryYear(int $userId): array
+    {
+        return $this->grantComplimentaryMonth($userId);
+    }
+
+    public function grantComplimentaryMonth(int $userId): array
     {
         $existing = $this->getSubscription($userId);
         if ($existing) {
@@ -188,11 +193,11 @@ class BillingService
         $now = date('Y-m-d H:i:s');
         $this->subscriptions->insert([
             'user_id' => $userId,
-            'plan' => self::PLAN_YEAR,
+            'plan' => self::PLAN_MONTH,
             'source' => 'complimentary',
             'status' => 'active',
             'starts_at' => $now,
-            'ends_at' => date('Y-m-d H:i:s', strtotime('+1 year')),
+            'ends_at' => date('Y-m-d H:i:s', strtotime('+1 month')),
         ]);
 
         return $this->getSubscription($userId);

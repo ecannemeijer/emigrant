@@ -6,7 +6,7 @@ $endsLabel = !empty($subscription['ends_at'])
     ? date('d-m-Y', strtotime($subscription['ends_at']))
     : null;
 $sourceLabel = [
-    'complimentary' => 'Gratis jaar',
+    'complimentary' => 'Gratis maand',
     'paypal' => 'PayPal',
 ][$subscription['source'] ?? ''] ?? ($subscription['source'] ?? '');
 $planLabel = ($subscription['plan'] ?? '') === 'month' ? 'Maand' : 'Jaar';
@@ -21,7 +21,7 @@ $fmt = fn (float $n) => '€ ' . number_format($n, 2, ',', '.');
             <?php if ($isAdmin): ?>
                 Als beheerder heb je altijd toegang tot de applicatie.
             <?php elseif (!$settings['billing_enabled']): ?>
-                Betalen is nog niet verplicht. Nieuwe accounts krijgen automatisch een jaar toegang.
+                Betalen is nog niet verplicht. Nieuwe accounts krijgen automatisch een maand toegang.
             <?php elseif ($active): ?>
                 Je abonnement is actief tot <?= esc($endsLabel) ?>.
             <?php else: ?>

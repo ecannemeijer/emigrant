@@ -171,13 +171,13 @@ class CreateBillingTables extends Migration
 
         if ($this->db->tableExists('users')) {
             $users = $this->db->table('users')->select('id')->get()->getResultArray();
-            $ends = date('Y-m-d H:i:s', strtotime('+1 year'));
+            $ends = date('Y-m-d H:i:s', strtotime('+1 month'));
             foreach ($users as $user) {
                 $exists = $this->db->table('subscriptions')->where('user_id', $user['id'])->countAllResults();
                 if ($exists === 0) {
                     $this->db->table('subscriptions')->insert([
                         'user_id' => $user['id'],
-                        'plan' => 'year',
+                        'plan' => 'month',
                         'source' => 'complimentary',
                         'status' => 'active',
                         'starts_at' => $now,
