@@ -27,6 +27,7 @@
     <?php endif; ?>
 
     <table class="table">
+        <tr><th>Verbouw (van vermogen)</th><td>€ <?= number_format($calculations['renovation_outlay'] ?? 0, 0, ',', '.') ?></td></tr>
         <tr><th>Resterend vermogen</th><td>€ <?= number_format($calculations['remaining_capital'] ?? 0, 0, ',', '.') ?></td></tr>
         <tr><th>Maandinkomen</th><td>€ <?= number_format($calculations['total_monthly_income'] ?? 0, 0, ',', '.') ?></td></tr>
         <tr><th>Maandkosten</th><td>€ <?= number_format($calculations['monthly_expenses'] ?? 0, 0, ',', '.') ?></td></tr>

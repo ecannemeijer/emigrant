@@ -3,6 +3,7 @@ $steps = [
     ['start-position', 'Start'],
     ['income', 'Inkomen'],
     ['property', 'Vastgoed'],
+    ['renovation', 'Verbouw'],
     ['expenses', 'Lasten'],
     ['taxes', 'Belasting'],
     ['bnb', 'B&B'],

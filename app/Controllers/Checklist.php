@@ -52,7 +52,7 @@ class Checklist extends BaseController
         $model = new ChecklistItemModel();
         $item = $model->where('id', $id)->where('user_id', $userId)->first();
         if ($item) {
-            $model->update($id, ['notes' => $this->sanitizeNotes((string) $this->request->getPost('notes'))]);
+            $model->update($id, ['notes' => \App\Libraries\NoteSanitizer::clean((string) $this->request->getPost('notes'))]);
         }
 
         return redirect()->to('/checklist')->with('success', 'Notitie opgeslagen.');

@@ -5,6 +5,7 @@ $items = [
     ['start-position', '/start-position', 'bi-house-door', 'Startpositie NL'],
     ['income', '/income', 'bi-cash-coin', 'Inkomsten'],
     ['property', '/property', 'bi-building', 'Vastgoed IT'],
+    ['renovation', '/renovation', 'bi-hammer', 'Verbouwen'],
     ['expenses', '/expenses', 'bi-wallet2', 'Maandlasten'],
     ['taxes', '/taxes', 'bi-receipt', 'Belastingen'],
     ['bnb', '/bnb', 'bi-shop', 'B&B'],

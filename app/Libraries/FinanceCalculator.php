@@ -273,7 +273,8 @@ class FinanceCalculator
         $startingCapital  = $this->calculateStartingCapital($startPosition);
         $remainingCapital = $startingCapital
             - $this->calculatePropertyOutlay($mainProperty)
-            - $this->calculatePropertyOutlay($secondProperty);
+            - $this->calculatePropertyOutlay($secondProperty)
+            - (float) ($startPosition['renovation_outlay'] ?? 0);
 
         $interestRate  = (float) ($startPosition['interest_rate'] ?? 2);
         $inflationRate = (float) ($startPosition['inflation_rate'] ?? 0);
@@ -494,6 +495,7 @@ class FinanceCalculator
             'forfettario_over_limit' => $yearlyBnb > $limit,
             'below_minimum' => $minimum > 0 && $year0['monthly_net'] < $minimum,
             'minimum_monthly_income' => $minimum,
+            'renovation_outlay' => (float) ($startPosition['renovation_outlay'] ?? 0),
         ]);
 
         return [

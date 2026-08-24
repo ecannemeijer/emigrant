@@ -12,6 +12,8 @@ use App\Models\TaxModel;
 use App\Models\BnbSettingModel;
 use App\Models\BnbExpenseModel;
 use App\Models\UserProfileModel;
+use App\Models\RenovationItemModel;
+use App\Models\RenovationSettingModel;
 
 class Dashboard extends BaseController
 {
@@ -60,6 +62,19 @@ class Dashboard extends BaseController
             'bnb_expenses' => $bnbExpenseModel->getByUserId($userId),
             'profile' => $profileModel->where('user_id', $userId)->first(),
         ];
+
+        $raw['start_position'] = $raw['start_position'] ?? [];
+        $raw['start_position']['renovation_outlay'] = 0;
+        try {
+            $renoSettings = (new RenovationSettingModel())->getByUserId($userId);
+            $renoModel = new RenovationItemModel();
+            $raw['start_position']['renovation_outlay'] = $renoModel->capitalOutlay(
+                $userId,
+                (float) ($renoSettings['contingency_percent'] ?? 10)
+            );
+        } catch (\Throwable $e) {
+            // Tabellen nog niet gemigreerd.
+        }
 
         $calculator = new FinanceCalculator();
         $packed = FinanceDataMapper::pack(

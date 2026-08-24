@@ -61,6 +61,12 @@ $routes->group('', ['filter' => 'auth'], function ($routes) {
     // Italy Property
     $routes->get('property', 'Property::index');
     $routes->post('property/save', 'Property::save');
+
+    $routes->get('renovation', 'Renovation::index');
+    $routes->post('renovation/settings', 'Renovation::saveSettings');
+    $routes->post('renovation/item', 'Renovation::saveItem');
+    $routes->post('renovation/item/delete/(:num)', 'Renovation::deleteItem/$1');
+    $routes->post('renovation/note/(:num)', 'Renovation::note/$1');
     
     // Expenses
     $routes->get('expenses', 'Expenses::index');

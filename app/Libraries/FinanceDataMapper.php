@@ -63,6 +63,7 @@ class FinanceDataMapper
             'moving_costs' => $row['moving_costs'] ?? $row['moving_costs'] ?? 0,
             'interest_rate' => $row['interest_rate'] ?? $row['interest_rate'] ?? 2,
             'inflation_rate' => $row['inflation_rate'] ?? $row['inflation_rate'] ?? 0,
+            'renovation_outlay' => $row['renovation_outlay'] ?? 0,
         ];
     }
 

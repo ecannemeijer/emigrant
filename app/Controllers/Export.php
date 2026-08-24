@@ -83,6 +83,20 @@ class Export extends BaseController
         $csvData[] = ['Onvoorzien', number_format($expenses['unforeseen'] ?? 0, 2, ',', '.')];
         $csvData[] = [''];
 
+        $renoModel = new \App\Models\RenovationItemModel();
+        $renoItems = $renoModel->forUser($userId);
+        if ($renoItems) {
+            $csvData[] = ['VERBOUWING'];
+            foreach ($renoItems as $item) {
+                $csvData[] = [
+                    $item['room'] . ' — ' . $item['title'],
+                    number_format($renoModel->lineCost($item), 2, ',', '.'),
+                    $item['status'],
+                ];
+            }
+            $csvData[] = [''];
+        }
+
         // B&B
         if ($bnbSettings && $bnbSettings['enabled']) {
             $csvData[] = ['B&B MODULE'];

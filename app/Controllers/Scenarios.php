@@ -49,6 +49,8 @@ class Scenarios extends BaseController
             'bnb_settings' => $bnbSettingModel->getByUserId($userId),
             'bnb_expenses' => $bnbExpenseModel->getByUserId($userId),
             'profile' => (new \App\Models\UserProfileModel())->where('user_id', $userId)->first(),
+            'renovation_settings' => (new \App\Models\RenovationSettingModel())->where('user_id', $userId)->first(),
+            'renovation_items' => (new \App\Models\RenovationItemModel())->forUser($userId),
         ];
 
         $bnbEnabled = $scenarioData['bnb_settings']['enabled'] ?? 0;
