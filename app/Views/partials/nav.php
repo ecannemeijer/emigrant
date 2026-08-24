@@ -11,6 +11,7 @@ $items = [
     ['bnb', '/bnb', 'bi-shop', 'B&B'],
     ['checklist', '/checklist', 'bi-check2-square', 'Checklist'],
     ['scenarios', '/scenarios', 'bi-diagram-3', 'Scenario\'s'],
+    ['subscription', '/subscription', 'bi-credit-card', 'Abonnement'],
 ];
 ?>
 <ul class="nav flex-column sidebar-nav">
@@ -28,6 +29,7 @@ $items = [
     <li class="nav-item"><a class="nav-link" href="/export/pdf"><i class="bi bi-file-earmark-pdf"></i> Export PDF</a></li>
     <?php if (session()->get('role') === 'admin'): ?>
         <li class="nav-item mt-3"><hr><small class="text-muted px-3">Admin</small></li>
+        <li class="nav-item"><a class="nav-link <?= $uri === 'admin/config' ? 'active' : '' ?>" href="/admin/config"><i class="bi bi-sliders"></i> Config</a></li>
         <li class="nav-item"><a class="nav-link" href="/admin/users"><i class="bi bi-people"></i> Gebruikers</a></li>
         <li class="nav-item"><a class="nav-link" href="/admin/audit-logs"><i class="bi bi-journal-text"></i> Audit log</a></li>
     <?php endif; ?>

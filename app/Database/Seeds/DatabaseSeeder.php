@@ -2,6 +2,7 @@
 
 namespace App\Database\Seeds;
 
+use App\Libraries\BillingService;
 use CodeIgniter\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -33,6 +34,14 @@ class DatabaseSeeder extends Seeder
         ];
         $this->db->table('users')->insert($userData);
         $demoId = $this->db->insertID();
+
+        $billing = new BillingService();
+        try {
+            $billing->grantComplimentaryYear((int) $adminId);
+            $billing->grantComplimentaryYear((int) $demoId);
+        } catch (\Throwable $e) {
+            log_message('error', 'Seeder complimentary subscription failed: ' . $e->getMessage());
+        }
 
         // Create profiles
         $this->db->table('user_profiles')->insertBatch([

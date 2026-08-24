@@ -37,6 +37,7 @@ class Filters extends BaseFilters
         'performance'   => PerformanceMetrics::class,
         'auth'          => \App\Filters\AuthFilter::class,
         'admin'         => \App\Filters\AdminFilter::class,
+        'subscription'  => \App\Filters\SubscriptionFilter::class,
         'audit'         => \App\Filters\AuditFilter::class,
     ];
 
@@ -77,8 +78,8 @@ class Filters extends BaseFilters
     public array $globals = [
         'before' => [
             // 'honeypot',
-            'csrf_debug',
-            'csrf',
+            'csrf_debug' => ['except' => ['webhooks/paypal']],
+            'csrf'       => ['except' => ['webhooks/paypal']],
             // 'invalidchars',
         ],
         'after' => [

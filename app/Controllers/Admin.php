@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Libraries\BillingService;
 use App\Models\UserModel;
 use App\Models\UserProfileModel;
 use App\Models\AuditLogModel;
@@ -67,6 +68,12 @@ class Admin extends BaseController
                 'last_name' => $this->request->getPost('last_name'),
                 'language' => 'nl',
             ]);
+
+            try {
+                (new BillingService())->grantComplimentaryYearIfBillingDisabled((int) $userId);
+            } catch (\Throwable $e) {
+                log_message('error', 'Complimentary subscription failed: ' . $e->getMessage());
+            }
 
             return redirect()->to('/admin/users')->with('success', 'Gebruiker aangemaakt!');
         }
@@ -182,5 +189,43 @@ class Admin extends BaseController
         $deleted = $auditModel->deleteOlderThan($days);
 
         return redirect()->to('/admin/audit-logs')->with('success', "{$deleted} log regels ouder dan {$days} dagen verwijderd.");
+    }
+
+    public function config()
+    {
+        $billing = new BillingService();
+
+        return view('admin/config', [
+            'title' => 'Config',
+            'settings' => $billing->getSettings(),
+        ]);
+    }
+
+    public function saveConfig()
+    {
+        $rules = [
+            'price_month' => 'required',
+            'price_year' => 'required',
+        ];
+
+        if (!$this->validate($rules)) {
+            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
+        }
+
+        $monthRaw = str_replace(',', '.', (string) $this->request->getPost('price_month'));
+        $yearRaw = str_replace(',', '.', (string) $this->request->getPost('price_year'));
+
+        if (!is_numeric($monthRaw) || !is_numeric($yearRaw) || (float) $monthRaw < 0 || (float) $yearRaw < 0) {
+            return redirect()->back()->withInput()->with('error', 'Vul geldige prijzen in.');
+        }
+
+        $month = (float) $monthRaw;
+        $year = (float) $yearRaw;
+
+        $billing = new BillingService();
+        $billing->setBillingEnabled((bool) $this->request->getPost('billing_enabled'));
+        $billing->setPrices($month, $year);
+
+        return redirect()->to('/admin/config')->with('success', 'Configuratie opgeslagen.');
     }
 }

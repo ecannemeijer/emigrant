@@ -41,8 +41,19 @@ $routes->get('help', 'Help::index');
 $routes->get('contact', 'Contact::index');
 $routes->post('contact/send', 'Contact::send');
 
-// Protected routes (require authentication)
+// PayPal webhook (public, CSRF-exempt)
+$routes->post('webhooks/paypal', 'PaypalWebhook::handle');
+
+// Abonnement: ingelogd, maar niet achter de paywall
 $routes->group('', ['filter' => 'auth'], function ($routes) {
+    $routes->get('subscription', 'Subscription::index');
+    $routes->post('subscription/checkout/(:segment)', 'Subscription::checkout/$1');
+    $routes->get('subscription/return', 'Subscription::paypalReturn');
+    $routes->get('subscription/cancel', 'Subscription::paypalCancel');
+});
+
+// Protected routes (require authentication + geldig abonnement als billing aan staat)
+$routes->group('', ['filter' => ['auth', 'subscription']], function ($routes) {
     // Dashboard
     $routes->get('dashboard', 'Dashboard::index');
     
@@ -111,6 +122,8 @@ $routes->group('admin', ['filter' => 'admin'], function ($routes) {
     $routes->get('audit-logs', 'Admin::auditLogs');
     $routes->post('audit-logs/clear', 'Admin::clearAuditLogs');
     $routes->post('audit-logs/delete-old', 'Admin::deleteOldLogs');
+    $routes->get('config', 'Admin::config');
+    $routes->post('config', 'Admin::saveConfig');
 });
 
 /*

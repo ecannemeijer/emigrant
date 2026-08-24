@@ -68,6 +68,12 @@ class AuditFilter implements FilterInterface
         'POST:admin/users/delete'   => 'Admin: gebruiker verwijderd',
         'GET:admin/audit-logs'      => 'Admin: audit log bekeken',
         'POST:admin/audit-logs/clear' => 'Admin: audit log gewist',
+        'GET:subscription'          => 'Abonnement bekeken',
+        'POST:subscription/checkout/month' => 'PayPal checkout maand gestart',
+        'POST:subscription/checkout/year'  => 'PayPal checkout jaar gestart',
+        'GET:subscription/return'   => 'PayPal betaling terugkeer',
+        'GET:admin/config'          => 'Admin: config bekeken',
+        'POST:admin/config'         => 'Admin: config opgeslagen',
     ];
 
     public function before(RequestInterface $request, $arguments = null)

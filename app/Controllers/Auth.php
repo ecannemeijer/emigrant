@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Libraries\BillingService;
 use App\Models\UserModel;
 use App\Models\UserProfileModel;
 
@@ -45,7 +46,17 @@ class Auth extends BaseController
             'isLoggedIn' => true,
         ]);
 
-        return redirect()->to('/dashboard')->with('success', 'Welkom terug, ' . $user['username'] . '!');
+        $target = '/dashboard';
+        try {
+            $billing = new BillingService();
+            if ($user['role'] !== 'admin' && !$billing->hasAccess((int) $user['id'])) {
+                $target = '/subscription';
+            }
+        } catch (\Throwable $e) {
+            log_message('error', 'Billing check at login failed: ' . $e->getMessage());
+        }
+
+        return redirect()->to($target)->with('success', 'Welkom terug, ' . $user['username'] . '!');
     }
 
     public function register()
@@ -91,6 +102,12 @@ class Auth extends BaseController
                 'user_id' => $userId,
                 'language' => 'nl',
             ]);
+
+            try {
+                (new BillingService())->grantComplimentaryYearIfBillingDisabled((int) $userId);
+            } catch (\Throwable $e) {
+                log_message('error', 'Complimentary subscription failed: ' . $e->getMessage());
+            }
 
             // Send welcome email (best effort — failure does not block registration)
             try {
