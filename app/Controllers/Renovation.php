@@ -12,6 +12,127 @@ class Renovation extends BaseController
 {
     public function index()
     {
+        return view('renovation/index', $this->pageData() + [
+            'title' => 'Verbouwen',
+            'returnTo' => 'list',
+        ]);
+    }
+
+    public function planning()
+    {
+        return view('renovation/planning', $this->pageData() + [
+            'title' => 'Planning',
+            'returnTo' => 'planning',
+        ]);
+    }
+
+    public function saveSettings()
+    {
+        $userId = session()->get('userId');
+        $model = new RenovationSettingModel();
+        $existing = $model->getByUserId($userId);
+        $model->update($existing['id'], [
+            'contingency_percent' => (float) ($this->request->getPost('contingency_percent') ?: 0),
+        ]);
+
+        return redirect()->to($this->afterSave())->with('success', 'Onvoorzien percentage opgeslagen.');
+    }
+
+    public function saveCategory()
+    {
+        $userId = (int) session()->get('userId');
+        $model = new RenovationCategoryModel();
+        $id = (int) $this->request->getPost('id');
+        $name = trim((string) $this->request->getPost('name'));
+        if ($name === '') {
+            return redirect()->to($this->afterSave())->with('error', 'Vul een categorienaam in.');
+        }
+
+        if ($id > 0) {
+            $existing = $model->where('id', $id)->where('user_id', $userId)->first();
+            if ($existing) {
+                $oldName = $existing['name'];
+                $model->update($id, ['name' => $name]);
+                if ($oldName !== $name) {
+                    (new RenovationItemModel())
+                        ->where('user_id', $userId)
+                        ->where('room', $oldName)
+                        ->set(['room' => $name])
+                        ->update();
+                }
+            }
+            return redirect()->to($this->afterSave())->with('success', 'Categorie bijgewerkt.');
+        }
+
+        $last = $model->where('user_id', $userId)->orderBy('sort_order', 'DESC')->first();
+        $model->insert([
+            'user_id' => $userId,
+            'name' => $name,
+            'sort_order' => ((int) ($last['sort_order'] ?? 0)) + 10,
+        ]);
+
+        return redirect()->to($this->afterSave())->with('success', 'Categorie aangemaakt.');
+    }
+
+    public function deleteCategory($id)
+    {
+        $userId = (int) session()->get('userId');
+        $model = new RenovationCategoryModel();
+        $cat = $model->where('id', $id)->where('user_id', $userId)->first();
+        if ($cat) {
+            $model->delete($id);
+        }
+
+        return redirect()->to($this->afterSave())->with('success', 'Categorie verwijderd. Eventuele posten blijven bestaan.');
+    }
+
+    public function saveItem()
+    {
+        $userId = session()->get('userId');
+        $model = new RenovationItemModel();
+        $id = (int) $this->request->getPost('id');
+        $data = $this->itemFromPost($userId);
+
+        if ($id > 0) {
+            $item = $model->where('id', $id)->where('user_id', $userId)->first();
+            if ($item) {
+                $model->update($id, $data);
+            }
+        } else {
+            $last = $model->where('user_id', $userId)->orderBy('sort_order', 'DESC')->first();
+            $data['sort_order'] = ((int) ($last['sort_order'] ?? 0)) + 10;
+            $model->insert($data);
+        }
+
+        return redirect()->to($this->afterSave())->with('success', 'Verbouwpost opgeslagen.');
+    }
+
+    public function deleteItem($id)
+    {
+        $userId = session()->get('userId');
+        $model = new RenovationItemModel();
+        $item = $model->where('id', $id)->where('user_id', $userId)->first();
+        if ($item) {
+            $model->delete($id);
+        }
+
+        return redirect()->to($this->afterSave())->with('success', 'Verbouwpost verwijderd.');
+    }
+
+    public function note($id)
+    {
+        $userId = session()->get('userId');
+        $model = new RenovationItemModel();
+        $item = $model->where('id', $id)->where('user_id', $userId)->first();
+        if ($item) {
+            $model->update($id, ['notes' => NoteSanitizer::clean((string) $this->request->getPost('notes'))]);
+        }
+
+        return redirect()->to($this->afterSave())->with('success', 'Notitie opgeslagen.');
+    }
+
+    private function pageData(): array
+    {
         $userId = session()->get('userId');
         $itemsModel = new RenovationItemModel();
         $settingsModel = new RenovationSettingModel();
@@ -45,7 +166,6 @@ class Renovation extends BaseController
             $grouped[$name][] = $item;
         }
 
-        $categoryNames = array_keys($grouped);
         $notesById = [];
         $calendarItems = [];
         foreach ($items as $item) {
@@ -55,8 +175,7 @@ class Renovation extends BaseController
             $calendarItems[] = $cal;
         }
 
-        return view('renovation/index', [
-            'title' => 'Verbouwen',
+        return [
             'items' => $items,
             'grouped' => $grouped,
             'settings' => $settings,
@@ -65,128 +184,33 @@ class Renovation extends BaseController
             'notesById' => $notesById,
             'calendarItems' => $calendarItems,
             'categories' => $categories,
-            'rooms' => $categoryNames,
+            'rooms' => array_keys($grouped),
             'statuses' => RenovationItemModel::STATUSES,
             'priorities' => RenovationItemModel::PRIORITIES,
-        ]);
+        ];
     }
 
-    public function saveSettings()
+    private function afterSave(): string
     {
-        $userId = session()->get('userId');
-        $model = new RenovationSettingModel();
-        $existing = $model->getByUserId($userId);
-        $model->update($existing['id'], [
-            'contingency_percent' => (float) ($this->request->getPost('contingency_percent') ?: 0),
-        ]);
-
-        return redirect()->to('/renovation')->with('success', 'Onvoorzien percentage opgeslagen.');
-    }
-
-    public function saveCategory()
-    {
-        $userId = (int) session()->get('userId');
-        $model = new RenovationCategoryModel();
-        $id = (int) $this->request->getPost('id');
-        $name = trim((string) $this->request->getPost('name'));
-        if ($name === '') {
-            return redirect()->to('/renovation')->with('error', 'Vul een categorienaam in.');
-        }
-
-        if ($id > 0) {
-            $existing = $model->where('id', $id)->where('user_id', $userId)->first();
-            if ($existing) {
-                $oldName = $existing['name'];
-                $model->update($id, ['name' => $name]);
-                if ($oldName !== $name) {
-                    (new RenovationItemModel())
-                        ->where('user_id', $userId)
-                        ->where('room', $oldName)
-                        ->set(['room' => $name])
-                        ->update();
-                }
-            }
-            return redirect()->to('/renovation')->with('success', 'Categorie bijgewerkt.');
-        }
-
-        $last = $model->where('user_id', $userId)->orderBy('sort_order', 'DESC')->first();
-        $model->insert([
-            'user_id' => $userId,
-            'name' => $name,
-            'sort_order' => ((int) ($last['sort_order'] ?? 0)) + 10,
-        ]);
-
-        return redirect()->to('/renovation')->with('success', 'Categorie aangemaakt.');
-    }
-
-    public function deleteCategory($id)
-    {
-        $userId = (int) session()->get('userId');
-        $model = new RenovationCategoryModel();
-        $cat = $model->where('id', $id)->where('user_id', $userId)->first();
-        if ($cat) {
-            $model->delete($id);
-        }
-
-        return redirect()->to('/renovation')->with('success', 'Categorie verwijderd. Eventuele posten blijven bestaan.');
-    }
-
-    public function saveItem()
-    {
-        $userId = session()->get('userId');
-        $model = new RenovationItemModel();
-        $id = (int) $this->request->getPost('id');
-        $data = $this->itemFromPost($userId);
-
-        if ($id > 0) {
-            $item = $model->where('id', $id)->where('user_id', $userId)->first();
-            if ($item) {
-                $model->update($id, $data);
-            }
-        } else {
-            $last = $model->where('user_id', $userId)->orderBy('sort_order', 'DESC')->first();
-            $data['sort_order'] = ((int) ($last['sort_order'] ?? 0)) + 10;
-            $model->insert($data);
-        }
-
-        return redirect()->to('/renovation')->with('success', 'Verbouwpost opgeslagen.');
-    }
-
-    public function deleteItem($id)
-    {
-        $userId = session()->get('userId');
-        $model = new RenovationItemModel();
-        $item = $model->where('id', $id)->where('user_id', $userId)->first();
-        if ($item) {
-            $model->delete($id);
-        }
-
-        return redirect()->to('/renovation')->with('success', 'Verbouwpost verwijderd.');
-    }
-
-    public function note($id)
-    {
-        $userId = session()->get('userId');
-        $model = new RenovationItemModel();
-        $item = $model->where('id', $id)->where('user_id', $userId)->first();
-        if ($item) {
-            $model->update($id, ['notes' => NoteSanitizer::clean((string) $this->request->getPost('notes'))]);
-        }
-
-        return redirect()->to('/renovation')->with('success', 'Notitie opgeslagen.');
+        return $this->request->getPost('return_to') === 'planning'
+            ? '/renovation/planning'
+            : '/renovation';
     }
 
     private function itemFromPost(int $userId): array
     {
+        $day = (int) $this->request->getPost('planned_day');
+        $month = (int) $this->request->getPost('planned_month');
+        $year = (int) $this->request->getPost('planned_year');
         $plannedDate = trim((string) $this->request->getPost('planned_date'));
-        $plannedDate = preg_match('/^\d{4}-\d{2}-\d{2}$/', $plannedDate) ? $plannedDate : null;
-        $plannedYear = $this->request->getPost('planned_year');
-        if ($plannedDate) {
-            $plannedYear = (int) substr($plannedDate, 0, 4);
-        } elseif ($plannedYear) {
-            $plannedYear = (int) $plannedYear;
+
+        if ($year > 0 && $month > 0 && $day > 0 && checkdate($month, $day, $year)) {
+            $plannedDate = sprintf('%04d-%02d-%02d', $year, $month, $day);
+        } elseif (preg_match('/^\d{4}-\d{2}-\d{2}$/', $plannedDate)) {
+            $year = (int) substr($plannedDate, 0, 4);
         } else {
-            $plannedYear = null;
+            $plannedDate = null;
+            $year = $year > 1900 ? $year : null;
         }
 
         return [
@@ -199,7 +223,7 @@ class Renovation extends BaseController
             'actual_cost' => (float) ($this->request->getPost('actual_cost') ?: 0),
             'vat_rate' => (float) ($this->request->getPost('vat_rate') ?: 10),
             'contractor' => trim((string) $this->request->getPost('contractor')) ?: null,
-            'planned_year' => $plannedYear,
+            'planned_year' => $year,
             'planned_date' => $plannedDate,
             'include_in_capital' => $this->request->getPost('include_in_capital') ? 1 : 0,
         ];

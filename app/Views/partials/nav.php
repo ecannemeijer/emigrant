@@ -6,6 +6,7 @@ $items = [
     ['income', '/income', 'bi-cash-coin', 'Inkomsten'],
     ['property', '/property', 'bi-building', 'Vastgoed IT'],
     ['renovation', '/renovation', 'bi-hammer', 'Verbouwen'],
+    ['renovation/planning', '/renovation/planning', 'bi-calendar3', 'Planning'],
     ['expenses', '/expenses', 'bi-wallet2', 'Maandlasten'],
     ['taxes', '/taxes', 'bi-receipt', 'Belastingen'],
     ['bnb', '/bnb', 'bi-shop', 'B&B'],
@@ -17,7 +18,12 @@ $items = [
 <ul class="nav flex-column sidebar-nav">
     <?php foreach ($items as [$match, $href, $icon, $label]): ?>
         <li class="nav-item">
-            <a class="nav-link <?= str_starts_with($uri, $match) ? 'active' : '' ?>" href="<?= $href ?>">
+            <?php
+                $isActive = $match === 'renovation'
+                    ? ($uri === 'renovation')
+                    : str_starts_with($uri, $match);
+            ?>
+            <a class="nav-link <?= $isActive ? 'active' : '' ?>" href="<?= $href ?>">
                 <i class="bi <?= $icon ?>"></i> <?= $label ?>
             </a>
         </li>

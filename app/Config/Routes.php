@@ -74,6 +74,7 @@ $routes->group('', ['filter' => ['auth', 'subscription']], function ($routes) {
     $routes->post('property/save', 'Property::save');
 
     $routes->get('renovation', 'Renovation::index');
+    $routes->get('renovation/planning', 'Renovation::planning');
     $routes->post('renovation/settings', 'Renovation::saveSettings');
     $routes->post('renovation/category', 'Renovation::saveCategory');
     $routes->post('renovation/category/delete/(:num)', 'Renovation::deleteCategory/$1');
