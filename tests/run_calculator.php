@@ -88,5 +88,35 @@ $expected5 = 1000 * pow(1.02, 5);
 check(abs($wia0 - 1000) < 0.02, "WIA year 0 = $wia0");
 check(abs($wia5 - $expected5) < 0.05, "WIA year 5 indexed $wia5 vs $expected5");
 
+$aowSplit = $calc->analyze([
+    'profile' => [
+        'date_of_birth' => '1961-01-01',
+        'partner_date_of_birth' => '1964-01-01',
+        'emigration_date' => '2010-01-01',
+        'retirement_age' => 67,
+        'partner_retirement_age' => 67,
+    ],
+    'start_position' => ['house_sale_price' => 0, 'savings' => 0, 'interest_rate' => 0, 'inflation_rate' => 0],
+    'income' => [
+        'has_partner' => 1,
+        'own_benefit_type' => 'wia',
+        'own_income' => 900,
+        'own_aow' => 1200,
+        'own_aow_start_age' => 65,
+        'partner_benefit_type' => 'wia',
+        'wia_wife' => 800,
+        'partner_has_wia' => 1,
+        'aow_future' => 1100,
+        'partner_aow_start_age' => 67,
+    ],
+    'expenses' => [],
+    'taxes' => [],
+    'bnb_settings' => [],
+    'bnb_expenses' => [],
+], 2026);
+check(($aowSplit['yearlyProjections'][0]['own_aow_amount'] ?? 0) > 0, 'own AOW starts at 65');
+check(($aowSplit['yearlyProjections'][0]['wia_amount'] ?? 0) > 0, 'partner WIA still running at 62');
+check(($aowSplit['yearlyProjections'][0]['partner_aow_amount'] ?? 0) == 0, 'partner AOW not yet');
+
 echo $fail === 0 ? "\nAll good\n" : "\n$fail failed\n";
 exit($fail === 0 ? 0 : 1);

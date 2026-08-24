@@ -1,183 +1,205 @@
 <?= $this->extend('layout') ?>
 
 <?= $this->section('content') ?>
+<?php
+$income = $income ?? [];
+$profile = $profile ?? [];
+$youName = trim(($profile['first_name'] ?? '') !== '' ? $profile['first_name'] : 'Jij');
+$partnerName = trim($profile['partner_name'] ?? '') !== '' ? $profile['partner_name'] : 'Partner';
+$hasPartner = array_key_exists('has_partner', $profile) && $profile['has_partner'] !== null
+    ? (int) $profile['has_partner'] === 1
+    : (!empty($profile['partner_date_of_birth']) || !empty($profile['partner_name']));
+$ownType = $income['own_benefit_type'] ?? ((((float) ($income['own_income'] ?? 0)) > 0) ? 'other' : 'none');
+$partnerType = $income['partner_benefit_type'] ?? ((((int) ($income['partner_has_wia'] ?? 0)) === 1) ? 'wia' : 'other');
+$ownAowAge = $income['own_aow_start_age'] ?? ($profile['retirement_age'] ?? 67);
+$partnerAowAge = $income['partner_aow_start_age'] ?? $income['aow_start_age'] ?? ($profile['partner_retirement_age'] ?? 67);
+$ownOther = $income['own_other_income'] ?? 0;
+$partnerOther = $income['partner_other_income'] ?? 0;
+if ((float) $ownOther === 0.0 && (float) $partnerOther === 0.0 && (float) ($income['other_income'] ?? 0) > 0) {
+    $ownOther = $income['other_income'];
+}
+?>
 <div class="mb-4">
     <h1><i class="bi bi-cash-coin"></i> Inkomsten</h1>
-    <p class="text-muted">Vul je maandelijkse inkomsten in</p>
+    <p class="text-muted mb-0">Per persoon: uitkering (WIA of anders), AOW vanaf de AOW-leeftijd, en overig netto-inkomen. Eén persoon mag ook.</p>
 </div>
 
-<div class="row">
-    <div class="col-md-8">
-        <div class="card">
-            <div class="card-body">
-                <form action="/income/save" method="post">
-                    <?= csrf_field() ?>
+<form action="/income/save" method="post">
+    <?= csrf_field() ?>
 
-                    <?php 
-                    // Get partner name from profile
-                    $partnerName = $profile['partner_name'] ?? 'partner';
-                    $hasWia = ($income['partner_has_wia'] ?? 1) == 1;
-                    ?>
+    <div class="card mb-4">
+        <div class="card-body d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div>
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" role="switch" id="has_partner" name="has_partner" value="1" <?= $hasPartner ? 'checked' : '' ?>>
+                    <label class="form-check-label" for="has_partner"><strong>Inkomsten voor 2 personen (partner)</strong></label>
+                </div>
+                <small class="text-muted">Uit voor alleen jouw inkomsten. Aan voor jou én <?= esc($partnerName) ?>.</small>
+            </div>
+            <a href="/profile" class="btn btn-outline-secondary btn-sm">Namen en geboortedata in profiel</a>
+        </div>
+    </div>
 
-                    <div class="mb-3">
-                        <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" id="partner_has_wia" 
-                                   name="partner_has_wia" value="1" <?= $hasWia ? 'checked' : '' ?>>
-                            <label class="form-check-label" for="partner_has_wia">
-                                <strong><?= esc(ucfirst($partnerName)) ?> heeft WIA</strong>
-                            </label>
-                        </div>
-                        <small class="text-muted">Vink uit indien het regulier inkomen betreft (geen WIA)</small>
+    <div class="row g-4">
+        <div class="col-lg-6">
+            <div class="card person-card person-card-you h-100">
+                <div class="card-body">
+                    <h2 class="h5 mb-3"><i class="bi bi-person"></i> <?= esc($youName) ?></h2>
+
+                    <label class="form-label">Soort uitkering tot AOW</label>
+                    <div class="btn-group w-100 mb-3" role="group">
+                        <input type="radio" class="btn-check" name="own_benefit_type" id="own_type_wia" value="wia" <?= $ownType === 'wia' ? 'checked' : '' ?>>
+                        <label class="btn btn-outline-success" for="own_type_wia">WIA</label>
+                        <input type="radio" class="btn-check" name="own_benefit_type" id="own_type_other" value="other" <?= $ownType === 'other' ? 'checked' : '' ?>>
+                        <label class="btn btn-outline-success" for="own_type_other">Andere uitkering</label>
+                        <input type="radio" class="btn-check" name="own_benefit_type" id="own_type_none" value="none" <?= $ownType === 'none' ? 'checked' : '' ?>>
+                        <label class="btn btn-outline-success" for="own_type_none">Geen</label>
                     </div>
 
-                    <div class="mb-3">
-                        <label for="wia_wife" class="form-label" id="partner_income_label">
-                            <span id="income_type_text"><?= $hasWia ? 'WIA' : 'Inkomen' ?></span> <?= esc($partnerName) ?> (netto per maand)
-                        </label>
+                    <div class="mb-3" id="own_benefit_wrap">
+                        <label for="own_income" class="form-label" id="own_benefit_label">Uitkering netto per maand</label>
                         <div class="input-group">
                             <span class="input-group-text">€</span>
-                            <input type="number" step="0.01" class="form-control" id="wia_wife" 
-                                   name="wia_wife" value="<?= $income['wia_wife'] ?? 0 ?>" required>
+                            <input type="number" step="0.01" class="form-control" id="own_income" name="own_income" value="<?= esc($income['own_income'] ?? 0) ?>">
                         </div>
-                        <small class="text-muted" id="partner_income_help">
-                            <?= $hasWia ? 'Huidig WIA-inkomen (in de projectie jaarlijks geïndexeerd, net als inflatie)' : 'Regulier maandinkomen' ?>
-                        </small>
+                        <small class="text-muted">WIA en andere wettelijke uitkeringen groeien mee met de jaarlijkse indexatie en stoppen wanneer AOW ingaat.</small>
                     </div>
 
                     <div class="mb-3">
-                        <label for="own_income" class="form-label">Eigen inkomen (netto per maand)</label>
+                        <label for="own_aow" class="form-label">AOW netto per maand</label>
                         <div class="input-group">
                             <span class="input-group-text">€</span>
-                            <input type="number" step="0.01" class="form-control" id="own_income" 
-                                   name="own_income" value="<?= $income['own_income'] ?? 0 ?>" required>
+                            <input type="number" step="0.01" class="form-control" id="own_aow" name="own_aow" value="<?= esc($income['own_aow'] ?? 0) ?>">
                         </div>
                     </div>
-
-                    <hr class="my-4">
-
-                    <h5 class="mb-3"><i class="bi bi-calendar-event"></i> Toekomstige Inkomsten bij Pensioen</h5>
-                    
-                    <div class="alert alert-info" id="wia_info_alert" style="display: <?= $hasWia ? 'block' : 'none' ?>">
-                        <i class="bi bi-info-circle"></i>
-                        <strong>Let op:</strong> WIA van <?= esc($partnerName) ?> stopt automatisch wanneer <?= esc($partnerName) ?> 
-                        met pensioen gaat (op de leeftijd ingesteld in je profiel). Dan start de AOW van <?= esc($partnerName) ?>.
+                    <div class="mb-3">
+                        <label for="own_aow_start_age" class="form-label">AOW start op leeftijd</label>
+                        <input type="number" min="60" max="75" class="form-control" id="own_aow_start_age" name="own_aow_start_age" value="<?= esc($ownAowAge) ?>">
+                        <small class="text-muted">Op het dashboard telt deze AOW pas mee vanaf dit jaar (nu <?= (int) $ownAowAge ?>).</small>
                     </div>
 
                     <div class="mb-3">
-                        <label for="aow_future" class="form-label">AOW <?= esc($partnerName) ?> bij pensioen (netto per maand)</label>
+                        <label for="own_other_income" class="form-label">Overig inkomen netto per maand</label>
                         <div class="input-group">
                             <span class="input-group-text">€</span>
-                            <input type="number" step="0.01" class="form-control" id="aow_future" 
-                                   name="aow_future" value="<?= $income['aow_future'] ?? 0 ?>">
+                            <input type="number" step="0.01" class="form-control" id="own_other_income" name="own_other_income" value="<?= esc($ownOther) ?>">
                         </div>
-                        <small class="text-muted" id="aow_future_help">
-                            <?= $hasWia ? 'Start automatisch bij ' . esc($partnerName) . ' pensioenleeftijd, WIA stopt dan' : 'Start automatisch bij ' . esc($partnerName) . ' pensioenleeftijd' ?>
-                        </small>
+                        <small class="text-muted">Loon, freelance of andere inkomsten die niet stoppen bij AOW.</small>
+                    </div>
+
+                    <div class="mb-0">
+                        <label for="pension" class="form-label">Aanvullend pensioen netto per maand</label>
+                        <div class="input-group">
+                            <span class="input-group-text">€</span>
+                            <input type="number" step="0.01" class="form-control" id="pension" name="pension" value="<?= esc($income['pension'] ?? 0) ?>">
+                        </div>
+                        <small class="text-muted">Start op pensioenleeftijd in je profiel (<?= (int) ($profile['retirement_age'] ?? 67) ?>). Niet geïndexeerd.</small>
+                    </div>
+                    <input type="hidden" name="pension_start_age" value="<?= esc($income['pension_start_age'] ?? ($profile['retirement_age'] ?? 67)) ?>">
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6" id="partner-income-col" <?= $hasPartner ? '' : 'style="display:none"' ?>>
+            <div class="card person-card person-card-partner h-100">
+                <div class="card-body">
+                    <h2 class="h5 mb-3"><i class="bi bi-person-heart"></i> <?= esc($partnerName) ?></h2>
+
+                    <label class="form-label">Soort uitkering tot AOW</label>
+                    <div class="btn-group w-100 mb-3" role="group">
+                        <input type="radio" class="btn-check" name="partner_benefit_type" id="partner_type_wia" value="wia" <?= $partnerType === 'wia' ? 'checked' : '' ?>>
+                        <label class="btn btn-outline-danger" for="partner_type_wia">WIA</label>
+                        <input type="radio" class="btn-check" name="partner_benefit_type" id="partner_type_other" value="other" <?= $partnerType === 'other' ? 'checked' : '' ?>>
+                        <label class="btn btn-outline-danger" for="partner_type_other">Andere uitkering</label>
+                        <input type="radio" class="btn-check" name="partner_benefit_type" id="partner_type_none" value="none" <?= $partnerType === 'none' ? 'checked' : '' ?>>
+                        <label class="btn btn-outline-danger" for="partner_type_none">Geen</label>
+                    </div>
+
+                    <div class="mb-3" id="partner_benefit_wrap">
+                        <label for="wia_wife" class="form-label" id="partner_benefit_label">Uitkering netto per maand</label>
+                        <div class="input-group">
+                            <span class="input-group-text">€</span>
+                            <input type="number" step="0.01" class="form-control" id="wia_wife" name="wia_wife" value="<?= esc($income['wia_wife'] ?? 0) ?>">
+                        </div>
+                        <small class="text-muted">Stopt automatisch wanneer de AOW van <?= esc($partnerName) ?> ingaat; WIA wordt jaarlijks geïndexeerd.</small>
                     </div>
 
                     <div class="mb-3">
-                        <label for="own_aow" class="form-label">Eigen AOW bij pensioen (netto per maand)</label>
+                        <label for="aow_future" class="form-label">AOW netto per maand</label>
                         <div class="input-group">
                             <span class="input-group-text">€</span>
-                            <input type="number" step="0.01" class="form-control" id="own_aow" 
-                                   name="own_aow" value="<?= $income['own_aow'] ?? 0 ?>">
+                            <input type="number" step="0.01" class="form-control" id="aow_future" name="aow_future" value="<?= esc($income['aow_future'] ?? 0) ?>">
                         </div>
-                        <small class="text-muted">Start automatisch bij jouw pensioenleeftijd</small>
                     </div>
-
                     <div class="mb-3">
-                        <label for="pension" class="form-label">Jouw Pensioen (netto per maand)</label>
+                        <label for="partner_aow_start_age" class="form-label">AOW start op leeftijd</label>
+                        <input type="number" min="60" max="75" class="form-control" id="partner_aow_start_age" name="partner_aow_start_age" value="<?= esc($partnerAowAge) ?>">
+                        <small class="text-muted">Op het dashboard telt deze AOW pas mee vanaf dit jaar (nu <?= (int) $partnerAowAge ?>).</small>
+                    </div>
+
+                    <div class="mb-0">
+                        <label for="partner_other_income" class="form-label">Overig inkomen netto per maand</label>
                         <div class="input-group">
                             <span class="input-group-text">€</span>
-                            <input type="number" step="0.01" class="form-control" id="pension" 
-                                   name="pension" value="<?= $income['pension'] ?? 0 ?>">
-                        </div>
-                        <small class="text-muted">Start bij jouw pensioenleeftijd (ingesteld in profiel)</small>
-                    </div>
-
-                    <hr class="my-4">
-
-                    <div class="mb-3">
-                        <label for="other_income" class="form-label">Overig inkomen (netto per maand)</label>
-                        <div class="input-group">
-                            <span class="input-group-text">€</span>
-                            <input type="number" step="0.01" class="form-control" id="other_income"
-                                   name="other_income" value="<?= $income['other_income'] ?? 0 ?>">
+                            <input type="number" step="0.01" class="form-control" id="partner_other_income" name="partner_other_income" value="<?= esc($partnerOther) ?>">
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-                    <div class="mb-3">
-                        <label for="minimum_monthly_income" class="form-label">Minimum netto per maand (waarschuwing)</label>
-                        <div class="input-group">
-                            <span class="input-group-text">€</span>
-                            <input type="number" step="0.01" class="form-control" id="minimum_monthly_income"
-                                   name="minimum_monthly_income" value="<?= $income['minimum_monthly_income'] ?? 0 ?>">
-                        </div>
+    <div class="card mt-4">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6 mb-3 mb-md-0">
+                    <label for="minimum_monthly_income" class="form-label">Minimum netto per maand (waarschuwing)</label>
+                    <div class="input-group">
+                        <span class="input-group-text">€</span>
+                        <input type="number" step="0.01" class="form-control" id="minimum_monthly_income" name="minimum_monthly_income" value="<?= esc($income['minimum_monthly_income'] ?? 0) ?>">
                     </div>
-
-                    <div class="form-check mb-3">
-                        <input class="form-check-input" type="checkbox" id="income_stops_at_retirement" name="income_stops_at_retirement" value="1"
-                               <?= ($income['income_stops_at_retirement'] ?? 1) ? 'checked' : '' ?>>
-                        <label class="form-check-label" for="income_stops_at_retirement">Eigen inkomen stopt bij pensioenleeftijd</label>
-                    </div>
-
+                </div>
+                <div class="col-md-6 d-flex align-items-end">
                     <button type="submit" class="btn btn-primary">
                         <i class="bi bi-save"></i> Opslaan
                     </button>
-                </form>
+                </div>
             </div>
         </div>
     </div>
-
-    <div class="col-md-4">
-        <div class="card bg-light">
-            <div class="card-body">
-                <h5 class="card-title">Totaal Maandinkomen</h5>
-                <?php if ($income): ?>
-                    <?php 
-                    $total = ($income['wia_wife'] ?? 0) + 
-                             ($income['own_income'] ?? 0) + 
-                             ($income['aow_future'] ?? 0) + 
-                             ($income['pension'] ?? 0) + 
-                             ($income['other_income'] ?? 0);
-                    ?>
-                    <div class="display-6 text-success">
-                        € <?= number_format($total, 2, ',', '.') ?>
-                    </div>
-                    <p class="text-muted mt-2">Per jaar: € <?= number_format($total * 12, 2, ',', '.') ?></p>
-                <?php else: ?>
-                    <p class="text-muted">Vul je inkomsten in</p>
-                <?php endif; ?>
-            </div>
-        </div>
-    </div>
-</div>
+</form>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const checkbox = document.getElementById('partner_has_wia');
-    const incomeTypeText = document.getElementById('income_type_text');
-    const partnerIncomeHelp = document.getElementById('partner_income_help');
-    const aowFutureHelp = document.getElementById('aow_future_help');
-    const wiaInfoAlert = document.getElementById('wia_info_alert');
-    const partnerName = '<?= esc($partnerName) ?>';
-    
-    checkbox.addEventListener('change', function() {
-        if (this.checked) {
-            // WIA enabled
-            incomeTypeText.textContent = 'WIA';
-            partnerIncomeHelp.textContent = 'Huidig WIA-inkomen (in de projectie jaarlijks geïndexeerd, net als inflatie)';
-            aowFutureHelp.textContent = 'Start automatisch bij ' + partnerName + ' pensioenleeftijd, WIA stopt dan';
-            wiaInfoAlert.style.display = 'block';
-        } else {
-            // Regular income
-            incomeTypeText.textContent = 'Inkomen';
-            partnerIncomeHelp.textContent = 'Regulier maandinkomen';
-            aowFutureHelp.textContent = 'Start automatisch bij ' + partnerName + ' pensioenleeftijd';
-            wiaInfoAlert.style.display = 'none';
-        }
-    });
+document.addEventListener('DOMContentLoaded', function () {
+    const partnerCol = document.getElementById('partner-income-col');
+    const hasPartner = document.getElementById('has_partner');
+    const ownIncome = document.getElementById('own_income');
+    const partnerIncome = document.getElementById('wia_wife');
+
+    function togglePartner() {
+        partnerCol.style.display = hasPartner.checked ? '' : 'none';
+    }
+    function toggleOwnAmount() {
+        const none = document.getElementById('own_type_none').checked;
+        document.getElementById('own_benefit_wrap').style.display = none ? 'none' : '';
+        document.getElementById('own_benefit_label').textContent = document.getElementById('own_type_wia').checked
+            ? 'WIA netto per maand' : 'Uitkering netto per maand';
+        if (none) ownIncome.value = 0;
+    }
+    function togglePartnerAmount() {
+        const none = document.getElementById('partner_type_none').checked;
+        document.getElementById('partner_benefit_wrap').style.display = none ? 'none' : '';
+        document.getElementById('partner_benefit_label').textContent = document.getElementById('partner_type_wia').checked
+            ? 'WIA netto per maand' : 'Uitkering netto per maand';
+        if (none) partnerIncome.value = 0;
+    }
+
+    hasPartner.addEventListener('change', togglePartner);
+    document.querySelectorAll('input[name="own_benefit_type"]').forEach(el => el.addEventListener('change', toggleOwnAmount));
+    document.querySelectorAll('input[name="partner_benefit_type"]').forEach(el => el.addEventListener('change', togglePartnerAmount));
+    togglePartner();
+    toggleOwnAmount();
+    togglePartnerAmount();
 });
 </script>
-
 <?= $this->endSection() ?>

@@ -56,11 +56,11 @@
                 <div class="table-responsive">
                 <table class="table table-sm">
                     <tr>
-                        <td>WIA vrouw</td>
+                        <td>Uitkering partner</td>
                         <td class="text-end">€ <?= number_format($scenarioData['income']['wia_wife'] ?? 0, 2, ',', '.') ?></td>
                     </tr>
                     <tr>
-                        <td>Eigen inkomen</td>
+                        <td>Uitkering / inkomen jij</td>
                         <td class="text-end">€ <?= number_format($scenarioData['income']['own_income'] ?? 0, 2, ',', '.') ?></td>
                     </tr>
                     <?php if (($scenarioData['income']['pension'] ?? 0) > 0): ?>

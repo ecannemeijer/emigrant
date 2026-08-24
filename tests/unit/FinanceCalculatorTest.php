@@ -276,6 +276,84 @@ class FinanceCalculatorTest extends TestCase
         $this->assertEqualsWithDelta(1000 * pow(1.02, 5), $year5['wia_amount'], 0.05);
     }
 
+    public function testAowStartsAtEachPersonsAge(): void
+    {
+        $result = $this->calc->analyze([
+            'profile' => [
+                'date_of_birth' => '1961-01-01',
+                'partner_date_of_birth' => '1964-01-01',
+                'emigration_date' => '2010-01-01',
+                'retirement_age' => 67,
+                'partner_retirement_age' => 67,
+            ],
+            'start_position' => [
+                'house_sale_price' => 0,
+                'savings' => 0,
+                'interest_rate' => 0,
+                'inflation_rate' => 0,
+            ],
+            'income' => [
+                'has_partner' => 1,
+                'own_benefit_type' => 'wia',
+                'own_income' => 900,
+                'own_aow' => 1200,
+                'own_aow_start_age' => 65,
+                'partner_benefit_type' => 'wia',
+                'wia_wife' => 800,
+                'partner_has_wia' => 1,
+                'aow_future' => 1100,
+                'partner_aow_start_age' => 67,
+            ],
+            'expenses' => [],
+            'taxes' => [],
+            'bnb_settings' => [],
+            'bnb_expenses' => [],
+        ], 2026);
+
+        $this->assertEquals(65, $result['yearlyProjections'][0]['user_age']);
+        $this->assertEquals(62, $result['yearlyProjections'][0]['partner_age']);
+        $this->assertGreaterThan(0, $result['yearlyProjections'][0]['own_aow_amount']);
+        $this->assertEquals(0.0, $result['yearlyProjections'][0]['own_wia_amount']);
+        $this->assertGreaterThan(0, $result['yearlyProjections'][0]['wia_amount']);
+        $this->assertEquals(0.0, $result['yearlyProjections'][0]['partner_aow_amount']);
+
+        $partnerAowYear = null;
+        foreach ($result['yearlyProjections'] as $row) {
+            if ((int) $row['partner_age'] >= 67) {
+                $partnerAowYear = $row;
+                break;
+            }
+        }
+        $this->assertNotNull($partnerAowYear);
+        $this->assertGreaterThan(0, $partnerAowYear['partner_aow_amount']);
+        $this->assertEquals(0.0, $partnerAowYear['wia_amount']);
+    }
+
+    public function testSinglePersonIgnoresPartnerIncome(): void
+    {
+        $result = $this->calc->analyze([
+            'profile' => [
+                'date_of_birth' => '1980-01-01',
+                'retirement_age' => 67,
+            ],
+            'start_position' => ['house_sale_price' => 0, 'savings' => 0, 'interest_rate' => 0],
+            'income' => [
+                'has_partner' => 0,
+                'own_benefit_type' => 'other',
+                'own_income' => 1500,
+                'wia_wife' => 2000,
+                'partner_has_wia' => 1,
+            ],
+            'expenses' => [],
+            'taxes' => [],
+            'bnb_settings' => [],
+            'bnb_expenses' => [],
+        ], 2026);
+
+        $this->assertEqualsWithDelta(1500.0, $result['calculations']['base_monthly_income'], 0.01);
+        $this->assertEquals(0.0, $result['calculations']['wia_amount']);
+    }
+
     public function testRentalIncomeIsTaxed(): void
     {
         $result = $this->calc->analyze([

@@ -24,7 +24,13 @@ class IncomeModel extends Model
         'pension_start_age',
         'other_income',
         'minimum_monthly_income',
-        'income_stops_at_retirement'
+        'income_stops_at_retirement',
+        'own_benefit_type',
+        'partner_benefit_type',
+        'own_other_income',
+        'partner_other_income',
+        'own_aow_start_age',
+        'partner_aow_start_age',
     ];
 
     // Dates
@@ -48,8 +54,7 @@ class IncomeModel extends Model
 
         return ($income['wia_wife'] ?? 0) +
                ($income['own_income'] ?? 0) +
-               ($income['aow_future'] ?? 0) +
-               ($income['pension'] ?? 0) +
-               ($income['other_income'] ?? 0);
+               ($income['own_other_income'] ?? 0) +
+               ($income['partner_other_income'] ?? 0);
     }
 }

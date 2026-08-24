@@ -235,19 +235,22 @@ class FinanceCalculator
         $voluntaryYears = (float) ($profile['voluntary_aow_years'] ?? 0);
         $userRetAge     = (int) ($income['pension_start_age'] ?? $profile['retirement_age'] ?? 67);
         $partnerRetAge  = (int) ($profile['partner_retirement_age'] ?? 67);
-        $ownAowAge      = (int) ($income['aow_start_age'] ?? $userRetAge);
+        $ownAowAge      = (int) ($income['own_aow_start_age'] ?? $profile['retirement_age'] ?? 67);
+        $partnerAowAge  = (int) ($income['partner_aow_start_age'] ?? $income['aow_start_age'] ?? $profile['partner_retirement_age'] ?? 67);
         $stopOwnIncome  = ((int) ($income['income_stops_at_retirement'] ?? 1)) === 1;
+        $hasPartner     = $this->resolveHasPartner($profile, $income);
+        $income['has_partner'] = $hasPartner ? 1 : 0;
 
-        $partnerAowPct = $this->calculateAowPercentage(
+        $partnerAowPct = $hasPartner ? $this->calculateAowPercentage(
             $profile['emigration_date'] ?? null,
             $profile['partner_date_of_birth'] ?? null,
-            $partnerRetAge,
+            $partnerAowAge,
             $voluntaryYears
-        );
+        ) : 100.0;
         $ownAowPct = $this->calculateAowPercentage(
             $profile['emigration_date'] ?? null,
             $profile['date_of_birth'] ?? null,
-            $userRetAge,
+            $ownAowAge,
             $voluntaryYears
         );
 
@@ -320,7 +323,7 @@ class FinanceCalculator
                 $userRetAge,
                 $partnerRetAge,
                 $ownAowAge,
-                $partnerRetAge,
+                $partnerAowAge,
                 $stopOwnIncome,
                 $interestMonthly,
                 $inflator
@@ -342,7 +345,7 @@ class FinanceCalculator
                 $userRetAge,
                 $partnerRetAge,
                 $ownAowAge,
-                $partnerRetAge,
+                $partnerAowAge,
                 $stopOwnIncome,
                 $interestMonthly,
                 $inflator
@@ -360,14 +363,21 @@ class FinanceCalculator
                 'age_offset' => $offset,
                 'user_age' => $userAge,
                 'partner_age' => $partnerAge,
+                'user_age' => $userAge,
+                'partner_age' => $partnerAge,
                 'monthly_income' => $cf['total_monthly_income'],
+                'monthly_income_without_bnb' => $cfWithoutBnb['total_monthly_income'],
                 'monthly_income_without_bnb' => $cfWithoutBnb['total_monthly_income'],
                 'monthly_net' => $cf['monthly_net'],
                 'monthly_net_without_bnb' => $cfWithoutBnb['monthly_net'],
+                'monthly_net_without_bnb' => $cfWithoutBnb['monthly_net'],
+                'bnb_monthly' => $bnbRevY - $bnbExpY,
                 'bnb_monthly' => $bnbRevY - $bnbExpY,
                 'monthly_interest' => $interestMonthly,
                 'yearly_income' => $cf['total_monthly_income'] * 12,
                 'yearly_income_without_bnb' => $cfWithoutBnb['total_monthly_income'] * 12,
+                'yearly_expenses' => $cf['monthly_expenses'] * 12,
+                'yearly_taxes' => $cf['monthly_taxes'] * 12,
                 'yearly_expenses' => $cf['monthly_expenses'] * 12,
                 'yearly_taxes' => $cf['monthly_taxes'] * 12,
                 'yearly_net' => $yearlyNet,
@@ -383,10 +393,19 @@ class FinanceCalculator
                 'own_aow_amount' => $cf['own_aow_amount'],
                 'pension_amount' => $cf['pension_amount'],
                 'wia_amount' => $cf['wia_amount'],
+                'own_wia_amount' => $cf['own_wia_amount'],
+                'own_benefit_amount' => $cf['own_benefit_amount'],
+                'own_other_income' => $cf['own_other_income'],
+                'partner_other_income' => $cf['partner_other_income'],
+                'has_own_wia' => $cf['has_own_wia'],
+                'has_own_benefit' => $cf['has_own_benefit'],
                 'rental_income' => $cf['rental_income'],
                 'other_income' => $cf['other_income'],
-                'has_partner_retired' => ($partnerAge && $partnerAge >= $partnerRetAge),
-                'has_user_retired' => ($userAge && $userAge >= $userRetAge),
+                'has_partner' => $hasPartner,
+                'has_partner_retired' => ($hasPartner && $partnerAge && $partnerAge >= $partnerAowAge),
+                'has_user_retired' => ($userAge && $userAge >= $ownAowAge),
+                'has_partner_retired' => ($hasPartner && $partnerAge && $partnerAge >= $partnerAowAge),
+                'has_user_retired' => ($userAge && $userAge >= $ownAowAge),
             ];
         }
 
@@ -406,7 +425,7 @@ class FinanceCalculator
             $userRetAge,
             $partnerRetAge,
             $ownAowAge,
-            $partnerRetAge,
+            $partnerAowAge,
             $stopOwnIncome,
             0.0,
             1.0
@@ -442,19 +461,33 @@ class FinanceCalculator
 
         $calculations = array_merge($year0, [
             'monthly_income' => $year0['base_monthly_income'],
+            'total_monthly_income' => $year0['total_monthly_income'],
             'bnb_revenue' => $bnbRevenue,
+            'bnb_expenses' => $bnbCosts,
             'bnb_expenses' => $bnbCosts,
             'bnb_net_income' => $bnbNet,
             'bnb_tax' => $bnbTax,
             'bnb_breakeven_percentage' => $breakeven,
             'remaining_capital' => $remainingCapital,
+            'remaining_capital' => $remainingCapital,
             'starting_capital' => $startingCapital,
+            'remaining_capital' => $remainingCapital,
+            'monthly_taxes' => $year0['monthly_taxes'],
+            'runway_months' => $runway,
+            'remaining_capital' => $remainingCapital,
+            'remaining_capital' => $remainingCapital,
+            'starting_capital' => $startingCapital,
+            'remaining_capital' => $remainingCapital,
+            'monthly_taxes' => $year0['monthly_taxes'],
             'capital_12_months' => $capital12,
             'capital_24_months' => $capital24,
             'capital_36_months' => $capital36,
             'runway_months' => $runway,
             'partner_aow_percentage' => $partnerAowPct,
             'own_aow_percentage' => $ownAowPct,
+            'own_aow_start_age' => $ownAowAge,
+            'partner_aow_start_age' => $partnerAowAge,
+            'has_partner' => $hasPartner,
             'forfettario_over_limit' => $yearlyBnb > $limit,
             'below_minimum' => $minimum > 0 && $year0['monthly_net'] < $minimum,
             'minimum_monthly_income' => $minimum,
@@ -462,6 +495,7 @@ class FinanceCalculator
 
         return [
             'calculations' => $calculations,
+            'yearlyProjections' => $projections,
             'yearlyProjections' => $projections,
             'warnings' => $warnings,
         ];
@@ -488,37 +522,48 @@ class FinanceCalculator
         float $monthlyInterest,
         float $inflator
     ): array {
-        $ownIncome   = (float) ($income['own_income'] ?? 0);
-        $userRetired = $userAge !== null && $userAge >= $userRetAge;
-        if ($stopOwnIncome && $userRetired) {
-            $ownIncome = 0.0;
+        $hasPartner = !empty($income['has_partner']);
+        $ownAowDue  = $userAge !== null && $userAge >= $ownAowAge;
+        $partnerAowDue = $hasPartner && $partnerAge !== null && $partnerAge >= $partnerAowAge;
+
+        $ownType = $this->benefitType($income, 'own');
+        $ownAmt  = (float) ($income['own_income'] ?? 0);
+        $ownWiaAmount = 0.0;
+        $ownBenefitAmount = 0.0;
+        $ownIncome = 0.0;
+        $hasOwnWia = false;
+        $hasOwnBenefit = false;
+        if (!$ownAowDue && $ownType !== 'none' && $ownAmt > 0) {
+            if ($ownType === 'wia') {
+                $ownWiaAmount = $ownAmt * $inflator;
+                $hasOwnWia = true;
+            } else {
+                $ownBenefitAmount = $ownAmt * $inflator;
+                $hasOwnBenefit = true;
+                $ownIncome = $ownBenefitAmount;
+            }
         }
 
-        $partnerHasWia         = ((int) ($income['partner_has_wia'] ?? 1)) === 1;
-        $partnerIncomeField    = (float) ($income['wia_wife'] ?? 0);
-        $wiaAmount             = 0.0;
-        $partnerIncomeAmount   = 0.0;
-        $partnerAowAmount      = 0.0;
-        $hasWia                = false;
-        $hasPartnerIncome      = false;
-        $hasPartnerAow         = false;
-        $partnerAowDue         = $partnerAge !== null && $partnerAge >= $partnerAowAge;
-
-        if ($partnerHasWia) {
+        $partnerType = $hasPartner ? $this->benefitType($income, 'partner') : 'none';
+        $partnerAmt  = $hasPartner ? (float) ($income['wia_wife'] ?? 0) : 0.0;
+        $wiaAmount = 0.0;
+        $partnerIncomeAmount = 0.0;
+        $partnerAowAmount = 0.0;
+        $hasWia = false;
+        $hasPartnerIncome = false;
+        $hasPartnerAow = false;
+        if ($hasPartner) {
             if ($partnerAowDue) {
                 $partnerAowAmount = (float) ($income['aow_future'] ?? 0) * ($partnerAowPct / 100) * $inflator;
-                $hasPartnerAow    = $partnerAowAmount > 0;
-            } else {
-                // WIA wordt wettelijk geïndexeerd (doorgaans 2x per jaar, gekoppeld aan het minimumloon).
-                $wiaAmount = $partnerIncomeField * $inflator;
-                $hasWia    = $wiaAmount > 0;
-            }
-        } else {
-            $partnerIncomeAmount = $partnerIncomeField;
-            $hasPartnerIncome    = $partnerIncomeAmount > 0;
-            if ($partnerAowDue) {
-                $partnerAowAmount = (float) ($income['aow_future'] ?? 0) * ($partnerAowPct / 100) * $inflator;
-                $hasPartnerAow    = $partnerAowAmount > 0;
+                $hasPartnerAow = $partnerAowAmount > 0;
+            } elseif ($partnerType !== 'none' && $partnerAmt > 0) {
+                if ($partnerType === 'wia') {
+                    $wiaAmount = $partnerAmt * $inflator;
+                    $hasWia = true;
+                } else {
+                    $partnerIncomeAmount = $partnerAmt * $inflator;
+                    $hasPartnerIncome = true;
+                }
             }
         }
 
@@ -530,15 +575,18 @@ class FinanceCalculator
             $pensionAmount = (float) ($income['pension'] ?? 0);
             $hasOwnPension = $pensionAmount > 0;
         }
-        if ($userAge !== null && $userAge >= $ownAowAge) {
+        if ($ownAowDue) {
             $ownAowAmount = (float) ($income['own_aow'] ?? 0) * ($ownAowPct / 100) * $inflator;
             $hasOwnAow    = $ownAowAmount > 0;
         }
 
-        $otherIncome  = (float) ($income['other_income'] ?? 0);
+        $ownOther = (float) ($income['own_other_income'] ?? 0);
+        $partnerOther = $hasPartner ? (float) ($income['partner_other_income'] ?? 0) : 0.0;
+        $legacyOther = (float) ($income['other_income'] ?? 0);
+        $otherIncome = ($ownOther > 0 || $partnerOther > 0) ? ($ownOther + $partnerOther) : $legacyOther;
         $rentalIncome = (float) ($secondProperty['rental_income'] ?? 0);
 
-        $baseMonthly = $ownIncome + $wiaAmount + $partnerIncomeAmount + $partnerAowAmount
+        $baseMonthly = $ownIncome + $ownWiaAmount + $wiaAmount + $partnerIncomeAmount + $partnerAowAmount
             + $ownAowAmount + $pensionAmount + $otherIncome + $rentalIncome;
 
         $bnbNet             = $bnbRevenue - $bnbCosts;
@@ -587,6 +635,7 @@ class FinanceCalculator
             'total_monthly_income' => $totalMonthlyIncome,
             'monthly_expenses' => $monthlyExpenses,
             'monthly_taxes' => $monthlyTaxes,
+            'monthly_taxes' => $monthlyTaxes,
             'monthly_net' => $monthlyNet,
             'net_disposable' => $monthlyNet,
             'has_partner_aow' => $hasPartnerAow,
@@ -594,13 +643,55 @@ class FinanceCalculator
             'has_own_pension' => $hasOwnPension,
             'has_own_aow' => $hasOwnAow,
             'has_wia' => $hasWia,
+            'has_own_wia' => $hasOwnWia,
+            'has_own_benefit' => $hasOwnBenefit,
             'partner_aow_amount' => $partnerAowAmount,
             'partner_income_amount' => $partnerIncomeAmount,
             'own_aow_amount' => $ownAowAmount,
             'pension_amount' => $pensionAmount,
             'wia_amount' => $wiaAmount,
+            'wia_amount' => $wiaAmount,
+            'own_wia_amount' => $ownWiaAmount,
+            'own_benefit_amount' => $ownBenefitAmount,
+            'own_other_income' => $ownOther,
+            'partner_other_income' => $partnerOther,
             'rental_income' => $rentalIncome,
             'other_income' => $otherIncome,
         ];
+    }
+
+    private function resolveHasPartner(array $profile, array $income): bool
+    {
+        if (array_key_exists('has_partner', $income) && $income['has_partner'] !== null && $income['has_partner'] !== '') {
+            return (int) $income['has_partner'] === 1;
+        }
+        if (array_key_exists('has_partner', $profile) && $profile['has_partner'] !== null && $profile['has_partner'] !== '') {
+            return (int) $profile['has_partner'] === 1;
+        }
+
+        return !empty($profile['partner_date_of_birth']) || !empty($profile['partner_name']);
+    }
+
+    private function benefitType(array $income, string $who): string
+    {
+        $allowed = ['wia', 'other', 'none'];
+        if ($who === 'own') {
+            $type = strtolower((string) ($income['own_benefit_type'] ?? ''));
+            if (in_array($type, $allowed, true)) {
+                return $type;
+            }
+
+            return ((float) ($income['own_income'] ?? 0)) > 0 ? 'other' : 'none';
+        }
+
+        $type = strtolower((string) ($income['partner_benefit_type'] ?? ''));
+        if (in_array($type, $allowed, true)) {
+            return $type;
+        }
+        if (((int) ($income['partner_has_wia'] ?? 0)) === 1) {
+            return 'wia';
+        }
+
+        return ((float) ($income['wia_wife'] ?? 0)) > 0 ? 'other' : 'none';
     }
 }

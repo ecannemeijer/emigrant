@@ -267,6 +267,13 @@ if (!empty($profile['emigration_date']) && !empty($profile['partner_date_of_birt
 </div>
 <?php endif; ?>
 
+<?php
+$hasPartnerDash = !empty($calculations['has_partner'])
+    || (!empty($yearlyProjections[0]['has_partner']))
+    || !empty($profile['partner_date_of_birth']);
+$youNameDash = trim($profile['first_name'] ?? '') !== '' ? $profile['first_name'] : 'Jij';
+$partnerNameDash = trim($profile['partner_name'] ?? '') !== '' ? $profile['partner_name'] : 'Partner';
+?>
 <!-- Multi-Year Projection Table -->
 <?php if (!empty($yearlyProjections) && !empty($profile['date_of_birth'])): ?>
 
@@ -282,9 +289,9 @@ if (!empty($profile['emigration_date']) && !empty($profile['partner_date_of_birt
                         <thead class="table-light">
                             <tr>
                                 <th>Jaar</th>
-                                <th>Jouw Leeftijd</th>
-                                <?php if (!empty($profile['partner_date_of_birth'])): ?>
-                                <th><?= esc($profile['partner_name'] ?? 'Partner') ?> Leeftijd</th>
+                                <th><?= esc($youNameDash) ?></th>
+                                <?php if ($hasPartnerDash): ?>
+                                <th><?= esc($partnerNameDash) ?></th>
                                 <?php endif; ?>
                                 <th class="text-end">Inkomen/mnd</th>
                                 <?php if ($calculations['bnb_net_income'] > 0): ?>
@@ -301,8 +308,8 @@ if (!empty($profile['emigration_date']) && !empty($profile['partner_date_of_birt
                         <tbody>
                             <?php foreach ($yearlyProjections as $index => $projection): ?>
                             <?php
-                            // Calculate individual components for modal
-                            $ownIncomeAmount = $income['own_income'] ?? 0;
+                            $ownWiaAmount = $projection['own_wia_amount'] ?? 0;
+                            $ownBenefitAmount = $projection['own_benefit_amount'] ?? 0;
                             $wiaAmount = $projection['wia_amount'] ?? 0;
                             $partnerIncomeAmount = $projection['partner_income_amount'] ?? 0;
                             $partnerAowAmount = $projection['partner_aow_amount'] ?? 0;
@@ -310,17 +317,24 @@ if (!empty($profile['emigration_date']) && !empty($profile['partner_date_of_birt
                             $pensionAmount = $projection['pension_amount'] ?? 0;
                             $bnbAmount = $projection['bnb_monthly'] ?? 0;
                             $monthlyInterest = $projection['monthly_interest'] ?? 0;
+                            $ownOtherAmount = $projection['own_other_income'] ?? 0;
+                            $partnerOtherAmount = $projection['partner_other_income'] ?? 0;
                             ?>
-                            <tr class="projection-row" style="cursor: pointer;" 
+                            <tr class="projection-row" style="cursor: pointer;"
                                 data-year="<?= $projection['year'] ?>"
                                 data-user-age="<?= $projection['user_age'] ?? '-' ?>"
                                 data-partner-age="<?= $projection['partner_age'] ?? '-' ?>"
-                                data-partner-name="<?= esc($profile['partner_name'] ?? 'Partner') ?>"
-                                data-own-income="<?= $ownIncomeAmount ?>"
+                                data-partner-name="<?= esc($partnerNameDash) ?>"
+                                data-you-name="<?= esc($youNameDash) ?>"
+                                data-own-wia="<?= $ownWiaAmount ?>"
+                                data-own-benefit="<?= $ownBenefitAmount ?>"
+                                data-own-income="<?= $ownWiaAmount + $ownBenefitAmount ?>"
                                 data-wia="<?= $wiaAmount ?>"
                                 data-partner-income="<?= $partnerIncomeAmount ?>"
                                 data-partner-aow="<?= $partnerAowAmount ?>"
                                 data-own-aow="<?= $ownAowAmount ?>"
+                                data-own-other="<?= $ownOtherAmount ?>"
+                                data-partner-other="<?= $partnerOtherAmount ?>"
                                 data-pension="<?= $pensionAmount ?>"
                                 data-bnb="<?= $bnbAmount ?>"
                                 data-monthly-interest="<?= $monthlyInterest ?>"
@@ -330,13 +344,12 @@ if (!empty($profile['emigration_date']) && !empty($profile['partner_date_of_birt
                                 data-monthly-net="<?= $projection['monthly_net'] ?>"
                                 data-yearly-net="<?= $projection['yearly_net'] ?>"
                                 data-capital="<?= $projection['capital'] ?>"
-                                data-has-partner-retired="<?= $projection['has_partner_retired'] ? 'true' : 'false' ?>"
-                                data-has-user-retired="<?= $projection['has_user_retired'] ? 'true' : 'false' ?>"
-                                title="Klik voor gedetailleerde berekening"
-                                class="<?= $projection['yearly_net'] < 0 ? 'table-danger' : '' ?>">
+                                data-has-partner-retired="<?= !empty($projection['has_partner_retired']) || !empty($projection['has_partner_retired']) ? 'true' : 'false' ?>"
+                                data-has-user-retired="<?= !empty($projection['has_user_retired']) || !empty($projection['has_user_retired']) ? 'true' : 'false' ?>"
+                                title="Klik voor gedetailleerde berekening">
                                 <td><strong><?= $projection['year'] ?></strong></td>
                                 <td><?= $projection['user_age'] ?? '-' ?></td>
-                                <?php if (!empty($profile['partner_date_of_birth'])): ?>
+                                <?php if ($hasPartnerDash): ?>
                                 <td><?= $projection['partner_age'] ?? '-' ?></td>
                                 <?php endif; ?>
                                 <td class="text-end">€ <?= number_format($projection['monthly_income'], 0, ',', '.') ?></td>
@@ -355,46 +368,33 @@ if (!empty($profile['emigration_date']) && !empty($profile['partner_date_of_birt
                                     <strong>€ <?= number_format($projection['capital'], 0, ',', '.') ?></strong>
                                 </td>
                                 <td class="text-center">
-                                    <?php if ($projection['has_wia']): ?>
-                                        <?php if ($projection['wia_amount'] > 0): ?>
-                                            <span class="badge bg-primary" title="<?= esc($profile['partner_name'] ?? 'Partner') ?> WIA: € <?= number_format($projection['wia_amount'], 0, ',', '.') ?>/mnd">
-                                                <i class="bi bi-check-circle-fill"></i> WIA <?= esc($profile['partner_name'] ?? 'Partner') ?>
-                                            </span>
-                                        <?php endif; ?>
+                                    <?php if (!empty($projection['has_own_wia']) && $ownWiaAmount > 0): ?>
+                                        <span class="badge bg-success" title="WIA <?= esc($youNameDash) ?>: € <?= number_format($ownWiaAmount, 0, ',', '.') ?>/mnd">WIA <?= esc($youNameDash) ?></span>
+                                    <?php elseif (!empty($projection['has_own_benefit']) && $ownBenefitAmount > 0): ?>
+                                        <span class="badge bg-success" title="Uitkering <?= esc($youNameDash) ?>">Uitkering <?= esc($youNameDash) ?></span>
                                     <?php endif; ?>
-                                    <?php if ($projection['has_partner_income']): ?>
-                                        <?php if ($projection['partner_income_amount'] > 0): ?>
-                                            <span class="badge bg-secondary" title="<?= esc($profile['partner_name'] ?? 'Partner') ?> Inkomen: € <?= number_format($projection['partner_income_amount'], 0, ',', '.') ?>/mnd">
-                                                <i class="bi bi-cash"></i> Inkomen <?= esc($profile['partner_name'] ?? 'Partner') ?>
-                                            </span>
-                                        <?php endif; ?>
+                                    <?php if ($projection['has_wia'] && $wiaAmount > 0): ?>
+                                        <span class="badge bg-danger" title="WIA <?= esc($partnerNameDash) ?>: € <?= number_format($wiaAmount, 0, ',', '.') ?>/mnd">WIA <?= esc($partnerNameDash) ?></span>
+                                    <?php endif; ?>
+                                    <?php if ($projection['has_partner_income'] && $partnerIncomeAmount > 0): ?>
+                                        <span class="badge bg-secondary" title="Uitkering <?= esc($partnerNameDash) ?>">Uitkering <?= esc($partnerNameDash) ?></span>
                                     <?php endif; ?>
                                     <?php if ($projection['has_own_pension']): ?>
-                                        <?php if ($projection['pension_amount'] > 0): ?>
-                                            <span class="badge bg-success" title="Jouw Pensioen: € <?= number_format($projection['pension_amount'], 0, ',', '.') ?>/mnd">
-                                                <i class="bi bi-check-circle-fill"></i> Pensioen
-                                            </span>
+                                        <?php if ($pensionAmount > 0): ?>
+                                            <span class="badge bg-success" title="Pensioen: € <?= number_format($pensionAmount, 0, ',', '.') ?>/mnd">Pensioen</span>
                                         <?php else: ?>
-                                            <span class="badge bg-warning text-dark" title="Pensioenleeftijd bereikt, maar bedrag is € 0">
-                                                <i class="bi bi-exclamation-circle"></i> Pensioen € 0
-                                            </span>
-                                        <?php endif; ?>
-                                    <?php endif; ?>
-                                    <?php if ($projection['has_partner_aow']): ?>
-                                        <?php if ($projection['partner_aow_amount'] > 0): ?>
-                                            <span class="badge bg-info" title="<?= esc($profile['partner_name'] ?? 'Partner') ?> AOW: € <?= number_format($projection['partner_aow_amount'], 0, ',', '.') ?>/mnd">
-                                                <i class="bi bi-check-circle-fill"></i> Partner AOW
-                                            </span>
-                                        <?php else: ?>
-                                            <span class="badge bg-warning text-dark" title="Partner pensioenleeftijd bereikt, maar AOW is € 0">
-                                                <i class="bi bi-exclamation-circle"></i> Partner AOW € 0
-                                            </span>
+                                            <span class="badge bg-warning text-dark">Pensioen € 0</span>
                                         <?php endif; ?>
                                     <?php endif; ?>
                                     <?php if ($projection['has_own_aow']): ?>
-                                        <span class="badge bg-primary" title="Eigen AOW: € <?= number_format($projection['own_aow_amount'], 0, ',', '.') ?>/mnd">
-                                            <i class="bi bi-check-circle-fill"></i> Eigen AOW
-                                        </span>
+                                        <span class="badge bg-primary" title="AOW <?= esc($youNameDash) ?>: € <?= number_format($ownAowAmount, 0, ',', '.') ?>/mnd">AOW <?= esc($youNameDash) ?></span>
+                                    <?php endif; ?>
+                                    <?php if ($projection['has_partner_aow']): ?>
+                                        <?php if ($partnerAowAmount > 0): ?>
+                                            <span class="badge bg-info" title="AOW <?= esc($partnerNameDash) ?>: € <?= number_format($partnerAowAmount, 0, ',', '.') ?>/mnd">AOW <?= esc($partnerNameDash) ?></span>
+                                        <?php else: ?>
+                                            <span class="badge bg-warning text-dark">AOW <?= esc($partnerNameDash) ?> € 0</span>
+                                        <?php endif; ?>
                                     <?php endif; ?>
                                 </td>
                             </tr>
@@ -713,6 +713,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 partnerAge: this.dataset.partnerAge,
                 partnerName: this.dataset.partnerName,
                 ownIncome: parseFloat(this.dataset.ownIncome),
+                ownWia: parseFloat(this.dataset.ownWia || '0'),
+                ownBenefit: parseFloat(this.dataset.ownBenefit || '0'),
+                ownOther: parseFloat(this.dataset.ownOther || '0'),
+                partnerOther: parseFloat(this.dataset.partnerOther || '0'),
+                youName: this.dataset.youName || 'Jij',
                 wia: parseFloat(this.dataset.wia),
                 partnerIncome: parseFloat(this.dataset.partnerIncome),
                 partnerAow: parseFloat(this.dataset.partnerAow),
@@ -758,25 +763,36 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         document.getElementById('modal-retirement-status').innerHTML = statusHtml;
         
-        // Income breakdown
         let incomeHtml = '';
-        if (data.ownIncome > 0) {
-            incomeHtml += `<tr><td>Eigen inkomen</td><td class=\"text-end\">€ ${formatNumber(data.ownIncome)}</td></tr>`;
+        if (data.ownWia > 0) {
+            incomeHtml += `<tr><td>WIA ${data.youName}</td><td class="text-end">€ ${formatNumber(data.ownWia)}</td></tr>`;
+        }
+        if (data.ownBenefit > 0) {
+            incomeHtml += `<tr><td>Uitkering ${data.youName}</td><td class="text-end">€ ${formatNumber(data.ownBenefit)}</td></tr>`;
+        }
+        if (data.ownWia <= 0 && data.ownBenefit <= 0 && data.ownIncome > 0) {
+            incomeHtml += `<tr><td>Inkomen ${data.youName}</td><td class="text-end">€ ${formatNumber(data.ownIncome)}</td></tr>`;
         }
         if (data.wia > 0) {
-            incomeHtml += `<tr><td>WIA ${data.partnerName}</td><td class=\"text-end\">€ ${formatNumber(data.wia)}</td></tr>`;
+            incomeHtml += `<tr><td>WIA ${data.partnerName}</td><td class="text-end">€ ${formatNumber(data.wia)}</td></tr>`;
         }
         if (data.partnerIncome > 0) {
-            incomeHtml += `<tr><td>Inkomen ${data.partnerName}</td><td class=\"text-end\">€ ${formatNumber(data.partnerIncome)}</td></tr>`;
-        }
-        if (data.partnerAow > 0) {
-            incomeHtml += `<tr><td>AOW ${data.partnerName} <small class=\"text-muted\">(met emigratie reductie)</small></td><td class=\"text-end text-info\"><strong>€ ${formatNumber(data.partnerAow)}</strong></td></tr>`;
-        }
-        if (data.pension > 0) {
-            incomeHtml += `<tr><td>Jouw Pensioen</td><td class=\"text-end text-success\"><strong>€ ${formatNumber(data.pension)}</strong></td></tr>`;
+            incomeHtml += `<tr><td>Uitkering ${data.partnerName}</td><td class="text-end">€ ${formatNumber(data.partnerIncome)}</td></tr>`;
         }
         if (data.ownAow > 0) {
-            incomeHtml += `<tr><td>Jouw AOW <small class=\"text-muted\">(met emigratie reductie)</small></td><td class=\"text-end text-primary\"><strong>€ ${formatNumber(data.ownAow)}</strong></td></tr>`;
+            incomeHtml += `<tr><td>AOW ${data.youName} <small class="text-muted">( vanaf AOW-leeftijd, met opbouw )</small></td><td class="text-end text-primary"><strong>€ ${formatNumber(data.ownAow)}</strong></td></tr>`;
+        }
+        if (data.partnerAow > 0) {
+            incomeHtml += `<tr><td>AOW ${data.partnerName} <small class="text-muted">( vanaf AOW-leeftijd, met opbouw )</small></td><td class="text-end text-info"><strong>€ ${formatNumber(data.partnerAow)}</strong></td></tr>`;
+        }
+        if (data.pension > 0) {
+            incomeHtml += `<tr><td>Aanvullend pensioen ${data.youName}</td><td class="text-end text-success"><strong>€ ${formatNumber(data.pension)}</strong></td></tr>`;
+        }
+        if (data.ownOther > 0) {
+            incomeHtml += `<tr><td>Overig ${data.youName}</td><td class="text-end">€ ${formatNumber(data.ownOther)}</td></tr>`;
+        }
+        if (data.partnerOther > 0) {
+            incomeHtml += `<tr><td>Overig ${data.partnerName}</td><td class="text-end">€ ${formatNumber(data.partnerOther)}</td></tr>`;
         }
         if (data.bnb > 0) {
             incomeHtml += `<tr><td>B&B Netto inkomen</td><td class=\"text-end\">€ ${formatNumber(data.bnb)}</td></tr>`;

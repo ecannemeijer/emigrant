@@ -47,11 +47,18 @@
 
                     <hr class="my-4">
 
-                    <h5 class="card-title mb-3"><i class="bi bi-person-hearts"></i> Partner Gegevens</h5>
-                    
+                    <h5 class="card-title mb-3"><i class="bi bi-person-hearts"></i> Partner</h5>
+                    <div class="form-check form-switch mb-3">
+                        <input class="form-check-input" type="checkbox" role="switch" id="has_partner" name="has_partner" value="1"
+                               <?= (array_key_exists('has_partner', $profile) && $profile['has_partner'] !== null)
+                                    ? ((int)$profile['has_partner'] === 1 ? 'checked' : '')
+                                    : (!empty($profile['partner_date_of_birth']) || !empty($profile['partner_name']) ? 'checked' : '') ?>>
+                        <label class="form-check-label" for="has_partner">Ik reken met een partner (2 personen)</label>
+                    </div>
+                    <div id="partner-fields">
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label for="partner_name" class="form-label">Partner Naam</label>
+                            <label for="partner_name" class="form-label">Naam partner</label>
                             <input type="text" class="form-control" id="partner_name" name="partner_name" 
                                    value="<?= esc($profile['partner_name'] ?? '') ?>" 
                                    placeholder="bijv. Angela">
@@ -68,10 +75,11 @@
 
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label for="partner_retirement_age" class="form-label">Partner Pensioenleeftijd</label>
-                            <input type="number" class="form-control" id="partner_retirement_age" name="partner_retirement_age" 
+                            <label for="partner_retirement_age" class="form-label">Partner pensioenleeftijd</label>
+                            <input type="number" class="form-control" id="partner_retirement_age" name="partner_retirement_age"
                                    value="<?= esc($profile['partner_retirement_age'] ?? 67) ?>" min="55" max="75">
                         </div>
+                    </div>
                     </div>
 
                     <hr class="my-4">
@@ -227,3 +235,15 @@
 </div>
 
 <?= $this->endSection() ?>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const box = document.getElementById('has_partner');
+    const fields = document.getElementById('partner-fields');
+    if (!box || !fields) return;
+    const sync = () => { fields.style.display = box.checked ? '' : 'none'; };
+    box.addEventListener('change', sync);
+    sync();
+});
+</script>
+

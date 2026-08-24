@@ -15,10 +15,16 @@ class FinanceDataMapper
         ?array $bnbSettings,
         ?array $bnbExpenses
     ): array {
+        $profileMapped = self::profile($profile);
+        $incomeMapped  = self::income($income);
+        if (($incomeMapped['has_partner'] ?? null) === null) {
+            $incomeMapped['has_partner'] = $profileMapped['has_partner'];
+        }
+
         return [
-            'profile' => self::profile($profile),
+            'profile' => $profileMapped,
             'start_position' => self::start($startPosition),
-            'income' => self::income($income),
+            'income' => $incomeMapped,
             'expenses' => self::expenses($expenses),
             'taxes' => self::taxes($taxes),
             'main_property' => $mainProperty ? self::property($mainProperty) : null,
@@ -40,6 +46,8 @@ class FinanceDataMapper
             'partner_retirement_age' => $row['partner_retirement_age'] ?? 67,
             'voluntary_aow_years' => $row['voluntary_aow_years'] ?? 0,
             'partner_name' => $row['partner_name'] ?? 'partner',
+            'first_name' => $row['first_name'] ?? '',
+            'has_partner' => $row['has_partner'] ?? null,
         ];
     }
 
@@ -65,15 +73,22 @@ class FinanceDataMapper
         return [
             'own_income' => $row['own_income'] ?? 0,
             'wia_wife' => $row['wia_wife'] ?? 0,
-            'partner_has_wia' => $row['partner_has_wia'] ?? 1,
+            'partner_has_wia' => $row['partner_has_wia'] ?? 0,
+            'own_benefit_type' => $row['own_benefit_type'] ?? ((((float) ($row['own_income'] ?? 0)) > 0) ? 'other' : 'none'),
+            'partner_benefit_type' => $row['partner_benefit_type'] ?? ((((int) ($row['partner_has_wia'] ?? 0)) === 1) ? 'wia' : 'other'),
             'aow_future' => $row['aow_future'] ?? 0,
             'own_aow' => $row['own_aow'] ?? 0,
             'pension' => $row['pension'] ?? 0,
             'other_income' => $row['other_income'] ?? 0,
+            'own_other_income' => $row['own_other_income'] ?? 0,
+            'partner_other_income' => $row['partner_other_income'] ?? 0,
             'aow_start_age' => $row['aow_start_age'] ?? null,
+            'own_aow_start_age' => $row['own_aow_start_age'] ?? null,
+            'partner_aow_start_age' => $row['partner_aow_start_age'] ?? $row['aow_start_age'] ?? null,
             'pension_start_age' => $row['pension_start_age'] ?? 67,
             'income_stops_at_retirement' => $row['income_stops_at_retirement'] ?? 1,
             'minimum_monthly_income' => $row['minimum_monthly_income'] ?? 0,
+            'has_partner' => $row['has_partner'] ?? null,
         ];
     }
 

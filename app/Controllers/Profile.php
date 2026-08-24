@@ -30,6 +30,7 @@ class Profile extends BaseController
             'phone' => $this->request->getPost('phone'),
             'language' => $this->request->getPost('language'),
             'partner_name' => $this->request->getPost('partner_name'),
+            'has_partner' => $this->request->getPost('has_partner') ? 1 : 0,
             'date_of_birth' => $this->request->getPost('date_of_birth') ?: null,
             'partner_date_of_birth' => $this->request->getPost('partner_date_of_birth') ?: null,
             'retirement_age' => $this->request->getPost('retirement_age') ?: 67,

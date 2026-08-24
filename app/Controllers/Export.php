@@ -51,12 +51,14 @@ class Export extends BaseController
         $csvData[] = [''];
 
         // Income
-        $csvData[] = ['INKOMSTEN (per maand)'];
-        $csvData[] = ['WIA vrouw', number_format($income['wia_wife'] ?? 0, 2, ',', '.')];
-        $csvData[] = ['Eigen inkomen', number_format($income['own_income'] ?? 0, 2, ',', '.')];
-        $csvData[] = ['Toekomstige AOW', number_format($income['aow_future'] ?? 0, 2, ',', '.')];
-        $csvData[] = ['Pensioen', number_format($income['pension'] ?? 0, 2, ',', '.')];
-        $csvData[] = ['Overig inkomen', number_format($income['other_income'] ?? 0, 2, ',', '.')];
+        $csvData[] = ['INKOMSTEN (netto per maand)'];
+        $csvData[] = ['Uitkering persoon 1', number_format($income['own_income'] ?? 0, 2, ',', '.')];
+        $csvData[] = ['AOW persoon 1', number_format($income['own_aow'] ?? 0, 2, ',', '.')];
+        $csvData[] = ['Overig persoon 1', number_format($income['own_other_income'] ?? 0, 2, ',', '.')];
+        $csvData[] = ['Uitkering partner', number_format($income['wia_wife'] ?? 0, 2, ',', '.')];
+        $csvData[] = ['AOW partner', number_format($income['aow_future'] ?? 0, 2, ',', '.')];
+        $csvData[] = ['Overig partner', number_format($income['partner_other_income'] ?? 0, 2, ',', '.')];
+        $csvData[] = ['Aanvullend pensioen', number_format($income['pension'] ?? 0, 2, ',', '.')];
         $csvData[] = [''];
 
         // Properties
