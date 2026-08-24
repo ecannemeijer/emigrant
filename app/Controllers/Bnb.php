@@ -122,26 +122,24 @@ class Bnb extends BaseController
             return redirect()->to('/bnb')->with('error', 'Geen B&B instellingen gevonden.');
         }
 
-        // Calculate break-even occupancy rate
-        $fixedMonthlyExpenses = ($expenses['extra_energy_water'] ?? 0) +
-                               ($expenses['insurance'] ?? 0) +
-                               ($expenses['cleaning'] ?? 0) +
-                               ($expenses['linen_laundry'] ?? 0) +
-                               ($expenses['marketing'] ?? 0) +
-                               ($expenses['maintenance'] ?? 0) +
-                               ($expenses['administration'] ?? 0);
+        $calculator = new \App\Libraries\FinanceCalculator();
+        $mappedSettings = \App\Libraries\FinanceDataMapper::bnbSettings($settings);
+        $mappedExpenses = \App\Libraries\FinanceDataMapper::bnbExpenses($expenses);
+        $taxesModel = new \App\Models\TaxModel();
+        $taxes = \App\Libraries\FinanceDataMapper::taxes($taxesModel->getByUserId($userId));
+        $profile = (new \App\Models\UserProfileModel())->where('user_id', $userId)->first();
+        $years = 0;
+        if (!empty($profile['emigration_date'])) {
+            $years = max(0, (int) date('Y') - (int) substr($profile['emigration_date'], 0, 4));
+        }
 
-        $rooms = $settings['number_of_rooms'];
-        $pricePerNight = $settings['price_per_room_per_night'];
-        $commission = ($expenses['platform_commission'] ?? 15) / 100;
-
-        // Average monthly nights available (365 / 12 ≈ 30.4167)
-        $avgMonthlyNights = 30.4167;
-        $maxMonthlyRevenue = $rooms * $avgMonthlyNights * $pricePerNight;
-        $revenueAfterCommission = $maxMonthlyRevenue * (1 - $commission);
-
-        // Break-even percentage
-        $breakEvenPercentage = ($fixedMonthlyExpenses / $revenueAfterCommission) * 100;
+        $monthlyRevenue = $calculator->calculateBnbMonthlyRevenue($mappedSettings);
+        $monthlyExpensesCalc = $calculator->calculateBnbMonthlyExpenses($mappedSettings, $mappedExpenses, $monthlyRevenue);
+        $breakEvenPercentage = $calculator->calculateBreakevenPercentage($mappedSettings, $mappedExpenses, $taxes, $years);
+        $maxMonthlyRevenue = ((float) ($settings['number_of_rooms'] ?? 0))
+            * \App\Libraries\FinanceCalculator::DAYS_PER_MONTH
+            * ((float) ($settings['price_per_room_per_night'] ?? 0));
+        $fixedMonthlyExpenses = $monthlyExpensesCalc - ($monthlyRevenue * (((float) ($expenses['platform_commission'] ?? 0)) / 100));
 
         $data = [
             'title' => 'B&B Break-even Analyse',

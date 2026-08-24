@@ -12,7 +12,7 @@ class UserProfileModel extends Model
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = ['user_id', 'first_name', 'last_name', 'phone', 'language', 'partner_name', 'date_of_birth', 'partner_date_of_birth', 'retirement_age', 'partner_retirement_age', 'emigration_date'];
+    protected $allowedFields    = ['user_id', 'first_name', 'last_name', 'phone', 'language', 'partner_name', 'date_of_birth', 'partner_date_of_birth', 'retirement_age', 'partner_retirement_age', 'emigration_date', 'voluntary_aow_years'];
 
     // Dates
     protected $useTimestamps = true;

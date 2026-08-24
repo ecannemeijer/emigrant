@@ -85,6 +85,12 @@
                                    value="<?= esc($profile['emigration_date'] ?? '') ?>">
                             <small class="text-muted">Belangrijk voor AOW-berekening</small>
                         </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="voluntary_aow_years" class="form-label">Vrijwillige AOW-jaren na emigratie</label>
+                            <input type="number" step="0.5" min="0" max="50" class="form-control" id="voluntary_aow_years" name="voluntary_aow_years"
+                                   value="<?= esc($profile['voluntary_aow_years'] ?? 0) ?>">
+                            <small class="text-muted">Elk jaar telt +2% (SVB vrijwillige verzekering)</small>
+                        </div>
                     </div>
 
                     <hr class="my-4">
@@ -180,7 +186,7 @@
                     </div>
                 </div>
                 <small class="text-muted">
-                    AOW-rechten opgebouwd van 15 tot <?= $profile['partner_retirement_age'] ?? 67 ?> jaar
+                    AOW-rechten: 2% per verzekerd jaar in de 50 jaar vóór AOW-leeftijd
                 </small>
                 <?php endif; ?>
                 
@@ -205,7 +211,7 @@
                     </div>
                 </div>
                 <small class="text-muted">
-                    AOW-rechten opgebouwd van 15 tot <?= $profile['retirement_age'] ?? 67 ?> jaar
+                    AOW-rechten: 2% per verzekerd jaar in de 50 jaar vóór AOW-leeftijd
                 </small>
                 <?php endif; ?>
                 

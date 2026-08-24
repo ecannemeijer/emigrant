@@ -44,17 +44,14 @@ class BnbExpenseModel extends Model
             return 0;
         }
 
-        $fixedExpenses = ($expense['extra_energy_water'] ?? 0) +
-                        ($expense['insurance'] ?? 0) +
-                        ($expense['cleaning'] ?? 0) +
-                        ($expense['linen_laundry'] ?? 0) +
-                        ($expense['marketing'] ?? 0) +
-                        ($expense['maintenance'] ?? 0) +
-                        ($expense['administration'] ?? 0);
+        $calculator = new \App\Libraries\FinanceCalculator();
+        $settingsModel = new BnbSettingModel();
+        $settings = \App\Libraries\FinanceDataMapper::bnbSettings($settingsModel->getByUserId($userId));
+        $mapped = \App\Libraries\FinanceDataMapper::bnbExpenses($expense);
+        $revenue = $grossRevenue > 0
+            ? $grossRevenue
+            : $calculator->calculateBnbMonthlyRevenue($settings);
 
-        // Add commission based on revenue
-        $commission = $grossRevenue * (($expense['platform_commission'] ?? 0) / 100);
-
-        return $fixedExpenses + $commission;
+        return $calculator->calculateBnbMonthlyExpenses($settings, $mapped, $revenue);
     }
 }

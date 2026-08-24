@@ -35,6 +35,7 @@ class Profile extends BaseController
             'retirement_age' => $this->request->getPost('retirement_age') ?: 67,
             'partner_retirement_age' => $this->request->getPost('partner_retirement_age') ?: 67,
             'emigration_date' => $this->request->getPost('emigration_date') ?: null,
+            'voluntary_aow_years' => $this->request->getPost('voluntary_aow_years') ?: 0,
         ];
 
         $existing = $model->where('user_id', $userId)->first();

@@ -5,11 +5,14 @@
     <div class="d-flex justify-content-between align-items-center">
         <div>
             <h1><i class="bi bi-diagram-3"></i> Scenario's</h1>
-            <p class="text-muted">Sla verschillende financiële scenario's op en vergelijk ze</p>
+            <p class="text-muted">Sla verschillende financiële scenario's op, laad ze terug of vergelijk ze</p>
         </div>
-        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#saveScenarioModal">
+        <div class="d-flex gap-2">
+            <a href="/scenarios/compare" class="btn btn-outline-secondary">Vergelijken</a>
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#saveScenarioModal">
             <i class="bi bi-plus-circle"></i> Nieuw Scenario
         </button>
+        </div>
     </div>
 </div>
 
@@ -43,9 +46,15 @@
                         </small>
 
                         <div class="mt-3">
+                            <a href="/scenarios/compare" class="btn btn-sm btn-outline-secondary">Vergelijken</a>
                             <a href="/scenarios/load/<?= $scenario['id'] ?>" class="btn btn-sm btn-outline-primary">
                                 <i class="bi bi-eye"></i> Bekijken
                             </a>
+                            <form action="/scenarios/restore/<?= $scenario['id'] ?>" method="post" class="d-inline"
+                                  onsubmit="return confirm('Huidige cijfers overschrijven met dit scenario?');">
+                                <?= csrf_field() ?>
+                                <button type="submit" class="btn btn-sm btn-outline-success">Laden</button>
+                            </form>
                             <form action="/scenarios/delete/<?= $scenario['id'] ?>" method="post" class="d-inline" 
                                   onsubmit="return confirm('Weet je zeker dat je dit scenario wilt verwijderen?');">
                                 <?= csrf_field() ?>

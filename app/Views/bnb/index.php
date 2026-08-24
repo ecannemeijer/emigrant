@@ -164,8 +164,17 @@
                         <label for="linen_laundry" class="form-label">Linnen & was (maand)</label>
                         <div class="input-group">
                             <span class="input-group-text">€</span>
-                            <input type="number" step="0.01" class="form-control" id="linen_laundry" 
+                            <input type="number" step="0.01" class="form-control" id="linen_laundry"
                                    name="linen_laundry" value="<?= $expenses['linen_laundry'] ?? 100 ?>" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="breakfast_per_guest" class="form-label">Ontbijt per gast per nacht</label>
+                        <div class="input-group">
+                            <span class="input-group-text">€</span>
+                            <input type="number" step="0.01" class="form-control" id="breakfast_per_guest"
+                                   name="breakfast_per_guest" value="<?= $expenses['breakfast_per_guest'] ?? 0 ?>">
                         </div>
                     </div>
 

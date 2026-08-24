@@ -28,7 +28,12 @@ class StartPosition extends BaseController
             'user_id' => $userId,
             'house_sale_price' => $this->request->getPost('house_sale_price'),
             'mortgage_debt' => $this->request->getPost('mortgage_debt'),
-            'savings' => $this->request->getPost('savings'),            'interest_rate' => $this->request->getPost('interest_rate') ?? 2.00,        ];
+            'savings' => $this->request->getPost('savings'),
+            'selling_costs_percent' => $this->request->getPost('selling_costs_percent') ?? 0,
+            'moving_costs' => $this->request->getPost('moving_costs') ?? 0,
+            'interest_rate' => $this->request->getPost('interest_rate') ?? 2.00,
+            'inflation_rate' => $this->request->getPost('inflation_rate') ?? 2.00,
+        ];
 
         $existing = $model->getByUserId($userId);
 

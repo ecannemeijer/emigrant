@@ -65,7 +65,16 @@
         <i class="bi bi-exclamation-triangle-fill"></i> 
         <strong>Let op!</strong> Je maandelijkse uitgaven zijn hoger dan je inkomsten. 
         Je trekt € <?= number_format(abs($calculations['net_disposable']), 0, ',', '.') ?> per maand van je vermogen af.
+        <?php if (!empty($calculations['runway_months'])): ?>
+            Runway: circa <?= (int) $calculations['runway_months'] ?> maanden.
+        <?php endif; ?>
     </div>
+<?php endif; ?>
+
+<?php if (!empty($warnings)): ?>
+    <?php foreach ($warnings as $warning): ?>
+        <div class="alert alert-warning py-2"><?= esc($warning) ?></div>
+    <?php endforeach; ?>
 <?php endif; ?>
 
 <?php 

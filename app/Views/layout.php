@@ -8,6 +8,9 @@
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/app.css">
     
     <style>
         :root {
@@ -294,87 +297,7 @@
                 <!-- Desktop Sidebar (visible on md and up) -->
                 <nav class="col-md-2 d-none d-md-block sidebar">
                     <div class="position-sticky">
-                        <ul class="nav flex-column">
-                            <li class="nav-item">
-                                <a class="nav-link <?= uri_string() == 'dashboard' ? 'active' : '' ?>" href="/dashboard">
-                                    <i class="bi bi-speedometer2"></i> Dashboard
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link <?= uri_string() == 'start-position' ? 'active' : '' ?>" href="/start-position">
-                                    <i class="bi bi-house-door"></i> Startpositie NL
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link <?= uri_string() == 'income' ? 'active' : '' ?>" href="/income">
-                                    <i class="bi bi-cash-coin"></i> Inkomsten
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link <?= uri_string() == 'property' ? 'active' : '' ?>" href="/property">
-                                    <i class="bi bi-building"></i> Vastgoed IT
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link <?= uri_string() == 'expenses' ? 'active' : '' ?>" href="/expenses">
-                                    <i class="bi bi-wallet2"></i> Maandlasten
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link <?= uri_string() == 'taxes' ? 'active' : '' ?>" href="/taxes">
-                                    <i class="bi bi-receipt"></i> Belastingen
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link <?= strpos(uri_string(), 'bnb') !== false ? 'active' : '' ?>" href="/bnb">
-                                    <i class="bi bi-shop"></i> B&B Module
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link <?= uri_string() == 'scenarios' ? 'active' : '' ?>" href="/scenarios">
-                                    <i class="bi bi-diagram-3"></i> Scenario's
-                                </a>
-                            </li>
-                            
-                            <li class="nav-item mt-3">
-                                <hr>
-                            </li>
-                            
-                            <li class="nav-item">
-                                <a class="nav-link <?= uri_string() == 'help' ? 'active' : '' ?>" href="/help">
-                                    <i class="bi bi-question-circle"></i> Help
-                                </a>
-                            </li>
-                            
-                            <li class="nav-item">
-                                <a class="nav-link <?= uri_string() == 'contact' ? 'active' : '' ?>" href="/contact">
-                                    <i class="bi bi-envelope"></i> Contact
-                                </a>
-                            </li>
-                            
-                            <li class="nav-item mt-3">
-                                <a class="nav-link" href="/export/csv">
-                                    <i class="bi bi-download"></i> Export CSV
-                                </a>
-                            </li>
-                            
-                            <?php if (session()->get('role') === 'admin'): ?>
-                            <li class="nav-item mt-3">
-                                <hr>
-                                <small class="text-muted px-3">Admin</small>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link <?= strpos(uri_string(), 'admin/users') !== false ? 'active' : '' ?>" href="/admin/users">
-                                    <i class="bi bi-people"></i> Gebruikersbeheer
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link <?= strpos(uri_string(), 'admin/audit-logs') !== false ? 'active' : '' ?>" href="/admin/audit-logs">
-                                    <i class="bi bi-journal-text"></i> Audit Log
-                                </a>
-                            </li>
-                            <?php endif; ?>
-                        </ul>
+                        <?= view('partials/nav') ?>
                     </div>
                 </nav>
                 
@@ -387,87 +310,7 @@
                         <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Sluiten"></button>
                     </div>
                     <div class="offcanvas-body">
-                        <ul class="nav flex-column">
-                            <li class="nav-item">
-                                <a class="nav-link <?= uri_string() == 'dashboard' ? 'active' : '' ?>" href="/dashboard">
-                                    <i class="bi bi-speedometer2"></i> Dashboard
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link <?= uri_string() == 'start-position' ? 'active' : '' ?>" href="/start-position">
-                                    <i class="bi bi-house-door"></i> Startpositie NL
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link <?= uri_string() == 'income' ? 'active' : '' ?>" href="/income">
-                                    <i class="bi bi-cash-coin"></i> Inkomsten
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link <?= uri_string() == 'property' ? 'active' : '' ?>" href="/property">
-                                    <i class="bi bi-building"></i> Vastgoed IT
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link <?= uri_string() == 'expenses' ? 'active' : '' ?>" href="/expenses">
-                                    <i class="bi bi-wallet2"></i> Maandlasten
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link <?= uri_string() == 'taxes' ? 'active' : '' ?>" href="/taxes">
-                                    <i class="bi bi-receipt"></i> Belastingen
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link <?= strpos(uri_string(), 'bnb') !== false ? 'active' : '' ?>" href="/bnb">
-                                    <i class="bi bi-shop"></i> B&B Module
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link <?= uri_string() == 'scenarios' ? 'active' : '' ?>" href="/scenarios">
-                                    <i class="bi bi-diagram-3"></i> Scenario's
-                                </a>
-                            </li>
-                            
-                            <li class="nav-item mt-3">
-                                <hr>
-                            </li>
-                            
-                            <li class="nav-item">
-                                <a class="nav-link <?= uri_string() == 'help' ? 'active' : '' ?>" href="/help">
-                                    <i class="bi bi-question-circle"></i> Help
-                                </a>
-                            </li>
-                            
-                            <li class="nav-item">
-                                <a class="nav-link <?= uri_string() == 'contact' ? 'active' : '' ?>" href="/contact">
-                                    <i class="bi bi-envelope"></i> Contact
-                                </a>
-                            </li>
-                            
-                            <li class="nav-item mt-3">
-                                <a class="nav-link" href="/export/csv">
-                                    <i class="bi bi-download"></i> Export CSV
-                                </a>
-                            </li>
-                            
-                            <?php if (session()->get('role') === 'admin'): ?>
-                            <li class="nav-item mt-3">
-                                <hr>
-                                <small class="text-muted px-3">Admin</small>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link <?= strpos(uri_string(), 'admin/users') !== false ? 'active' : '' ?>" href="/admin/users" data-bs-dismiss="offcanvas">
-                                    <i class="bi bi-people"></i> Gebruikersbeheer
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link <?= strpos(uri_string(), 'admin/audit-logs') !== false ? 'active' : '' ?>" href="/admin/audit-logs" data-bs-dismiss="offcanvas">
-                                    <i class="bi bi-journal-text"></i> Audit Log
-                                </a>
-                            </li>
-                            <?php endif; ?>
-                        </ul>
+                        <?= view('partials/nav') ?>
                     </div>
                 </div>
                 
@@ -502,6 +345,10 @@
                             <i class="bi bi-info-circle"></i> <?= session()->getFlashdata('info') ?>
                             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                         </div>
+                    <?php endif; ?>
+
+                    <?php if (session()->get('isLoggedIn')): ?>
+                        <?= view('partials/wizard') ?>
                     <?php endif; ?>
 
                     <!-- Page Content -->

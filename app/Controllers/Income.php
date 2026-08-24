@@ -39,6 +39,7 @@ class Income extends BaseController
             'pension_start_age' => $this->request->getPost('pension_start_age') ?: 67,
             'other_income' => $this->request->getPost('other_income'),
             'minimum_monthly_income' => $this->request->getPost('minimum_monthly_income') ?: 0,
+            'income_stops_at_retirement' => $this->request->getPost('income_stops_at_retirement') ? 1 : 0,
         ];
 
         $existing = $model->getByUserId($userId);

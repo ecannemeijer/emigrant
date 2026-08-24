@@ -45,6 +45,31 @@
                         </div>
                     </div>
 
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="profitability_coefficient" class="form-label">Coefficiente di redditività (B&amp;B)</label>
+                            <div class="input-group">
+                                <input type="number" step="0.01" class="form-control" id="profitability_coefficient"
+                                       name="profitability_coefficient" value="<?= $taxes['profitability_coefficient'] ?? 67 ?>">
+                                <span class="input-group-text">%</span>
+                            </div>
+                            <small class="text-muted">ATECO 55.20: 67%</small>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="rental_tax_rate" class="form-label">Cedolare secca huur</label>
+                            <div class="input-group">
+                                <input type="number" step="0.01" class="form-control" id="rental_tax_rate"
+                                       name="rental_tax_rate" value="<?= $taxes['rental_tax_rate'] ?? 21 ?>">
+                                <span class="input-group-text">%</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" id="startup_rate_enabled" name="startup_rate_enabled" value="1"
+                               <?= ($taxes['startup_rate_enabled'] ?? 1) ? 'checked' : '' ?>>
+                        <label class="form-check-label" for="startup_rate_enabled">Starttarief 5% eerste 5 jaar na emigratie</label>
+                    </div>
+
                     <h5 class="mb-3 mt-4">Vastgoedbelastingen</h5>
                     <div class="alert alert-info">
                         <i class="bi bi-info-circle"></i> 

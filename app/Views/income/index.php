@@ -101,9 +101,24 @@
                         <label for="other_income" class="form-label">Overig inkomen (netto per maand)</label>
                         <div class="input-group">
                             <span class="input-group-text">€</span>
-                            <input type="number" step="0.01" class="form-control" id="other_income" 
+                            <input type="number" step="0.01" class="form-control" id="other_income"
                                    name="other_income" value="<?= $income['other_income'] ?? 0 ?>">
                         </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="minimum_monthly_income" class="form-label">Minimum netto per maand (waarschuwing)</label>
+                        <div class="input-group">
+                            <span class="input-group-text">€</span>
+                            <input type="number" step="0.01" class="form-control" id="minimum_monthly_income"
+                                   name="minimum_monthly_income" value="<?= $income['minimum_monthly_income'] ?? 0 ?>">
+                        </div>
+                    </div>
+
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" id="income_stops_at_retirement" name="income_stops_at_retirement" value="1"
+                               <?= ($income['income_stops_at_retirement'] ?? 1) ? 'checked' : '' ?>>
+                        <label class="form-check-label" for="income_stops_at_retirement">Eigen inkomen stopt bij pensioenleeftijd</label>
                     </div>
 
                     <button type="submit" class="btn btn-primary">

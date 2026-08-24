@@ -112,6 +112,16 @@ class Export extends BaseController
 
     public function pdf()
     {
-        return redirect()->to('/dashboard')->with('info', 'PDF export komt binnenkort beschikbaar.');
+        $userId = (int) session()->get('userId');
+        $result = Dashboard::analyzeForUser($userId);
+        $profile = (new \App\Models\UserProfileModel())->where('user_id', $userId)->first();
+
+        return view('export/pdf', [
+            'title' => 'Financieel overzicht',
+            'profile' => $profile,
+            'calculations' => $result['calculations'],
+            'yearlyProjections' => array_slice($result['yearlyProjections'], 0, 16),
+            'warnings' => $result['warnings'],
+        ]);
     }
 }

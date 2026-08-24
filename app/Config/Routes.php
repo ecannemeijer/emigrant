@@ -75,12 +75,18 @@ $routes->group('', ['filter' => 'auth'], function ($routes) {
     $routes->post('bnb/settings/save', 'Bnb::saveSettings');
     $routes->post('bnb/expenses/save', 'Bnb::saveExpenses');
     $routes->get('bnb/breakeven', 'Bnb::breakeven');
+
+    $routes->get('checklist', 'Checklist::index');
+    $routes->post('checklist/toggle/(:num)', 'Checklist::toggle/$1');
+    $routes->post('checklist/note/(:num)', 'Checklist::note/$1');
     
     // Scenarios
     $routes->get('scenarios', 'Scenarios::index');
     $routes->post('scenarios/save', 'Scenarios::save');
     $routes->get('scenarios/load/(:num)', 'Scenarios::load/$1');
     $routes->post('scenarios/delete/(:num)', 'Scenarios::delete/$1');
+    $routes->post('scenarios/restore/(:num)', 'Scenarios::restore/$1');
+    $routes->get('scenarios/compare', 'Scenarios::compare');
     
     // Export
     $routes->get('export/csv', 'Export::csv');

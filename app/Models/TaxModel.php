@@ -20,7 +20,11 @@ class TaxModel extends Model
         'imu_percentage',
         'tari_yearly',
         'social_contributions',
-        'road_tax_yearly'
+        'road_tax_yearly',
+        'profitability_coefficient',
+        'startup_rate_enabled',
+        'rental_tax_rate',
+        'forfettario_limit'
     ];
 
     // Dates

@@ -38,31 +38,10 @@ class BnbSettingModel extends Model
     public function calculateMonthlyRevenue($userId)
     {
         $settings = $this->getByUserId($userId);
-        
-        if (!$settings || !$settings['enabled']) {
-            return 0;
-        }
+        $calculator = new \App\Libraries\FinanceCalculator();
+        $mapped = \App\Libraries\FinanceDataMapper::bnbSettings($settings);
 
-        $rooms = $settings['number_of_rooms'];
-        $pricePerNight = $settings['price_per_room_per_night'];
-        $highSeasonPercent = $settings['high_season_percentage'] / 100;
-        $lowSeasonPercent = $settings['low_season_percentage'] / 100;
-        $highSeasonMonths = $settings['high_season_months'];
-        $lowSeasonMonths = $settings['low_season_months'];
-
-        // Calculate days per season
-        $daysHighSeason = $highSeasonMonths * 30;
-        $daysLowSeason = $lowSeasonMonths * 30;
-
-        // Calculate occupied nights
-        $highSeasonNights = $daysHighSeason * $highSeasonPercent * $rooms;
-        $lowSeasonNights = $daysLowSeason * $lowSeasonPercent * $rooms;
-
-        // Calculate yearly revenue
-        $yearlyRevenue = ($highSeasonNights + $lowSeasonNights) * $pricePerNight;
-
-        // Return monthly average
-        return $yearlyRevenue / 12;
+        return $calculator->calculateBnbMonthlyRevenue($mapped);
     }
 
     public function calculateYearlyRevenue($userId)

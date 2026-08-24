@@ -23,7 +23,8 @@ class IncomeModel extends Model
         'pension',
         'pension_start_age',
         'other_income',
-        'minimum_monthly_income'
+        'minimum_monthly_income',
+        'income_stops_at_retirement'
     ];
 
     // Dates

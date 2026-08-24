@@ -18,8 +18,11 @@ class StartPositionModel extends Model
         'mortgage_debt',
         'net_equity',
         'savings',
+        'selling_costs_percent',
+        'moving_costs',
         'total_starting_capital',
-        'interest_rate'
+        'interest_rate',
+        'inflation_rate'
     ];
 
     // Dates
@@ -37,9 +40,11 @@ class StartPositionModel extends Model
             $houseSalePrice = $data['data']['house_sale_price'] ?? 0;
             $mortgageDebt = $data['data']['mortgage_debt'] ?? 0;
             $savings = $data['data']['savings'] ?? 0;
+            $sellingPct = $data['data']['selling_costs_percent'] ?? 0;
+            $moving = $data['data']['moving_costs'] ?? 0;
 
-            $data['data']['net_equity'] = $houseSalePrice - $mortgageDebt;
-            $data['data']['total_starting_capital'] = $data['data']['net_equity'] + $savings;
+            $data['data']['net_equity'] = $houseSalePrice - $mortgageDebt - ($houseSalePrice * $sellingPct / 100);
+            $data['data']['total_starting_capital'] = $data['data']['net_equity'] + $savings - $moving;
         }
 
         return $data;

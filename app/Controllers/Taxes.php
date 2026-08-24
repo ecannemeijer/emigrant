@@ -33,6 +33,10 @@ class Taxes extends BaseController
             'tari_yearly' => $this->request->getPost('tari_yearly'),
             'social_contributions' => $this->request->getPost('social_contributions'),
             'road_tax_yearly' => $this->request->getPost('road_tax_yearly'),
+            'profitability_coefficient' => $this->request->getPost('profitability_coefficient') ?? 67,
+            'startup_rate_enabled' => $this->request->getPost('startup_rate_enabled') ? 1 : 0,
+            'rental_tax_rate' => $this->request->getPost('rental_tax_rate') ?? 21,
+            'forfettario_limit' => $this->request->getPost('forfettario_limit') ?? 85000,
         ];
 
         $existing = $model->getByUserId($userId);

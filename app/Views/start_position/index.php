@@ -35,8 +35,26 @@
                         <label for="savings" class="form-label">Spaargeld</label>
                         <div class="input-group">
                             <span class="input-group-text">€</span>
-                            <input type="number" step="0.01" class="form-control" id="savings" 
+                            <input type="number" step="0.01" class="form-control" id="savings"
                                    name="savings" value="<?= $startPosition['savings'] ?? 100000 ?>" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="selling_costs_percent" class="form-label">Verkoopkosten NL (makelaar e.d.)</label>
+                        <div class="input-group">
+                            <input type="number" step="0.01" class="form-control" id="selling_costs_percent"
+                                   name="selling_costs_percent" value="<?= $startPosition['selling_costs_percent'] ?? 2 ?>">
+                            <span class="input-group-text">%</span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="moving_costs" class="form-label">Verhuiskosten</label>
+                        <div class="input-group">
+                            <span class="input-group-text">€</span>
+                            <input type="number" step="0.01" class="form-control" id="moving_costs"
+                                   name="moving_costs" value="<?= $startPosition['moving_costs'] ?? 0 ?>">
                         </div>
                     </div>
 
@@ -48,6 +66,15 @@
                             <span class="input-group-text">%</span>
                         </div>
                         <small class="text-muted">Rente die je bank geeft op je vermogen (gemiddeld 2%)</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="inflation_rate" class="form-label">Inflatie uitgaven per jaar</label>
+                        <div class="input-group">
+                            <input type="number" step="0.01" class="form-control" id="inflation_rate"
+                                   name="inflation_rate" value="<?= $startPosition['inflation_rate'] ?? 2 ?>">
+                            <span class="input-group-text">%</span>
+                        </div>
                     </div>
 
                     <button type="submit" class="btn btn-primary">

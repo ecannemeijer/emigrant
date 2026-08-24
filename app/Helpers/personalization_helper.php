@@ -67,46 +67,20 @@ if (!function_exists('personalize_text')) {
 }
 
 /**
- * Calculate AOW reduction percentage based on emigration date
- * Dutch pension rights (AOW) are built up from age 15 to retirement age
- * 2% per year, so full rights = 52 years * 2% = 104% (capped at 100%)
- * 
- * @param string $emigrationDate Date of emigration
- * @param string $dateOfBirth Date of birth
- * @param int $retirementAge Retirement age (default 67)
- * @return float Percentage of full AOW (0-100)
+ * Calculate AOW percentage based on SVB 2%-per-year rule
+ * (50 years before AOW age). Optional voluntary years after emigration.
  */
 if (!function_exists('calculate_aow_percentage')) {
-    function calculate_aow_percentage($emigrationDate, $dateOfBirth, $retirementAge = 67)
+    function calculate_aow_percentage($emigrationDate, $dateOfBirth, $retirementAge = 67, $voluntaryYears = 0)
     {
-        if (empty($emigrationDate) || empty($dateOfBirth)) {
-            return 100.0; // No emigration date = assume full rights
-        }
-        
-        $birthDate = new DateTime($dateOfBirth);
-        $emigDate = new DateTime($emigrationDate);
-        
-        // Calculate age at emigration
-        $ageAtEmigration = $birthDate->diff($emigDate)->y;
-        
-        // If emigrated at or after retirement age, full rights
-        if ($ageAtEmigration >= $retirementAge) {
-            return 100.0;
-        }
-        
-        // Rights start building from age 15
-        $startAge = 15;
-        
-        // Cannot have built up rights if emigrated before age 15
-        if ($ageAtEmigration < $startAge) {
-            return 0.0;
-        }
-        
-        // Calculate percentage: (years worked in NL) / (total years) * 100
-        $yearsInNL = $ageAtEmigration - $startAge;
-        $totalYears = $retirementAge - $startAge;
-        
-        return ($yearsInNL / $totalYears) * 100;
+        $calculator = new \App\Libraries\FinanceCalculator();
+
+        return $calculator->calculateAowPercentage(
+            $emigrationDate ?: null,
+            $dateOfBirth ?: null,
+            (int) $retirementAge,
+            (float) $voluntaryYears
+        );
     }
 }
 
@@ -114,6 +88,6 @@ if (!function_exists('calculate_aow_percentage')) {
 if (!function_exists('calculate_AOW_percentage')) {
     function calculate_AOW_percentage($emigrationDate, $dateOfBirth, $retirementAge = 67)
     {
-        return calculate_aow_percentage($emigrationDate, $dateOfBirth, $retirementAge);
+        return calculate_aow_percentage($emigrationDate, $dateOfBirth, $retirementAge, 0);
     }
 }
