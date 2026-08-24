@@ -150,13 +150,7 @@
         const end = (apt.end_time || '10:00').replace(':', '') + '00';
         return day + 'T' + start + '/' + day + 'T' + end;
     }
-    function openGoogleFromForm() {
-        const apt = aptFromForm();
-        if (!apt.date) return;
-        if (apt.id) {
-            window.open('/renovation/appointment/google/' + apt.id, '_blank', 'noopener');
-            return;
-        }
+    function googleTemplateUrl(apt) {
         const params = new URLSearchParams({
             action: 'TEMPLATE',
             text: apt.title,
@@ -165,7 +159,13 @@
             location: apt.location,
             ctz: 'Europe/Amsterdam',
         });
-        window.open('https://calendar.google.com/calendar/render?' + params.toString(), '_blank', 'noopener');
+        return 'https://calendar.google.com/calendar/render?' + params.toString();
+    }
+    function openGoogleFromForm() {
+        const apt = aptFromForm();
+        if (!apt.date) return false;
+        window.open(googleTemplateUrl(apt), '_blank', 'noopener,noreferrer');
+        return true;
     }
     function syncAptLinks() {
         const id = document.getElementById('apt_id').value;
@@ -223,6 +223,15 @@
     if (aptAllDay) aptAllDay.addEventListener('change', toggleAptTimes);
     const aptGoogle = document.getElementById('aptGoogleBtn');
     if (aptGoogle) aptGoogle.addEventListener('click', openGoogleFromForm);
+    const aptForm = document.getElementById('appointmentForm');
+    if (aptForm) {
+        aptForm.addEventListener('submit', function () {
+            const openGoogle = document.getElementById('apt_open_google');
+            if (openGoogle && openGoogle.checked) {
+                openGoogleFromForm();
+            }
+        });
+    }
     const aptDel = document.getElementById('aptDeleteBtn');
     if (aptDel) {
         aptDel.addEventListener('click', function () {

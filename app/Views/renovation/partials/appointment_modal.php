@@ -41,7 +41,7 @@
                     </div>
                     <div class="form-check mt-3">
                         <input class="form-check-input" type="checkbox" name="open_google" id="apt_open_google" value="1">
-                        <label class="form-check-label" for="apt_open_google">Na opslaan openen in Google Agenda</label>
+                        <label class="form-check-label" for="apt_open_google">Na opslaan openen in Google Agenda (nieuw tabblad)</label>
                     </div>
                 </div>
                 <div class="modal-footer flex-wrap">

@@ -28,13 +28,6 @@ class Appointment extends BaseController
             $id = (int) $model->getInsertID();
         }
 
-        if ($id > 0 && $this->request->getPost('open_google')) {
-            $apt = $model->forUserById($userId, $id);
-            if ($apt) {
-                return redirect()->to(CalendarExport::googleUrl($apt));
-            }
-        }
-
         return redirect()->to('/renovation/planning')->with('success', 'Afspraak opgeslagen.');
     }
 
@@ -58,7 +51,11 @@ class Appointment extends BaseController
             return redirect()->to('/renovation/planning')->with('error', 'Afspraak niet gevonden.');
         }
 
-        return redirect()->to(CalendarExport::googleUrl($apt));
+        $url = CalendarExport::googleUrl($apt);
+
+        return $this->response
+            ->setHeader('Content-Type', 'text/html; charset=utf-8')
+            ->setBody(view('renovation/google_open', ['url' => $url]));
     }
 
     public function ics($id)
