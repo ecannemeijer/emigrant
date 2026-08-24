@@ -276,6 +276,37 @@ class FinanceCalculatorTest extends TestCase
         $this->assertEqualsWithDelta(1000 * pow(1.02, 5), $year5['wia_amount'], 0.05);
     }
 
+    public function testAowFollowsInflationAfterStart(): void
+    {
+        $result = $this->calc->analyze([
+            'profile' => [
+                'date_of_birth' => '1958-01-01',
+                'emigration_date' => '2040-01-01',
+                'retirement_age' => 67,
+            ],
+            'start_position' => [
+                'house_sale_price' => 0,
+                'savings' => 0,
+                'interest_rate' => 0,
+                'inflation_rate' => 2,
+            ],
+            'income' => [
+                'has_partner' => 0,
+                'own_aow' => 1000,
+                'own_aow_start_age' => 67,
+                'own_benefit_type' => 'none',
+            ],
+            'expenses' => [],
+            'taxes' => [],
+            'bnb_settings' => [],
+            'bnb_expenses' => [],
+        ], 2026);
+
+        $this->assertEquals(68, $result['yearlyProjections'][0]['user_age']);
+        $this->assertEqualsWithDelta(1000.0, $result['yearlyProjections'][0]['own_aow_amount'], 0.02);
+        $this->assertEqualsWithDelta(1000 * pow(1.02, 5), $result['yearlyProjections'][5]['own_aow_amount'], 0.05);
+    }
+
     public function testAowStartsAtEachPersonsAge(): void
     {
         $result = $this->calc->analyze([

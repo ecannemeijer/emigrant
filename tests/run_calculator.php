@@ -88,6 +88,35 @@ $expected5 = 1000 * pow(1.02, 5);
 check(abs($wia0 - 1000) < 0.02, "WIA year 0 = $wia0");
 check(abs($wia5 - $expected5) < 0.05, "WIA year 5 indexed $wia5 vs $expected5");
 
+$aowInf = $calc->analyze([
+    'profile' => [
+        'date_of_birth' => '1958-01-01',
+        'emigration_date' => '2040-01-01',
+        'retirement_age' => 67,
+    ],
+    'start_position' => [
+        'house_sale_price' => 0,
+        'savings' => 0,
+        'interest_rate' => 0,
+        'inflation_rate' => 2,
+    ],
+    'income' => [
+        'has_partner' => 0,
+        'own_aow' => 1000,
+        'own_aow_start_age' => 67,
+        'own_benefit_type' => 'none',
+    ],
+    'expenses' => [],
+    'taxes' => [],
+    'bnb_settings' => [],
+    'bnb_expenses' => [],
+], 2026);
+$aow0 = $aowInf['yearlyProjections'][0]['own_aow_amount'];
+$aow5 = $aowInf['yearlyProjections'][5]['own_aow_amount'];
+$aowExp5 = 1000 * pow(1.02, 5);
+check(abs($aow0 - 1000) < 0.02, "AOW year 0 = $aow0");
+check(abs($aow5 - $aowExp5) < 0.05, "AOW year 5 indexed $aow5 vs $aowExp5");
+
 $aowSplit = $calc->analyze([
     'profile' => [
         'date_of_birth' => '1961-01-01',

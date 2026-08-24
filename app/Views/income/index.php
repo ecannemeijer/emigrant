@@ -71,11 +71,12 @@ if ((float) $ownOther === 0.0 && (float) $partnerOther === 0.0 && (float) ($inco
                             <span class="input-group-text">€</span>
                             <input type="number" step="0.01" class="form-control" id="own_aow" name="own_aow" value="<?= esc($income['own_aow'] ?? 0) ?>">
                         </div>
+                        <small class="text-muted">Vul het huidige nettobedrag in. In de projectie groeit AOW elk jaar mee met de indexatie, ook ná ingang.</small>
                     </div>
                     <div class="mb-3">
                         <label for="own_aow_start_age" class="form-label">AOW start op leeftijd</label>
                         <input type="number" min="60" max="75" class="form-control" id="own_aow_start_age" name="own_aow_start_age" value="<?= esc($ownAowAge) ?>">
-                        <small class="text-muted">Op het dashboard telt deze AOW pas mee vanaf dit jaar (nu <?= (int) $ownAowAge ?>).</small>
+                        <small class="text-muted">Telt mee vanaf deze leeftijd; het bedrag is dan al geïndexeerd vanaf nu (nu <?= (int) $ownAowAge ?>).</small>
                     </div>
 
                     <div class="mb-3">
@@ -130,11 +131,12 @@ if ((float) $ownOther === 0.0 && (float) $partnerOther === 0.0 && (float) ($inco
                             <span class="input-group-text">€</span>
                             <input type="number" step="0.01" class="form-control" id="aow_future" name="aow_future" value="<?= esc($income['aow_future'] ?? 0) ?>">
                         </div>
+                        <small class="text-muted">Huidig nettobedrag; groeit jaarlijks mee met de indexatie.</small>
                     </div>
                     <div class="mb-3">
                         <label for="partner_aow_start_age" class="form-label">AOW start op leeftijd</label>
                         <input type="number" min="60" max="75" class="form-control" id="partner_aow_start_age" name="partner_aow_start_age" value="<?= esc($partnerAowAge) ?>">
-                        <small class="text-muted">Op het dashboard telt deze AOW pas mee vanaf dit jaar (nu <?= (int) $partnerAowAge ?>).</small>
+                        <small class="text-muted">Telt mee vanaf deze leeftijd van <?= esc($partnerName) ?> (nu <?= (int) $partnerAowAge ?>), dan al geïndexeerd vanaf nu.</small>
                     </div>
 
                     <div class="mb-0">

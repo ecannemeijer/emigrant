@@ -182,11 +182,11 @@ if (!empty($profile['emigration_date']) && !empty($profile['partner_date_of_birt
 
                             <div class="mb-3">
                                 <label class="form-label d-flex justify-content-between">
-                                    <span><i class="bi bi-graph-up text-warning"></i> Jaarlijkse inflatie uitgaven</span>
-                                    <strong class="text-warning" id="wiInflationVal">0%</strong>
+                                    <span><i class="bi bi-graph-up text-warning"></i> Indexatie (lasten, WIA, AOW)</span>
+                                    <strong class="text-warning" id="wiInflationVal"><?= number_format((float) ($startPosition['inflation_rate'] ?? 2), 2, ',', '.') ?>%</strong>
                                 </label>
                                 <input type="range" class="form-range" id="wiInflation"
-                                       min="0" max="6" step="0.25" value="0"
+                                       min="0" max="6" step="0.25" value="<?= (float) ($startPosition['inflation_rate'] ?? 2) ?>"
                                        oninput="updateWhatIf()">
                                 <div class="d-flex justify-content-between"><small class="text-muted">0%</small><small class="text-muted">6%</small></div>
                             </div>
@@ -411,7 +411,8 @@ $partnerNameDash = trim($profile['partner_name'] ?? '') !== '' ? $profile['partn
                         tot <?= esc($profile['partner_name'] ?? 'partner') ?> 68 jaar is
                     <?php else: ?>
                         voor de komende 15 jaar
-                    <?php endif; ?>, inclusief AOW en pensioen op de ingestelde leeftijden.
+                    <?php endif; ?>, inclusief AOW (geïndexeerd) en pensioen op de ingestelde leeftijden per persoon.
+                    Lasten, WIA en AOW groeien mee met het indexatiepercentage uit de startpositie.
                     <?php if ($calculations['bnb_net_income'] > 0): ?>
                     <strong>Inkomen/mnd</strong> toont het totale inkomen inclusief B&B. <strong>Netto/mnd</strong> is wat je overhoudt na alle kosten en belastingen.
                     <?php endif; ?>
@@ -1060,14 +1061,18 @@ document.addEventListener('DOMContentLoaded', function() {
         <?php if (($income['wia_wife'] ?? 0) > 0): ?>
         incomeData.push(['WIA <?= esc($profile['partner_name'] ?? 'Partner') ?>', '\ ' + formatNumber(<?= $income['wia_wife'] ?>)]);
         <?php endif; ?>
-        <?php if (($income['aow_future'] ?? 0) > 0): ?>
-        incomeData.push(['AOW <?= esc($profile['partner_name'] ?? 'Partner') ?> (met reductie)', '\ ' + formatNumber(<?= ($income['aow_future'] ?? 0) * (calculate_AOW_percentage($profile['emigration_date'] ?? date('Y-m-d'), $profile['partner_date_of_birth'] ?? date('Y-m-d'), $profile['partner_retirement_age'] ?? 67) / 100) ?>)]);
+        <?php if (($calculations['own_aow_amount'] ?? 0) > 0): ?>
+        incomeData.push(['AOW jij (geïndexeerd, met opbouw)', '\ ' + formatNumber(<?= $calculations['own_aow_amount'] ?>)]);
+        <?php elseif (($income['own_aow'] ?? 0) > 0): ?>
+        incomeData.push(['AOW jij (huidig, groeit met indexatie)', '\ ' + formatNumber(<?= $income['own_aow'] ?>)]);
+        <?php endif; ?>
+        <?php if (($calculations['partner_aow_amount'] ?? 0) > 0): ?>
+        incomeData.push(['AOW partner (geïndexeerd, met opbouw)', '\ ' + formatNumber(<?= $calculations['partner_aow_amount'] ?>)]);
+        <?php elseif (($income['aow_future'] ?? 0) > 0): ?>
+        incomeData.push(['AOW partner (huidig, groeit met indexatie)', '\ ' + formatNumber(<?= $income['aow_future'] ?>)]);
         <?php endif; ?>
         <?php if (($income['pension'] ?? 0) > 0): ?>
-        incomeData.push(['Pensioen', '\ ' + formatNumber(<?= $income['pension'] ?>)]);
-        <?php endif; ?>
-        <?php if (($income['own_aow'] ?? 0) > 0): ?>
-        incomeData.push(['Eigen AOW (met reductie)', '\ ' + formatNumber(<?= ($income['own_aow'] ?? 0) * (calculate_AOW_percentage($profile['emigration_date'] ?? date('Y-m-d'), $profile['date_of_birth'] ?? date('Y-m-d'), $profile['retirement_age'] ?? 67) / 100) ?>)]);
+        incomeData.push(['Aanvullend pensioen (niet geïndexeerd)', '\ ' + formatNumber(<?= $income['pension'] ?>)]);
         <?php endif; ?>
         <?php if (($income['other_income'] ?? 0) > 0): ?>
         incomeData.push(['Overig inkomen', '\ ' + formatNumber(<?= $income['other_income'] ?>)]);
@@ -1356,16 +1361,20 @@ const wiBaseProjections = <?= json_encode(array_map(function($p) {
         'year'             => $p['year'],
         'user_age'         => $p['user_age'] ?? '-',
         'monthly_income'   => round($p['monthly_income'], 2),
+        'indexed_monthly'  => round($p['indexed_monthly'] ?? 0, 2),
+        'nominal_monthly'  => round($p['nominal_monthly'] ?? 0, 2),
         'yearly_expenses'  => round($p['yearly_expenses'] ?? ($p['monthly_expenses'] ?? 0) * 12, 2),
         'yearly_taxes'     => round($p['yearly_taxes'] ?? ($p['monthly_taxes'] ?? 0) * 12, 2),
         'monthly_net'      => round($p['monthly_net'], 2),
         'capital'          => round($p['capital'], 2),
         'monthly_interest' => round($p['monthly_interest'] ?? 0, 2),
+        'inflator'         => $p['inflator'] ?? 1,
     ];
 }, $yearlyProjections)) ?>;
 
 const wiBaseCapital     = <?= round($calculations['remaining_capital'] ?? 0, 2) ?>;
 const wiBaseInterest    = <?= round($startPosition['interest_rate'] ?? 2, 2) ?>;
+const wiOrigInflation   = <?= round((float) ($startPosition['inflation_rate'] ?? 2), 2) ?>;
 
 function wiFormat(val) {
     const abs = Math.abs(val);
@@ -1394,6 +1403,7 @@ function updateWhatIf() {
 
     for (let i = 0; i < wiBaseProjections.length; i++) {
         const base = wiBaseProjections[i];
+        const origFactor = Math.pow(1 + wiOrigInflation / 100, i) || 1;
         const inflationFactor = Math.pow(1 + inflation / 100, i);
 
         // Base interest at original rate on current capital
@@ -1405,9 +1415,11 @@ function updateWhatIf() {
         const origMonthlyInterest = base.monthly_interest;
         const newMonthlyInterest  = origMonthlyInterest + interestDelta / 12;
 
-        const monthlyIncome   = base.monthly_income - origMonthlyInterest + newMonthlyInterest + extraIncome;
-        const monthlyExpenses = (base.yearly_expenses / 12) * inflationFactor + extraExpenses;
-        const monthlyTaxes    = base.yearly_taxes / 12;
+        const indexedNominal = (base.indexed_monthly || 0) / origFactor;
+        const nominalIncome  = base.nominal_monthly || 0;
+        const monthlyIncome  = indexedNominal * inflationFactor + nominalIncome - origMonthlyInterest + newMonthlyInterest + extraIncome;
+        const monthlyExpenses = ((base.yearly_expenses / 12) / origFactor) * inflationFactor + extraExpenses;
+        const monthlyTaxes    = ((base.yearly_taxes / 12) / origFactor) * inflationFactor;
         const monthlyNet      = monthlyIncome - monthlyExpenses - monthlyTaxes;
         const yearlyNet       = monthlyNet * 12;
 
@@ -1487,7 +1499,7 @@ function resetWhatIf() {
     document.getElementById('wiExtraIncome').value   = 0;
     document.getElementById('wiExtraExpenses').value = 0;
     document.getElementById('wiInterest').value      = wiBaseInterest;
-    document.getElementById('wiInflation').value     = 0;
+    document.getElementById('wiInflation').value     = wiOrigInflation;
     updateWhatIf();
 }
 

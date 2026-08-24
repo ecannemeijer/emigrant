@@ -401,6 +401,9 @@ class FinanceCalculator
                 'has_own_benefit' => $cf['has_own_benefit'],
                 'rental_income' => $cf['rental_income'],
                 'other_income' => $cf['other_income'],
+                'indexed_monthly' => $cf['indexed_monthly'],
+                'nominal_monthly' => $cf['nominal_monthly'],
+                'inflator' => $inflator,
                 'has_partner' => $hasPartner,
                 'has_partner_retired' => ($hasPartner && $partnerAge && $partnerAge >= $partnerAowAge),
                 'has_user_retired' => ($userAge && $userAge >= $ownAowAge),
@@ -589,6 +592,10 @@ class FinanceCalculator
         $baseMonthly = $ownIncome + $ownWiaAmount + $wiaAmount + $partnerIncomeAmount + $partnerAowAmount
             + $ownAowAmount + $pensionAmount + $otherIncome + $rentalIncome;
 
+        $indexedMonthly = $ownWiaAmount + $ownBenefitAmount + $wiaAmount + $partnerIncomeAmount
+            + $partnerAowAmount + $ownAowAmount + ($bnbRevenue - $bnbCosts);
+        $nominalMonthly = $pensionAmount + $otherIncome + $rentalIncome;
+
         $bnbNet             = $bnbRevenue - $bnbCosts;
         $totalMonthlyIncome = $baseMonthly + $bnbNet + $monthlyInterest;
 
@@ -655,6 +662,8 @@ class FinanceCalculator
             'own_benefit_amount' => $ownBenefitAmount,
             'own_other_income' => $ownOther,
             'partner_other_income' => $partnerOther,
+            'indexed_monthly' => $indexedMonthly,
+            'nominal_monthly' => $nominalMonthly,
             'rental_income' => $rentalIncome,
             'other_income' => $otherIncome,
         ];
