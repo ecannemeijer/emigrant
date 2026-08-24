@@ -37,7 +37,7 @@ $statuses = $statuses ?? [];
     <div>
         <p class="reno-kicker mb-1">Planning</p>
         <h1 class="mb-2">Kalender</h1>
-        <p class="mb-0 text-muted">Verbouwposten én afspraken. Klik op een dag of tijdstip voor een nieuwe afspraak. Stuur een afspraak door naar Google Agenda.</p>
+        <p class="mb-0 text-muted">Verbouwposten én afspraken. Klik op een dag om te kiezen: nieuwe post of nieuwe afspraak. Stuur een afspraak door naar Google Agenda.</p>
     </div>
     <div class="d-flex flex-wrap gap-2">
         <a class="btn btn-outline-secondary" href="/renovation"><i class="bi bi-hammer"></i> Terug naar verbouwen</a>
@@ -85,6 +85,31 @@ $statuses = $statuses ?? [];
 <?= view('renovation/partials/category_modal', ['returnTo' => 'planning']) ?>
 <?= view('renovation/partials/item_modal', ['returnTo' => 'planning', 'rooms' => $rooms, 'statuses' => $statuses, 'priorities' => $priorities ?? []]) ?>
 <?= view('renovation/partials/appointment_modal') ?>
+
+<div class="modal fade" id="calChoiceModal" tabindex="-1" aria-labelledby="calChoiceTitle" aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="calChoiceTitle">Wat wil je plannen?</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Sluiten"></button>
+            </div>
+            <div class="modal-body">
+                <p class="small text-muted mb-3" id="calChoiceDate"></p>
+                <div class="d-grid gap-2">
+                    <button type="button" class="btn btn-outline-primary text-start py-3" id="calChoiceItem" <?= empty($rooms) ? 'disabled' : '' ?>>
+                        <i class="bi bi-hammer"></i> Nieuwe post
+                    </button>
+                    <button type="button" class="btn btn-primary text-start py-3" id="calChoiceApt">
+                        <i class="bi bi-calendar-plus"></i> Nieuwe afspraak
+                    </button>
+                </div>
+                <?php if (empty($rooms)): ?>
+                    <p class="small text-muted mb-0 mt-3">Maak eerst een categorie op Verbouwen om een post te plannen.</p>
+                <?php endif; ?>
+            </div>
+        </div>
+    </div>
+</div>
 <?= $this->endSection() ?>
 
 <?= $this->section('scripts') ?>

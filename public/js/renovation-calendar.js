@@ -111,15 +111,49 @@
             if (window.renoFillItem) window.renoFillItem(item);
         });
     }
-    function openDate(dateStr, hour) {
-        if (window.renoNewAppointment) {
-            window.renoNewAppointment(dateStr, hour);
+    function formatChoiceDate(dateStr, hour) {
+        const d = new Date(dateStr + 'T12:00:00');
+        if (Number.isNaN(d.getTime())) return '';
+        const label = DAYS_LONG[(d.getDay() + 6) % 7] + ' ' + d.getDate() + ' ' + MONTHS[d.getMonth()] + ' ' + d.getFullYear();
+        if (hour || hour === 0) {
+            return label + ' · ' + String(hour).padStart(2, '0') + ':00';
+        }
+        return label;
+    }
+    function hideChoiceThen(cb) {
+        const modalEl = document.getElementById('calChoiceModal');
+        const inst = modalEl ? bootstrap.Modal.getInstance(modalEl) : null;
+        if (!inst) {
+            cb();
             return;
         }
-        if (window.renoNewItem) {
-            window.renoNewItem('', dateStr);
-            bootstrap.Modal.getOrCreateInstance(document.getElementById('itemModal')).show();
+        modalEl.addEventListener('hidden.bs.modal', function once() {
+            modalEl.removeEventListener('hidden.bs.modal', once);
+            setTimeout(cb, 50);
+        });
+        inst.hide();
+    }
+    function openItem(dateStr) {
+        if (!window.renoNewItem) return;
+        window.renoNewItem('', dateStr);
+        bootstrap.Modal.getOrCreateInstance(document.getElementById('itemModal')).show();
+    }
+    function openAppointment(dateStr, hour) {
+        if (window.renoNewAppointment) {
+            window.renoNewAppointment(dateStr, hour);
         }
+    }
+    function openDate(dateStr, hour) {
+        const choice = document.getElementById('calChoiceModal');
+        if (!choice) {
+            openAppointment(dateStr, hour);
+            return;
+        }
+        choice.dataset.date = dateStr;
+        choice.dataset.hour = (hour || hour === 0) ? String(hour) : '';
+        const dateLabel = document.getElementById('calChoiceDate');
+        if (dateLabel) dateLabel.textContent = formatChoiceDate(dateStr, hour);
+        bootstrap.Modal.getOrCreateInstance(choice).show();
     }
 
     function render() {
@@ -374,7 +408,29 @@
     const addApt = document.getElementById('renoCalAddApt');
     if (addApt) {
         addApt.addEventListener('click', function () {
-            openDate(ymd(cursor));
+            openAppointment(ymd(cursor));
+        });
+    }
+    const choiceItem = document.getElementById('calChoiceItem');
+    if (choiceItem) {
+        choiceItem.addEventListener('click', function () {
+            const choice = document.getElementById('calChoiceModal');
+            const dateStr = choice ? choice.dataset.date : '';
+            hideChoiceThen(function () {
+                openItem(dateStr);
+            });
+        });
+    }
+    const choiceApt = document.getElementById('calChoiceApt');
+    if (choiceApt) {
+        choiceApt.addEventListener('click', function () {
+            const choice = document.getElementById('calChoiceModal');
+            const dateStr = choice ? choice.dataset.date : '';
+            const hourRaw = choice ? choice.dataset.hour : '';
+            const hour = hourRaw === '' ? undefined : parseInt(hourRaw, 10);
+            hideChoiceThen(function () {
+                openAppointment(dateStr, hour);
+            });
         });
     }
 
