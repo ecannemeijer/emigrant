@@ -110,6 +110,27 @@
         bindGrid();
         renderUnscheduled();
         setViewButtons();
+        applyGridLayout();
+    }
+
+    function applyGridLayout() {
+        const seven = ['cal-month', 'cal-month-head', 'cal-week', 'cal-week-head', 'cal-mini-grid'];
+        seven.forEach(function (cls) {
+            root.querySelectorAll('.' + cls).forEach(function (el) {
+                el.style.display = 'grid';
+                el.style.gridTemplateColumns = 'repeat(7, minmax(0, 1fr))';
+            });
+        });
+        root.querySelectorAll('.cal-year').forEach(function (el) {
+            el.style.display = 'grid';
+            el.style.gridTemplateColumns = 'repeat(3, minmax(0, 1fr))';
+        });
+        root.querySelectorAll('.cal-time-head, .cal-allday, .cal-time-row').forEach(function (el) {
+            el.style.display = 'grid';
+            el.style.gridTemplateColumns = el.classList.contains('cal-allday-one') || el.closest('.cal-time-grid-one')
+                ? '72px minmax(0, 1fr)'
+                : '72px repeat(7, minmax(0, 1fr))';
+        });
     }
 
     function dayCell(d, large, muted) {

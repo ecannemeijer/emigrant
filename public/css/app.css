@@ -246,12 +246,23 @@ h1, h2, .navbar-brand, .landing h1 {
 .cal-dot.done { background: #6dcf9b; }
 .cal-dot.skipped { background: #b5b5b5; }
 .reno-calendar { background: #faf7f2; color: #1b241c; border-radius: 16px; padding: 12px; }
-.cal-month-head, .cal-week-head {
-    display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px;
-    font-size: .75rem; text-transform: uppercase; letter-spacing: .06em; color: #7a746b; margin-bottom: 6px; text-align: center;
-}
-.cal-month { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
-.cal-week { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
+    .cal-month-head, .cal-week-head, .cal-month, .cal-week, .cal-mini-grid, .cal-year {
+        display: grid !important;
+    }
+    .cal-month-head, .cal-week-head, .cal-month, .cal-week, .cal-mini-grid {
+        grid-template-columns: repeat(7, minmax(0, 1fr)) !important;
+    }
+    .cal-month-head, .cal-week-head {
+        font-size: .75rem;
+        text-transform: uppercase;
+        letter-spacing: .06em;
+        color: #7a746b;
+        margin-bottom: 6px;
+        text-align: center;
+        gap: 6px;
+    }
+    .cal-week { gap: 8px; }
+    .cal-year { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; gap: 12px; }
 .cal-day {
     min-height: 92px; background: #fff; border-radius: 12px; padding: 6px;
     border: 1px solid #eadfd0; cursor: pointer; display: flex; flex-direction: column; gap: 4px;
@@ -386,27 +397,13 @@ h1, h2, .navbar-brand, .landing h1 {
 .cal-agenda-list .cal-chip { width: auto; }
 
 @media (max-width: 991.98px) {
-    .cal-year { grid-template-columns: repeat(2, 1fr); }
-    .cal-week { grid-template-columns: 1fr; }
-    .cal-week-head { display: none; }
+    .cal-year { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
     .cal-time-head, .cal-allday, .cal-time-row { grid-template-columns: 56px repeat(7, minmax(72px, 1fr)); }
     .reno-calendar { overflow-x: auto; }
     .bc-view span { display: none; }
 }
 @media (max-width: 767.98px) {
-    .cal-month { grid-template-columns: 1fr 1fr; }
-    .cal-month-head { display: none; }
-    .cal-year { grid-template-columns: 1fr; }
+    .cal-year { grid-template-columns: 1fr !important; }
     .cal-agenda-day { grid-template-columns: 1fr; }
-}
-
-@media (max-width: 991.98px) {
-    .cal-year { grid-template-columns: repeat(2, 1fr); }
-    .cal-week { grid-template-columns: 1fr; }
-    .cal-week-head { display: none; }
-}
-@media (max-width: 767.98px) {
-    .cal-month { grid-template-columns: 1fr 1fr; }
-    .cal-month-head { display: none; }
-    .cal-year { grid-template-columns: 1fr; }
+    .cal-day { min-height: 72px; }
 }

@@ -1,4 +1,33 @@
 <?= $this->extend('layout') ?>
+<?= $this->section('styles') ?>
+<style>
+#renoCalendar .cal-month-head,
+#renoCalendar .cal-week-head,
+#renoCalendar .cal-month,
+#renoCalendar .cal-week,
+#renoCalendar .cal-mini-grid {
+    display: grid !important;
+    grid-template-columns: repeat(7, minmax(0, 1fr)) !important;
+    gap: 6px;
+}
+#renoCalendar .cal-year {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 12px;
+}
+#renoCalendar .cal-time-head,
+#renoCalendar .cal-allday,
+#renoCalendar .cal-time-row {
+    display: grid !important;
+    grid-template-columns: 72px repeat(7, minmax(0, 1fr)) !important;
+    gap: 4px;
+}
+#renoCalendar .cal-allday-one,
+#renoCalendar .cal-time-grid-one .cal-time-row {
+    grid-template-columns: 72px minmax(0, 1fr) !important;
+}
+</style>
+<?= $this->endSection() ?>
 <?= $this->section('content') ?>
 <?php
 $rooms = $rooms ?? [];
@@ -56,6 +85,6 @@ $statuses = $statuses ?? [];
 window.renoCalItems = <?= json_encode($calendarItems ?? [], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP) ?>;
 window.renoCalCats = <?= json_encode($categories ?? [], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP) ?>;
 </script>
-<script src="/js/renovation-form.js"></script>
-<script src="/js/renovation-calendar.js"></script>
+<script src="/js/renovation-form.js?v=<?= @filemtime(FCPATH . 'js/renovation-form.js') ?: time() ?>"></script>
+<script src="/js/renovation-calendar.js?v=<?= @filemtime(FCPATH . 'js/renovation-calendar.js') ?: time() ?>"></script>
 <?= $this->endSection() ?>
