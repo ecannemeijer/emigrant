@@ -152,23 +152,17 @@ if ((float) $ownOther === 0.0 && (float) $partnerOther === 0.0 && (float) ($inco
         </div>
     </div>
 
-    <div class="card mt-4">
-        <div class="card-body">
-            <div class="row">
-                <div class="col-md-6 mb-3 mb-md-0">
-                    <label for="minimum_monthly_income" class="form-label">Minimum netto per maand (waarschuwing)</label>
-                    <div class="input-group">
-                        <span class="input-group-text">€</span>
-                        <input type="number" step="0.01" class="form-control" id="minimum_monthly_income" name="minimum_monthly_income" value="<?= esc($income['minimum_monthly_income'] ?? 0) ?>">
-                    </div>
-                </div>
-                <div class="col-md-6 d-flex align-items-end">
-                    <button type="submit" class="btn btn-primary">
-                        <i class="bi bi-save"></i> Opslaan
-                    </button>
-                </div>
+    <div class="form-footer mt-4">
+        <div>
+            <label for="minimum_monthly_income" class="form-label">Minimum netto per maand (waarschuwing)</label>
+            <div class="input-group">
+                <span class="input-group-text">€</span>
+                <input type="number" step="0.01" class="form-control" id="minimum_monthly_income" name="minimum_monthly_income" value="<?= esc($income['minimum_monthly_income'] ?? 0) ?>">
             </div>
         </div>
+        <button type="submit" class="btn btn-primary">
+            <i class="bi bi-save"></i> Opslaan
+        </button>
     </div>
 </form>
 

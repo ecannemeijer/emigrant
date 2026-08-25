@@ -6,8 +6,8 @@
     <p class="text-muted">Italiaanse belastinginstellingen</p>
 </div>
 
-<div class="row">
-    <div class="col-md-8">
+<div class="row g-4">
+    <div class="col-lg-8">
         <div class="card">
             <div class="card-body">
                 <form action="/taxes/save" method="post">
@@ -126,7 +126,7 @@
         </div>
     </div>
 
-    <div class="col-md-4">
+    <div class="col-lg-4">
         <div class="card bg-info text-white">
             <div class="card-body">
                 <h5 class="card-title"><i class="bi bi-info-circle"></i> Info</h5>

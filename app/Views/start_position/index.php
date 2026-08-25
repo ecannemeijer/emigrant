@@ -6,8 +6,8 @@
     <p class="text-muted">Vul je financiële situatie in Nederland in</p>
 </div>
 
-<div class="row">
-    <div class="col-md-8">
+<div class="row g-4">
+    <div class="col-lg-8">
         <div class="card">
             <div class="card-body">
                 <form action="/start-position/save" method="post">
@@ -86,7 +86,7 @@
         </div>
     </div>
 
-    <div class="col-md-4">
+    <div class="col-lg-4">
         <div class="card bg-light">
             <div class="card-body">
                 <h5 class="card-title">Berekening</h5>

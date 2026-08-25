@@ -58,58 +58,6 @@
             background-color: #007a38;
         }
         
-        .card {
-            border: none;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-        }
-        
-        .btn-primary {
-            background-color: var(--primary-color);
-            border-color: var(--primary-color);
-        }
-        
-        .btn-primary:hover {
-            background-color: #007a38;
-            border-color: #007a38;
-        }
-        
-        .alert {
-            border-radius: 8px;
-        }
-        
-        .stat-card {
-            text-align: center;
-            padding: 20px;
-        }
-        
-        .stat-card .stat-value {
-            font-size: 2rem;
-            font-weight: bold;
-        }
-        
-        .stat-card .stat-label {
-            color: #6c757d;
-            font-size: 0.9rem;
-        }
-        
-        .stat-card.positive {
-            border-left: 4px solid #28a745;
-        }
-        
-        .stat-card.negative {
-            border-left: 4px solid #dc3545;
-        }
-        
-        .stat-card.neutral {
-            border-left: 4px solid #17a2b8;
-        }
-        
-        /* Improve table readability */
-        .table {
-            font-size: 0.95rem;
-        }
-        
         /* Better modal scrolling */
         .modal-body {
             max-height: 70vh;
@@ -130,10 +78,6 @@
             
             .stat-card .stat-value {
                 font-size: 1.5rem;
-            }
-            
-            .card {
-                margin-bottom: 15px;
             }
             
             .navbar-brand {
@@ -166,17 +110,6 @@
                 white-space: nowrap;
             }
             
-            /* Better button sizing on mobile */
-            .btn {
-                padding: 0.5rem 0.75rem;
-                font-size: 0.9rem;
-            }
-            
-            .btn-sm {
-                padding: 0.25rem 0.5rem;
-                font-size: 0.8rem;
-            }
-            
             /* Better spacing on mobile */
             .px-md-4 {
                 padding-left: 1rem !important;
@@ -193,9 +126,6 @@
                 margin: 0.5rem;
             }
             
-            .input-group-text {
-                font-size: 0.9rem;
-            }
         }
         
         /* Hide sidebar toggle on desktop */

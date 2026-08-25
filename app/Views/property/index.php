@@ -152,9 +152,12 @@
         </div>
     </div>
 
-    <button type="submit" class="btn btn-primary">
-        <i class="bi bi-save"></i> Opslaan
-    </button>
+    <div class="form-footer">
+        <span class="text-muted">Wijzigingen worden direct gebruikt in het dashboard.</span>
+        <button type="submit" class="btn btn-primary">
+            <i class="bi bi-save"></i> Opslaan
+        </button>
+    </div>
 </form>
 
 <?= $this->endSection() ?>
