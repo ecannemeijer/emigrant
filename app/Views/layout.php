@@ -16,6 +16,15 @@
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/app.css?v=<?= @filemtime(FCPATH . 'css/app.css') ?: time() ?>">
     <?= $this->renderSection('styles') ?>
+    <script>
+        (function () {
+            try {
+                if (localStorage.getItem('emigrant-sidebar-collapsed') === '1') {
+                    document.documentElement.classList.add('sidebar-collapsed');
+                }
+            } catch (e) {}
+        })();
+    </script>
     
     <style>
         :root {
@@ -47,41 +56,6 @@
         
         .sidebar-toggle:hover {
             background-color: #007a38;
-        }
-        
-        /* Desktop sidebar */
-        .sidebar {
-            min-height: calc(100vh - 56px);
-            background-color: var(--accent-color);
-            padding: 20px 0;
-        }
-        
-        .sidebar .nav-link {
-            color: #333;
-            padding: 10px 20px;
-            margin-bottom: 5px;
-        }
-        
-        .sidebar .nav-link:hover, .sidebar .nav-link.active {
-            background-color: var(--primary-color);
-            color: white;
-        }
-        
-        /* Mobile off-canvas sidebar */
-        .offcanvas-sidebar {
-            background-color: var(--accent-color);
-        }
-        
-        .offcanvas-sidebar .nav-link {
-            color: #333;
-            padding: 10px 20px;
-            margin-bottom: 5px;
-        }
-        
-        .offcanvas-sidebar .nav-link:hover,
-        .offcanvas-sidebar .nav-link.active {
-            background-color: var(--primary-color);
-            color: white;
         }
         
         .card {
@@ -239,7 +213,7 @@ $isHome = $homeUri === '';
 ?>
 <body class="<?= (!$isLoggedIn && $isHome) ? 'layout-marketing' : '' ?>">
     <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+    <nav class="navbar navbar-expand-lg navbar-light app-navbar">
         <div class="container-fluid">
             <a class="navbar-brand" href="<?= $isLoggedIn ? '/dashboard' : '/' ?>">
                 <i class="bi bi-geo-alt-fill"></i> EmigreerItalia
@@ -306,14 +280,16 @@ $isHome = $homeUri === '';
         </div>
     </nav>
 
-    <div class="container-fluid">
-        <div class="row">
+    <div class="container-fluid px-0">
+        <div class="<?= $isLoggedIn ? 'app-shell' : 'row' ?>">
             <?php if ($isLoggedIn): ?>
                 <!-- Desktop Sidebar (visible on md and up) -->
-                <nav class="col-md-2 d-none d-md-block sidebar">
-                    <div class="position-sticky">
-                        <?= view('partials/nav') ?>
-                    </div>
+                <nav class="d-none d-md-block sidebar" aria-label="Hoofdmenu">
+                    <button type="button" class="sidebar-collapse-btn" data-sidebar-toggle aria-expanded="true" title="Menu inklappen">
+                        <span class="sidebar-collapse-text">Menu</span>
+                        <i class="bi bi-chevron-left" aria-hidden="true"></i>
+                    </button>
+                    <?= view('partials/nav') ?>
                 </nav>
                 
                 <!-- Mobile Off-canvas Sidebar -->
@@ -335,7 +311,7 @@ $isHome = $homeUri === '';
                 </button>
 
                 <!-- Main Content -->
-                <main class="col-md-10 ms-sm-auto px-md-4 py-4">
+                <main class="app-main px-3 px-md-4 py-4">
             <?php else: ?>
                 <main class="col-12 px-md-4 py-4<?= $isHome ? ' mkt-main' : '' ?>">
             <?php endif; ?>
@@ -385,9 +361,24 @@ $isHome = $homeUri === '';
 
     <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    
-
-    
+    <script>
+        (function () {
+            const btn = document.querySelector('[data-sidebar-toggle]');
+            if (!btn) return;
+            const key = 'emigrant-sidebar-collapsed';
+            const apply = function (collapsed) {
+                document.documentElement.classList.toggle('sidebar-collapsed', collapsed);
+                btn.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+                btn.setAttribute('title', collapsed ? 'Menu uitklappen' : 'Menu inklappen');
+            };
+            apply(document.documentElement.classList.contains('sidebar-collapsed'));
+            btn.addEventListener('click', function () {
+                const collapsed = !document.documentElement.classList.contains('sidebar-collapsed');
+                apply(collapsed);
+                try { localStorage.setItem(key, collapsed ? '1' : '0'); } catch (e) {}
+            });
+        })();
+    </script>
     <?= $this->renderSection('scripts') ?>
 </body>
 </html>
