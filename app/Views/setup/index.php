@@ -5,9 +5,15 @@
 $profile = $profile ?? [];
 $income = $income ?? [];
 $expenses = $expenses ?? [];
+$start = $startPosition ?? [];
+$property = $mainProperty ?? [];
 $hasPartner = !empty($profile['has_partner']);
 $children = (int) ($profile['children_count'] ?? 0);
 $cars = (int) ($profile['cars_count'] ?? 0);
+$sellsHouse = (string) old('sells_house', (!empty($start['house_sale_price']) || empty($start['id'])) ? '1' : '0') === '1';
+$hasMortgage = (string) old('has_mortgage', !empty($start['mortgage_debt']) ? '1' : '0') === '1';
+$buysItaly = (string) old('buys_italy', (!empty($property['purchase_price']) || empty($property['id'])) ? '1' : '0') === '1';
+$buyPct = (float) ($property['purchase_costs_percentage'] ?? 10);
 $money = static fn ($n) => number_format((float) $n, 2, '.', '');
 $labels = [
     'energy' => 'Energie',
@@ -22,12 +28,15 @@ $labels = [
     'unforeseen' => 'Onvoorzien',
     'other' => 'Overig',
 ];
+$hints = [
+    'health_insurance' => 'Met de carta sanitaria (SSN) geen maandpremie. Alleen invullen bij een extra private verzekering.',
+];
 ?>
 
 <div class="setup-hero mb-4">
     <p class="reno-kicker mb-1">Welkom bij EmigreerItalia</p>
     <h1 class="mb-2">Eerst de hoofdzaken</h1>
-    <p class="mb-0">Een paar vragen over je huishouden. Daarna vullen we een schatting van de maandlasten in — die mag je meteen aanpassen.</p>
+    <p class="mb-0">Huishouden, woning en spaargeld — daarna een schatting van de maandlasten die je nog kunt aanpassen.</p>
 </div>
 
 <div class="setup-progress mb-4" id="setupProgress" aria-label="Voortgang"></div>
@@ -124,6 +133,83 @@ $labels = [
             </section>
 
             <section class="setup-step d-none" data-step="4">
+                <h2 class="h4 mb-3">Verkoop je je huis in Nederland?</h2>
+                <p class="text-muted">De winst (verkoop min resthypotheek) telt later bij je spaargeld op.</p>
+                <div class="btn-group mb-3" role="group">
+                    <input type="radio" class="btn-check" name="sells_house" id="sell_yes" value="1" <?= $sellsHouse ? 'checked' : '' ?>>
+                    <label class="btn btn-outline-success" for="sell_yes">Ja</label>
+                    <input type="radio" class="btn-check" name="sells_house" id="sell_no" value="0" <?= $sellsHouse ? '' : 'checked' ?>>
+                    <label class="btn btn-outline-success" for="sell_no">Nee</label>
+                </div>
+                <div id="sellHouseWrap">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="house_sale_price">Verkoopprijs</label>
+                            <div class="input-group">
+                                <span class="input-group-text">€</span>
+                                <input type="number" step="1000" min="0" class="form-control" name="house_sale_price" id="house_sale_price" value="<?= esc(old('house_sale_price', $money($start['house_sale_price'] ?? 0))) ?>">
+                            </div>
+                        </div>
+                    </div>
+                    <p class="mb-2">Zit er een resthypotheek op?</p>
+                    <div class="btn-group mb-3" role="group">
+                        <input type="radio" class="btn-check" name="has_mortgage" id="mort_yes" value="1" <?= $hasMortgage ? 'checked' : '' ?>>
+                        <label class="btn btn-outline-success" for="mort_yes">Ja</label>
+                        <input type="radio" class="btn-check" name="has_mortgage" id="mort_no" value="0" <?= $hasMortgage ? '' : 'checked' ?>>
+                        <label class="btn btn-outline-success" for="mort_no">Nee</label>
+                    </div>
+                    <div class="row" id="mortgageWrap">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="mortgage_debt">Resthypotheek</label>
+                            <div class="input-group">
+                                <span class="input-group-text">€</span>
+                                <input type="number" step="1000" min="0" class="form-control" name="mortgage_debt" id="mortgage_debt" value="<?= esc(old('mortgage_debt', $money($start['mortgage_debt'] ?? 0))) ?>">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="setup-total" id="saleProfitBox">Winst huisverkoop: <strong id="saleProfit">€ 0</strong></div>
+                </div>
+            </section>
+
+            <section class="setup-step d-none" data-step="5">
+                <h2 class="h4 mb-3">Kapitaal en huis in Italië</h2>
+                <p class="text-muted">Je spaargeld plus de winst van de huisverkoop is je startkapitaal. Koop je in Italië, dan gaat die aankoop daarvan af.</p>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="savings">Spaargeld op de bank</label>
+                        <div class="input-group">
+                            <span class="input-group-text">€</span>
+                            <input type="number" step="1000" min="0" class="form-control" name="savings" id="savings" value="<?= esc(old('savings', $money($start['savings'] ?? 0))) ?>">
+                        </div>
+                    </div>
+                </div>
+                <p class="mb-2">Koop je een huis in Italië?</p>
+                <div class="btn-group mb-3" role="group">
+                    <input type="radio" class="btn-check" name="buys_italy" id="buy_yes" value="1" <?= $buysItaly ? 'checked' : '' ?>>
+                    <label class="btn btn-outline-success" for="buy_yes">Ja</label>
+                    <input type="radio" class="btn-check" name="buys_italy" id="buy_no" value="0" <?= $buysItaly ? '' : 'checked' ?>>
+                    <label class="btn btn-outline-success" for="buy_no">Nee</label>
+                </div>
+                <div class="row" id="buyItalyWrap">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="purchase_price">Aankoopprijs in Italië</label>
+                        <div class="input-group">
+                            <span class="input-group-text">€</span>
+                            <input type="number" step="1000" min="0" class="form-control" name="purchase_price" id="purchase_price" value="<?= esc(old('purchase_price', $money($property['purchase_price'] ?? 0))) ?>">
+                        </div>
+                        <div class="form-text">We rekenen <?= number_format($buyPct, 0) ?>% aankoopkosten (notaris e.d.) mee. Dat kun je later bij Vastgoed aanpassen.</div>
+                    </div>
+                </div>
+                <div class="setup-recap" id="capitalRecap">
+                    <div>Winst huisverkoop <strong id="recapProfit">€ 0</strong></div>
+                    <div>+ spaargeld <strong id="recapSavings">€ 0</strong></div>
+                    <div>= startkapitaal <strong id="recapStart">€ 0</strong></div>
+                    <div id="recapBuyLine">− huis Italië (incl. kosten) <strong id="recapBuy">€ 0</strong></div>
+                    <div class="setup-recap-remain">Resterend vermogen <strong id="recapRemain">€ 0</strong></div>
+                </div>
+            </section>
+
+            <section class="setup-step d-none" data-step="6">
                 <h2 class="h4 mb-2">Geschatte maandlasten in Italië</h2>
                 <p class="text-muted">Indicatie op basis van je huishouden. Pas de bedragen aan als je het beter weet — dit is geen advies.</p>
                 <div class="row">
@@ -134,6 +220,9 @@ $labels = [
                                 <span class="input-group-text">€</span>
                                 <input type="number" step="0.01" min="0" class="form-control setup-exp" name="<?= esc($key, 'attr') ?>" id="exp_<?= $key ?>" data-field="<?= esc($key, 'attr') ?>" value="<?= esc($money($expenses[$key] ?? 0)) ?>">
                             </div>
+                            <?php if (!empty($hints[$key])): ?>
+                                <div class="form-text"><?= esc($hints[$key]) ?></div>
+                            <?php endif; ?>
                         </div>
                     <?php endforeach; ?>
                 </div>
@@ -169,12 +258,55 @@ $labels = [
     const progress = document.getElementById('setupProgress');
     const partnerStep = document.getElementById('partnerStep');
     const partnerIncome = document.getElementById('partnerIncomeWrap');
+    const sellHouseWrap = document.getElementById('sellHouseWrap');
+    const mortgageWrap = document.getElementById('mortgageWrap');
+    const buyItalyWrap = document.getElementById('buyItalyWrap');
+    const recapBuyLine = document.getElementById('recapBuyLine');
+    const buyPct = <?= json_encode($buyPct) ?>;
     const dirty = {};
     let index = 0;
     const hasSavedExpenses = <?= !empty($hasSavedExpenses) ? 'true' : 'false' ?>;
 
     function hasPartner() {
         return document.getElementById('hh_duo').checked;
+    }
+    function sellsHouse() {
+        return document.getElementById('sell_yes').checked;
+    }
+    function hasMortgage() {
+        return sellsHouse() && document.getElementById('mort_yes').checked;
+    }
+    function buysItaly() {
+        return document.getElementById('buy_yes').checked;
+    }
+    function moneyVal(id) {
+        return parseFloat(document.getElementById(id).value) || 0;
+    }
+    function euro(n) {
+        return '€ ' + Math.round(n).toLocaleString('nl-NL');
+    }
+    function saleProfit() {
+        if (!sellsHouse()) return 0;
+        return moneyVal('house_sale_price') - (hasMortgage() ? moneyVal('mortgage_debt') : 0);
+    }
+    function updateCapital() {
+        sellHouseWrap.classList.toggle('d-none', !sellsHouse());
+        mortgageWrap.classList.toggle('d-none', !hasMortgage());
+        buyItalyWrap.classList.toggle('d-none', !buysItaly());
+        recapBuyLine.classList.toggle('d-none', !buysItaly());
+        const profit = saleProfit();
+        const savings = moneyVal('savings');
+        const start = profit + savings;
+        const buy = buysItaly() ? moneyVal('purchase_price') * (1 + buyPct / 100) : 0;
+        const remain = start - buy;
+        const profitEl = document.getElementById('saleProfit');
+        if (profitEl) profitEl.textContent = euro(profit);
+        document.getElementById('recapProfit').textContent = euro(profit);
+        document.getElementById('recapSavings').textContent = euro(savings);
+        document.getElementById('recapStart').textContent = euro(start);
+        document.getElementById('recapBuy').textContent = euro(buy);
+        document.getElementById('recapRemain').textContent = euro(remain);
+        document.getElementById('recapRemain').classList.toggle('text-danger', remain < 0);
     }
     function visibleSteps() {
         return steps.filter(function (el) {
@@ -188,7 +320,7 @@ $labels = [
             energy: 90 + 40 * extra + 20 * children,
             water: 20 + 8 * others,
             internet: 30,
-            health_insurance: 150 * adults + 50 * children,
+            health_insurance: 0,
             car_insurance: 70 * cars,
             car_fuel: 120 * cars,
             car_maintenance: 40 * cars,
@@ -227,10 +359,11 @@ $labels = [
         nextBtn.classList.toggle('d-none', index === vis.length - 1);
         saveBtn.classList.toggle('d-none', index !== vis.length - 1);
         partnerIncome.classList.toggle('d-none', !hasPartner());
+        if (vis[index].dataset.step === '4' || vis[index].dataset.step === '5') updateCapital();
         progress.innerHTML = vis.map(function (el, i) {
             return '<span class="' + (i === index ? 'on' : (i < index ? 'done' : '')) + '">' + (i + 1) + '</span>';
         }).join('');
-        if (vis[index].dataset.step === '4') applyEstimate();
+        if (vis[index].dataset.step === '6') applyEstimate();
     }
     function validateCurrent() {
         const vis = visibleSteps()[index];
@@ -247,6 +380,18 @@ $labels = [
                 return false;
             }
         }
+        if (step === '4' && sellsHouse() && moneyVal('house_sale_price') <= 0) {
+            alert('Vul de verkoopprijs van je huis in, of kies Nee.');
+            return false;
+        }
+        if (step === '4' && hasMortgage() && moneyVal('mortgage_debt') <= 0) {
+            alert('Vul de resthypotheek in, of kies Nee.');
+            return false;
+        }
+        if (step === '5' && buysItaly() && moneyVal('purchase_price') <= 0) {
+            alert('Vul de aankoopprijs in Italië in, of kies Nee.');
+            return false;
+        }
         return true;
     }
 
@@ -261,6 +406,12 @@ $labels = [
             applyEstimate();
             paint();
         });
+    });
+    ['sell_yes', 'sell_no', 'mort_yes', 'mort_no', 'buy_yes', 'buy_no', 'house_sale_price', 'mortgage_debt', 'savings', 'purchase_price'].forEach(function (id) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.addEventListener('change', updateCapital);
+        el.addEventListener('input', updateCapital);
     });
     nextBtn.addEventListener('click', function () {
         if (!validateCurrent()) return;
@@ -277,6 +428,7 @@ $labels = [
         });
     }
     applyEstimate();
+    updateCapital();
     paint();
 })();
 </script>

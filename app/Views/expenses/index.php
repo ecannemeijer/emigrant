@@ -48,8 +48,9 @@
                             <div class="input-group">
                                 <span class="input-group-text">€</span>
                                 <input type="number" step="0.01" class="form-control" id="health_insurance" 
-                                       name="health_insurance" value="<?= $expenses['health_insurance'] ?? 200 ?>" required>
+                                       name="health_insurance" value="<?= $expenses['health_insurance'] ?? 0 ?>" required>
                             </div>
+                            <small class="text-muted">Met de carta sanitaria (SSN) geen maandpremie. Alleen een extra private verzekering telt hier.</small>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label for="car_insurance" class="form-label">Auto verzekering</label>

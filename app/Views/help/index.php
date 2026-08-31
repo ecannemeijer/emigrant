@@ -218,7 +218,7 @@
                     <li><strong>Energie</strong> — Elektriciteit en gas (hoofdwoning)</li>
                     <li><strong>Water</strong> — Waterverbruik (hoofdwoning)</li>
                     <li><strong>Internet</strong> — Internetabonnement</li>
-                    <li><strong>Zorgverzekering</strong> — Maandelijkse premie Italiaanse zorgverzekering</li>
+                    <li><strong>Zorgverzekering</strong> — Standaard € 0: met de carta sanitaria (SSN) geen maandpremie. Alleen invullen bij een extra private verzekering</li>
                     <li><strong>Auto verzekering</strong> — Autoverzekering kosten per maand</li>
                     <li><strong>Brandstof</strong> — Gemiddelde brandstofkosten per maand</li>
                     <li><strong>Auto onderhoud</strong> — Reserve voor onderhoud/reparaties</li>

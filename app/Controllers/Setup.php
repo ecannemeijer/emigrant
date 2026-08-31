@@ -6,6 +6,8 @@ use App\Libraries\ExpenseEstimator;
 use App\Libraries\SetupService;
 use App\Models\ExpenseModel;
 use App\Models\IncomeModel;
+use App\Models\PropertyModel;
+use App\Models\StartPositionModel;
 use App\Models\UserProfileModel;
 
 class Setup extends BaseController
@@ -16,6 +18,8 @@ class Setup extends BaseController
         $profile = (new UserProfileModel())->where('user_id', $userId)->first() ?? [];
         $income = (new IncomeModel())->getByUserId($userId) ?? [];
         $savedExpenses = (new ExpenseModel())->getByUserId($userId) ?? [];
+        $startPosition = (new StartPositionModel())->getByUserId($userId) ?? [];
+        $mainProperty = (new PropertyModel())->getMainProperty($userId) ?? [];
 
         $adults = !empty($profile['has_partner']) ? 2 : 1;
         $children = (int) ($profile['children_count'] ?? 0);
@@ -29,6 +33,8 @@ class Setup extends BaseController
             'expenses' => $savedExpenses ?: $estimate,
             'estimate' => $estimate,
             'hasSavedExpenses' => !empty($savedExpenses),
+            'startPosition' => $startPosition,
+            'mainProperty' => $mainProperty,
         ]);
     }
 
@@ -114,6 +120,66 @@ class Setup extends BaseController
             $expenseModel->insert($expenseData);
         }
 
+        $this->saveStartAndProperty($userId);
+
         return redirect()->to('/dashboard')->with('success', 'Je startgegevens staan erin. Je kunt alles later nog aanpassen.');
+    }
+
+    private function saveStartAndProperty(int $userId): void
+    {
+        $sells = $this->request->getPost('sells_house') === '1';
+        $sale = $sells ? $this->parseMoney('house_sale_price') : 0.0;
+        $hasMortgage = $sells && $this->request->getPost('has_mortgage') === '1';
+        $mortgage = $hasMortgage ? $this->parseMoney('mortgage_debt') : 0.0;
+        $savings = $this->parseMoney('savings');
+
+        $startModel = new StartPositionModel();
+        $existingStart = $startModel->getByUserId($userId);
+        $startData = [
+            'user_id' => $userId,
+            'house_sale_price' => $sale,
+            'mortgage_debt' => $mortgage,
+            'savings' => $savings,
+            'selling_costs_percent' => $existingStart['selling_costs_percent'] ?? 0,
+            'moving_costs' => $existingStart['moving_costs'] ?? 0,
+            'interest_rate' => $existingStart['interest_rate'] ?? 2.00,
+            'inflation_rate' => $existingStart['inflation_rate'] ?? 2.00,
+        ];
+        if ($existingStart) {
+            $startModel->update($existingStart['id'], $startData);
+        } else {
+            $startModel->insert($startData);
+        }
+
+        if ($this->request->getPost('buys_italy') !== '1') {
+            return;
+        }
+
+        $price = $this->parseMoney('purchase_price');
+        $propertyModel = new PropertyModel();
+        $existingMain = $propertyModel->getMainProperty($userId);
+        $propertyData = [
+            'user_id' => $userId,
+            'property_type' => 'main',
+            'purchase_price' => $price,
+            'purchase_costs_percentage' => $existingMain['purchase_costs_percentage'] ?? 10,
+        ];
+        if ($existingMain) {
+            $propertyModel->update($existingMain['id'], $propertyData);
+            return;
+        }
+
+        $propertyData['annual_costs'] = 0;
+        $propertyData['maintenance_yearly'] = 0;
+        $propertyData['energy_monthly'] = 0;
+        $propertyData['other_monthly_costs'] = 0;
+        $propertyModel->insert($propertyData);
+    }
+
+    private function parseMoney(string $field): float
+    {
+        $raw = str_replace(',', '.', (string) $this->request->getPost($field));
+
+        return is_numeric($raw) ? max(0, (float) $raw) : 0.0;
     }
 }

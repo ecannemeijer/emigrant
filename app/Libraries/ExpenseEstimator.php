@@ -21,7 +21,7 @@ class ExpenseEstimator
             'energy' => round(90 + 40 * $extraAdults + 20 * $children, 2),
             'water' => round(20 + 8 * $otherPeople, 2),
             'internet' => 30.0,
-            'health_insurance' => round(150 * $adults + 50 * $children, 2),
+            'health_insurance' => 0.0,
             'car_insurance' => round(70 * $cars, 2),
             'car_fuel' => round(120 * $cars, 2),
             'car_maintenance' => round(40 * $cars, 2),
