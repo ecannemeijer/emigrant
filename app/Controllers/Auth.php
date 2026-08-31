@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Libraries\BillingService;
 use App\Libraries\MaintenanceService;
 use App\Libraries\RequestThrottle;
+use App\Libraries\SetupService;
 use App\Models\UserModel;
 use App\Models\UserProfileModel;
 
@@ -75,6 +76,8 @@ class Auth extends BaseController
             $billing = new BillingService();
             if ($user['role'] !== 'admin' && !$billing->hasAccess((int) $user['id'])) {
                 $target = '/subscription';
+            } elseif ($user['role'] !== 'admin' && (new SetupService())->needsSetup((int) $user['id'])) {
+                $target = '/setup';
             }
         } catch (\Throwable $e) {
             log_message('error', 'Billing check at login failed: ' . $e->getMessage());

@@ -998,3 +998,27 @@ form > .btn-primary,
     .mkt-hero h1 { max-width: none; }
     .mkt-hero::after { width: 48px; height: 32px; right: 16px; top: 16px; }
 }
+
+.setup-hero {
+    background: linear-gradient(135deg, #006B34 0%, #1a1a1a 70%);
+    color: #fff;
+    border-radius: 20px;
+    padding: 28px 28px 24px;
+    box-shadow: var(--shadow);
+}
+.setup-hero h1 { font-family: "Fraunces", Georgia, serif; }
+.setup-card { border: 0; box-shadow: var(--shadow); border-radius: 16px; }
+.setup-progress { display: flex; gap: 8px; }
+.setup-progress span {
+    width: 28px; height: 28px; border-radius: 50%;
+    display: grid; place-items: center;
+    background: #eadfd0; color: #5c564c; font-weight: 700; font-size: .8rem;
+}
+.setup-progress span.done { background: #eef7f1; color: var(--it-green-dark); }
+.setup-progress span.on { background: var(--it-green); color: #fff; }
+.setup-total {
+    background: var(--cream);
+    border-radius: 12px;
+    padding: 12px 16px;
+    font-size: 1.05rem;
+}

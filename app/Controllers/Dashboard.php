@@ -20,6 +20,15 @@ class Dashboard extends BaseController
     public function index()
     {
         $userId = session()->get('userId');
+        if (session()->get('role') !== 'admin') {
+            try {
+                if ((new \App\Libraries\SetupService())->needsSetup((int) $userId)) {
+                    return redirect()->to('/setup');
+                }
+            } catch (\Throwable $e) {
+                // filter vangt dit ook
+            }
+        }
         $result = $this->analyzeForUser($userId);
         $profileModel = new UserProfileModel();
 

@@ -60,7 +60,16 @@ class Subscription extends BaseController
             $msg .= ' tot ' . date('d-m-Y', strtotime($ends));
         }
 
-        return redirect()->to('/subscription')->with('success', $msg . '.');
+        $target = '/subscription';
+        try {
+            if (session()->get('role') !== 'admin' && (new \App\Libraries\SetupService())->needsSetup((int) session()->get('userId'))) {
+                $target = '/setup';
+            }
+        } catch (\Throwable $e) {
+            // blijf op abonnementpagina
+        }
+
+        return redirect()->to($target)->with('success', $msg . '.');
     }
 
     public function paypalCancel()

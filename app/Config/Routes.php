@@ -53,7 +53,11 @@ $routes->group('', ['filter' => 'auth'], function ($routes) {
 });
 
 // Protected routes (require authentication + geldig abonnement als billing aan staat)
-$routes->group('', ['filter' => ['auth', 'subscription']], function ($routes) {
+$routes->group('', ['filter' => ['auth', 'subscription', 'setup']], function ($routes) {
+    $routes->get('setup', 'Setup::index');
+    $routes->post('setup', 'Setup::save');
+    $routes->post('setup/skip', 'Setup::skip');
+
     // Dashboard
     $routes->get('dashboard', 'Dashboard::index');
     

@@ -32,8 +32,9 @@ class Filters extends BaseFilters
         'auth'          => \App\Filters\AuthFilter::class,
         'admin'         => \App\Filters\AdminFilter::class,
         'subscription'  => \App\Filters\SubscriptionFilter::class,
-        'audit'         => \App\Filters\AuditFilter::class,
+        'setup'         => \App\Filters\SetupFilter::class,
         'maintenance'   => \App\Filters\MaintenanceFilter::class,
+        'audit'         => \App\Filters\AuditFilter::class,
     ];
 
     /**

@@ -279,7 +279,7 @@ $isHome = $homeUri === '';
                         </div>
                     <?php endif; ?>
 
-                    <?php if ($isLoggedIn): ?>
+                    <?php if ($isLoggedIn && !str_starts_with(trim(uri_string(), '/'), 'setup')): ?>
                         <?= view('partials/wizard') ?>
                     <?php endif; ?>
 

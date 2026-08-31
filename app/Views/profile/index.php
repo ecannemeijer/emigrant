@@ -83,6 +83,28 @@
                     </div>
 
                     <hr class="my-4">
+                    <h5 class="card-title mb-3"><i class="bi bi-house-heart"></i> Huishouden</h5>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="children_count" class="form-label">Aantal kinderen</label>
+                            <select class="form-select" id="children_count" name="children_count">
+                                <?php for ($i = 0; $i <= 6; $i++): ?>
+                                    <option value="<?= $i ?>" <?= (int) ($profile['children_count'] ?? 0) === $i ? 'selected' : '' ?>><?= $i === 0 ? 'Geen' : $i ?></option>
+                                <?php endfor; ?>
+                            </select>
+                            <small class="text-muted">Gebruikt voor de schatting van maandlasten</small>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="cars_count" class="form-label">Aantal auto’s</label>
+                            <select class="form-select" id="cars_count" name="cars_count">
+                                <option value="0" <?= (int) ($profile['cars_count'] ?? 0) === 0 ? 'selected' : '' ?>>Geen</option>
+                                <option value="1" <?= (int) ($profile['cars_count'] ?? 0) === 1 ? 'selected' : '' ?>>1</option>
+                                <option value="2" <?= (int) ($profile['cars_count'] ?? 0) === 2 ? 'selected' : '' ?>>2</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <hr class="my-4">
 
                     <h5 class="card-title mb-3"><i class="bi bi-globe"></i> Emigratie Gegevens</h5>
                     

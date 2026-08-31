@@ -77,7 +77,9 @@ class AuditFilter implements FilterInterface
         'POST:admin/config/backup'  => 'Admin: databasebackup gedownload',
         'POST:admin/config/maintenance' => 'Admin: onderhoudsmodus gewijzigd',
         'GET:admin/payments'        => 'Admin: betalingen bekeken',
-        'GET:renovation/planning'   => 'Planning bekeken',
+        'GET:setup'                 => 'Setup-wizard bekeken',
+        'POST:setup'                => 'Setup-wizard opgeslagen',
+        'POST:setup/skip'           => 'Setup-wizard overgeslagen',
         'POST:renovation/appointment' => 'Afspraak opgeslagen',
     ];
 

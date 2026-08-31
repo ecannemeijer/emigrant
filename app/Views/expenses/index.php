@@ -3,7 +3,7 @@
 <?= $this->section('content') ?>
 <div class="mb-4">
     <h1><i class="bi bi-wallet2"></i> Maandelijkse Lasten</h1>
-    <p class="text-muted">Vul je vaste maandelijkse kosten in</p>
+        <p class="text-muted">Vul je vaste maandelijkse kosten in. Bedragen die via de setup-schatting zijn ingevuld, kun je hier nog aanpassen.</p>
 </div>
 
 <div class="row g-4">

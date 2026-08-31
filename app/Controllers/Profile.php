@@ -13,7 +13,7 @@ class Profile extends BaseController
         
         $data = [
             'title' => 'Profiel',
-            'profile' => $model->where('user_id', $userId)->first(),
+            'profile' => $model->where('user_id', $userId)->first() ?? [],
         ];
 
         return view('profile/index', $data);
@@ -37,6 +37,8 @@ class Profile extends BaseController
             'partner_retirement_age' => $this->request->getPost('partner_retirement_age') ?: 67,
             'emigration_date' => $this->request->getPost('emigration_date') ?: null,
             'voluntary_aow_years' => $this->request->getPost('voluntary_aow_years') ?: 0,
+            'children_count' => max(0, min(6, (int) $this->request->getPost('children_count'))),
+            'cars_count' => max(0, min(2, (int) $this->request->getPost('cars_count'))),
         ];
 
         $existing = $model->where('user_id', $userId)->first();
