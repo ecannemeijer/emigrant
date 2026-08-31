@@ -60,6 +60,17 @@ class Filters extends BaseFilters
             'csrf' => ['except' => ['webhooks/paypal']],
             'invalidchars',
             'maintenance',
+            'setup' => [
+                'except' => [
+                    'login', 'register', 'logout',
+                    'password-reset/*',
+                    'help', 'contact', 'contact/*',
+                    'webhooks/paypal',
+                    'subscription', 'subscription/*',
+                    'setup', 'setup/*',
+                    'admin', 'admin/*',
+                ],
+            ],
         ],
         'after' => [
             'secureheaders',

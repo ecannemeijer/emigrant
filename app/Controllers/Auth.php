@@ -14,6 +14,10 @@ class Auth extends BaseController
     public function login()
     {
         if (session()->get('isLoggedIn')) {
+            $user = (new UserModel())->find((int) session()->get('userId'));
+            if (is_array($user)) {
+                return redirect()->to((new SetupService())->redirectAfterAuth($user));
+            }
             return redirect()->to('/dashboard');
         }
 
@@ -71,24 +75,16 @@ class Auth extends BaseController
             'isLoggedIn' => true,
         ]);
 
-        $target = '/dashboard';
-        try {
-            $billing = new BillingService();
-            if ($user['role'] !== 'admin' && !$billing->hasAccess((int) $user['id'])) {
-                $target = '/subscription';
-            } elseif ($user['role'] !== 'admin' && (new SetupService())->needsSetup((int) $user['id'])) {
-                $target = '/setup';
-            }
-        } catch (\Throwable $e) {
-            log_message('error', 'Billing check at login failed: ' . $e->getMessage());
-        }
-
-        return redirect()->to($target)->with('success', 'Welkom terug.');
+        return redirect()->to((new SetupService())->redirectAfterAuth($user))->with('success', 'Welkom terug.');
     }
 
     public function register()
     {
         if (session()->get('isLoggedIn')) {
+            $user = (new UserModel())->find((int) session()->get('userId'));
+            if (is_array($user)) {
+                return redirect()->to((new SetupService())->redirectAfterAuth($user));
+            }
             return redirect()->to('/dashboard');
         }
 
@@ -135,11 +131,24 @@ class Auth extends BaseController
         $userId = $userModel->insert($userData);
 
         if ($userId) {
-            // Create profile
-            $profileModel->insert([
+            try {
+                (new SetupService())->ensureSchema();
+            } catch (\Throwable $e) {
+                log_message('error', 'Setup schema at register: ' . $e->getMessage());
+            }
+            $profileData = [
                 'user_id' => $userId,
                 'language' => 'nl',
-            ]);
+            ];
+            try {
+                $db = \Config\Database::connect();
+                if ($db->fieldExists('setup_completed', 'user_profiles')) {
+                    $profileData['setup_completed'] = 0;
+                }
+            } catch (\Throwable $e) {
+                // zonder kolom is default al "niet voltooid"
+            }
+            $profileModel->insert($profileData);
 
             try {
                 (new BillingService())->grantComplimentaryYearIfBillingDisabled((int) $userId);
@@ -180,7 +189,21 @@ class Auth extends BaseController
                 log_message('error', 'Failed to send welcome email to ' . $userData['email'] . ': ' . $e->getMessage());
             }
 
-            return redirect()->to('/login')->with('success', 'Account aangemaakt! Je kunt nu inloggen.');
+            $user = $userModel->find($userId);
+            if (!is_array($user)) {
+                return redirect()->to('/login')->with('success', 'Account aangemaakt! Je kunt nu inloggen.');
+            }
+
+            session()->regenerate(true);
+            session()->set([
+                'userId' => $user['id'],
+                'username' => $user['username'],
+                'email' => $user['email'],
+                'role' => $user['role'],
+                'isLoggedIn' => true,
+            ]);
+
+            return redirect()->to((new SetupService())->redirectAfterAuth($user))->with('success', 'Account aangemaakt. Eerst een paar vragen over je huishouden.');
         }
 
         return redirect()->back()->with('error', 'Er ging iets mis bij het aanmaken van je account.');

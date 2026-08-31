@@ -9,6 +9,10 @@ class Home extends BaseController
     public function index()
     {
         if (session()->get('isLoggedIn')) {
+            $user = (new \App\Models\UserModel())->find((int) session()->get('userId'));
+            if (is_array($user)) {
+                return redirect()->to((new \App\Libraries\SetupService())->redirectAfterAuth($user));
+            }
             return redirect()->to('/dashboard');
         }
 
