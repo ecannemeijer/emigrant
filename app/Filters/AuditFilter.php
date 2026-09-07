@@ -45,8 +45,9 @@ class AuditFilter implements FilterInterface
 
         // B&B
         'GET:bnb'                   => 'B&B module bekeken',
-        'POST:bnb/store'            => 'B&B instellingen opgeslagen',
-        'POST:bnb/store-expenses'   => 'B&B kosten opgeslagen',
+        'POST:bnb/save'             => 'B&B gegevens opgeslagen',
+        'POST:bnb/settings/save'    => 'B&B instellingen opgeslagen',
+        'POST:bnb/expenses/save'    => 'B&B kosten opgeslagen',
 
         // Scenarios
         'GET:scenarios'             => 'Scenario overzicht bekeken',

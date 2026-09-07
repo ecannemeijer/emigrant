@@ -174,6 +174,19 @@ class FinanceCalculator
             return 0.0;
         }
 
+        $probeMax = $settings;
+        $probeMax['enabled'] = 1;
+        $probeMax['high_season_percentage'] = 100;
+        $probeMax['low_season_percentage'] = 100;
+        $probeMax['high_season_months'] = 6;
+        $probeMax['low_season_months'] = 6;
+        $revMax = $this->calculateBnbMonthlyRevenue($probeMax);
+        $expMax = $this->calculateBnbMonthlyExpenses($probeMax, $expenses, $revMax);
+        $taxMax = $this->calculateBnbTax($revMax, $expMax, $taxes, $yearsSinceEmigration);
+        if ($revMax - $expMax - $taxMax < 0) {
+            return 101.0;
+        }
+
         $low  = 0.0;
         $high = 100.0;
         $best = 100.0;

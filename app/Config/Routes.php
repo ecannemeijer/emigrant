@@ -100,6 +100,7 @@ $routes->group('', ['filter' => ['auth', 'subscription', 'setup']], function ($r
     
     // B&B Module
     $routes->get('bnb', 'Bnb::index');
+    $routes->post('bnb/save', 'Bnb::save');
     $routes->post('bnb/settings/save', 'Bnb::saveSettings');
     $routes->post('bnb/expenses/save', 'Bnb::saveExpenses');
     $routes->get('bnb/breakeven', 'Bnb::breakeven');

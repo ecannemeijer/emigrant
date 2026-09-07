@@ -129,7 +129,7 @@ if (!empty($profile['emigration_date']) && !empty($profile['partner_date_of_birt
                         <div class="h4 text-success">€ <?= number_format($calculations['bnb_net_income'] ?? 0, 0, ',', '.') ?></div>
                     </div>
                     <div class="col-md-3">
-                        <a href="/bnb/breakeven" class="btn btn-primary">Break-even Analyse</a>
+                        <a href="/bnb#breakeven" class="btn btn-primary">Break-even op B&amp;B-pagina</a>
                     </div>
                 </div>
             </div>

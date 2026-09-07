@@ -32,7 +32,7 @@
                 <a href="#expenses" class="list-group-item list-group-item-action">Uitgaven</a>
                 <a href="#properties" class="list-group-item list-group-item-action">Italiaans Vastgoed</a>
                 <a href="#taxes" class="list-group-item list-group-item-action">Belastingen</a>
-                <a href="#bnb" class="list-group-item list-group-item-action">B&B Module</a>
+                <a href="#bnb" class="list-group-item list-group-item-action">B&amp;B</a>
                 <a href="#dashboard" class="list-group-item list-group-item-action">Dashboard</a>
                 <a href="#faq" class="list-group-item list-group-item-action">Veelgestelde Vragen</a>
             </div>
@@ -294,38 +294,27 @@
             <hr class="my-5">
 
             <!-- B&B Module -->
-            <div class="help-section" id="bnb" data-keywords="bed breakfast bnb verhuur bezetting seizoen omzet kosten">
-                <h2><i class="bi bi-shop"></i> B&B Module</h2>
-                <p>Reken je B&B-inkomsten en kosten door.</p>
+            <div class="help-section" id="bnb" data-keywords="bed breakfast bnb verhuur bezetting seizoen omzet kosten forfettario">
+                <h2><i class="bi bi-shop"></i> B&amp;B</h2>
+                <p>Op de B&amp;B-pagina reken je kamers, seizoen en kosten door. Zet de switch aan om het nettoresultaat in de jaarprojectie mee te nemen.</p>
 
-                <h4>Bezettingsgraad</h4>
+                <h4>Aanbod en seizoen</h4>
                 <ul>
-                    <li><strong>Aantal kamers</strong> — Hoeveel kamers verhuur je?</li>
-                    <li><strong>Prijs per nacht</strong> — Gemiddelde prijs per kamer per nacht</li>
-                    <li><strong>Hoogseizoen</strong> — Maanden en bezettingspercentage (bijv. juni-september, 80%)</li>
-                    <li><strong>Laagseizoen</strong> — Overige maanden en bezettingspercentage (bijv. 30%)</li>
+                    <li><strong>Aantal kamers</strong> — Hoeveel kamers je verhuurt</li>
+                    <li><strong>Prijs per nacht</strong> — Gemiddelde prijs per kamer (hoog en laag hetzelfde)</li>
+                    <li><strong>Hoog-/laagseizoen</strong> — Aantal maanden en bezettingspercentage. Samen bij voorkeur 12 maanden</li>
                 </ul>
+                <p>Verhuurde kamernachten = maanden × ~30,4 dagen × bezetting × kamers. Omzet = nachten × prijs.</p>
 
                 <h4>Kosten</h4>
-                <p>Het systeem berekent automatisch kosten op basis van je omzet:</p>
                 <ul>
-                    <li><strong>Schoonmaak</strong> — % van omzet</li>
-                    <li><strong>Linnengoed</strong> — % van omzet</li>
-                    <li><strong>Ontbijt</strong> — % van omzet</li>
-                    <li><strong>Marketing</strong> — % van omzet (Booking.com, Airbnb commissies)</li>
-                    <li><strong>Overige kosten</strong> — % van omzet</li>
+                    <li><strong>Vaste maandkosten</strong> — Energie extra, verzekering, schoonmaak, linnen, marketing, onderhoud, administratie. Geen percentage van de omzet</li>
+                    <li><strong>Platformcommissie</strong> — Percentage over de omzet (Airbnb/Booking). Directe boekingen: 0%</li>
+                    <li><strong>Ontbijt</strong> — Bedrag per verhuurde kamernacht</li>
                 </ul>
 
-                <h4>Break-even analyse</h4>
-                <p>Het dashboard toont automatisch:</p>
-                <ul>
-                    <li>Minimale bezettingsgraad om break-even te draaien</li>
-                    <li>Netto inkomen met/zonder B&B</li>
-                </ul>
-
-                <div class="alert alert-success">
-                    <strong>Handig:</strong> Experimenteer met verschillende bezettingspercentages om realistische scenario's door te rekenen!
-                </div>
+                <h4>Belasting en break-even</h4>
+                <p>Forfettario (of het gewone tarief) komt van de pagina Belastingen. Break-even is de vlakke bezetting waarbij omzet kosten én belasting dekt. Onder de 60% is een gezonde marge.</p>
             </div>
 
             <hr class="my-5">

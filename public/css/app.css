@@ -1035,3 +1035,44 @@ form > .btn-primary,
     border-top: 1px solid rgba(0,0,0,.08);
     font-size: 1.05rem;
 }
+
+.bnb-bar {
+    display: flex;
+    height: 12px;
+    border-radius: 99px;
+    overflow: hidden;
+    background: #eadfd0;
+}
+.bnb-bar-high, .bnb-bar-low { flex: 0 0 auto; min-width: 0; }
+.bnb-bar-high { background: var(--it-green); }
+.bnb-bar-low { background: var(--it-gold, #c4a35a); }
+.bnb-dot {
+    display: inline-block;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    margin-right: 6px;
+    vertical-align: middle;
+}
+.bnb-dot.high { background: var(--it-green); }
+.bnb-dot.low { background: var(--it-gold, #c4a35a); }
+.bnb-be-track {
+    position: relative;
+    height: 10px;
+    border-radius: 99px;
+    background: #eadfd0;
+}
+.bnb-be-fill {
+    height: 100%;
+    border-radius: 99px;
+    background: var(--it-green);
+}
+.bnb-be-mark {
+    position: absolute;
+    top: -4px;
+    width: 4px;
+    height: 18px;
+    margin-left: -2px;
+    background: #1a1a1a;
+    border-radius: 2px;
+}
+.bnb-costs li:last-child { border-bottom: 0 !important; }
