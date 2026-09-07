@@ -57,6 +57,7 @@ class AuditFilter implements FilterInterface
         // Profile
         'GET:profile'               => 'Profiel bekeken',
         'POST:profile/update'       => 'Profiel bijgewerkt',
+        'POST:profile/delete'       => 'Account verwijderd',
 
         // Export
         'GET:export/csv'            => 'CSV export gedownload',
@@ -99,6 +100,10 @@ class AuditFilter implements FilterInterface
 
         $method = strtoupper($request->getMethod());
         $uri    = trim($request->getUri()->getPath(), '/');
+
+        if ($method === 'POST' && ($uri === 'profile/delete' || str_ends_with($uri, '/profile/delete'))) {
+            return;
+        }
 
         // Skip internal/asset/AJAX-only paths
         $skipPrefixes = ['assets/', 'debugbar/', 'favicon'];

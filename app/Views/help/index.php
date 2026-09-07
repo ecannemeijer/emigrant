@@ -70,7 +70,7 @@
             <hr class="my-5">
 
             <!-- Profile -->
-            <div class="help-section" id="profile" data-keywords="profiel geboortedatum leeftijd emigratie emigratiedatum partner pensioen pensioendatum">
+            <div class="help-section" id="profile" data-keywords="profiel geboortedatum leeftijd emigratie emigratiedatum partner pensioen pensioendatum account verwijderen wissen">
                 <h2><i class="bi bi-person-circle"></i> Profiel instellen</h2>
                 <p>Je profiel bevat essentiële persoonlijke gegevens die gebruikt worden voor alle berekeningen.</p>
 
@@ -112,6 +112,9 @@
                 <div class="alert alert-warning">
                     <strong>Let op:</strong> Emigratiedatum vóór je 67e verjaardag resulteert in lagere AOW-uitkering!
                 </div>
+
+                <h4>Account verwijderen</h4>
+                <p>Onderaan de profielpagina kun je je account wissen. Dat verwijdert je inlog én alle gekoppelde gegevens (financiën, B&amp;B, verbouw, checklist, afspraken, scenario’s, abonnement). Je bevestigt met je wachtwoord en het woord <strong>VERWIJDEREN</strong>. Dit kan niet ongedaan worden gemaakt.</p>
             </div>
 
             <hr class="my-5">
@@ -365,7 +368,7 @@
             <hr class="my-5">
 
             <!-- FAQ -->
-            <div class="help-section" id="faq" data-keywords="faq veelgesteld vraag antwoord probleem help">
+            <div class="help-section" id="faq" data-keywords="faq veelgesteld vraag antwoord probleem help account verwijderen">
                 <h2><i class="bi bi-patch-question"></i> Veelgestelde Vragen</h2>
 
                 <h4>Hoe werkt de AOW bij samenwonen?</h4>
@@ -398,6 +401,9 @@
 
                 <h4>Hoe veilig is mijn data?</h4>
                 <p>Je data wordt veilig opgeslagen met password hashing, CSRF-bescherming en SQL injection preventie. Alleen jij hebt toegang tot jouw financiële gegevens.</p>
+
+                <h4>Kan ik mijn account verwijderen?</h4>
+                <p>Ja, onderaan <a href="/profile">Profiel</a>. Dat wist het account en alle bijbehorende gegevens. Bevestig met je wachtwoord en het woord VERWIJDEREN.</p>
 
                 <h4>Ik vergeet mijn wachtwoord, wat nu?</h4>
                 <p>Gebruik de "Wachtwoord vergeten" link op de inlogpagina. Je ontvangt een reset-link per email.</p>

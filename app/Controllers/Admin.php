@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Libraries\AccountPurge;
 use App\Libraries\BillingService;
 use App\Libraries\DatabaseBackup;
 use App\Libraries\MaintenanceService;
@@ -245,13 +246,19 @@ class Admin extends BaseController
         }
 
         $target = $userModel->find($userId);
-        if ($target && ($target['role'] ?? '') === 'admin' && !empty($target['is_active']) && $userModel->countActiveAdmins() <= 1) {
+        if ($target && (new AccountPurge())->isLastActiveAdmin($target, $userModel)) {
             return redirect()->to('/admin/users')->with('error', 'Je kunt de laatste actieve admin niet verwijderen.');
         }
 
-        $userModel->delete($userId);
+        try {
+            (new AccountPurge())->purge((int) $userId);
+        } catch (\Throwable $e) {
+            log_message('error', 'Admin user purge failed: ' . $e->getMessage());
 
-        return redirect()->to('/admin/users')->with('success', 'Gebruiker verwijderd!');
+            return redirect()->to('/admin/users')->with('error', 'Gebruiker kon niet volledig worden verwijderd.');
+        }
+
+        return redirect()->to('/admin/users')->with('success', 'Gebruiker en alle bijbehorende gegevens verwijderd.');
     }
 
     public function auditLogs()

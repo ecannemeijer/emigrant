@@ -2,18 +2,24 @@
 
 namespace App\Controllers;
 
+use App\Libraries\AccountPurge;
+use App\Libraries\RequestThrottle;
+use App\Models\UserModel;
 use App\Models\UserProfileModel;
 
 class Profile extends BaseController
 {
     public function index()
     {
-        $userId = session()->get('userId');
+        $userId = (int) session()->get('userId');
         $model = new UserProfileModel();
-        
+        $users = new UserModel();
+        $user = $users->find($userId) ?? [];
+
         $data = [
             'title' => 'Profiel',
             'profile' => $model->where('user_id', $userId)->first() ?? [],
+            'canDeleteAccount' => !$this->purge()->isLastActiveAdmin($user, $users),
         ];
 
         return view('profile/index', $data);
@@ -51,5 +57,49 @@ class Profile extends BaseController
         }
 
         return redirect()->to('/profile')->with('success', 'Profiel bijgewerkt!');
+    }
+
+    public function deleteAccount()
+    {
+        $userId = (int) session()->get('userId');
+        if ($userId < 1) {
+            return redirect()->to('/login');
+        }
+
+        if (!RequestThrottle::allow('account-delete', 5, HOUR, (string) $userId)) {
+            return redirect()->to('/profile')->with('error', 'Te veel pogingen. Probeer het later opnieuw.');
+        }
+
+        $confirm = strtoupper(trim((string) $this->request->getPost('confirm')));
+        if ($confirm !== 'VERWIJDEREN') {
+            return redirect()->to('/profile')->with('error', 'Typ VERWIJDEREN om te bevestigen dat je je account wilt wissen.');
+        }
+
+        $users = new UserModel();
+        $user = $users->find($userId);
+        if (!is_array($user) || !password_verify((string) $this->request->getPost('password'), (string) ($user['password'] ?? ''))) {
+            return redirect()->to('/profile')->with('error', 'Wachtwoord is onjuist.');
+        }
+
+        if ($this->purge()->isLastActiveAdmin($user, $users)) {
+            return redirect()->to('/profile')->with('error', 'Je bent de laatste beheerder. Maak eerst een andere admin aan.');
+        }
+
+        try {
+            $this->purge()->purge($userId);
+        } catch (\Throwable $e) {
+            log_message('error', 'Account purge failed: ' . $e->getMessage());
+
+            return redirect()->to('/profile')->with('error', 'Account kon niet worden verwijderd. Probeer het later of neem contact op.');
+        }
+
+        session()->destroy();
+
+        return redirect()->to('/login')->with('success', 'Je account en alle bijbehorende gegevens zijn verwijderd.');
+    }
+
+    private function purge(): AccountPurge
+    {
+        return new AccountPurge();
     }
 }

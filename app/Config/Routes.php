@@ -64,6 +64,7 @@ $routes->group('', ['filter' => ['auth', 'subscription', 'setup']], function ($r
     // User Profile
     $routes->get('profile', 'Profile::index');
     $routes->post('profile/update', 'Profile::update');
+    $routes->post('profile/delete', 'Profile::deleteAccount');
     
     // Start Position (Netherlands)
     $routes->get('start-position', 'StartPosition::index');
