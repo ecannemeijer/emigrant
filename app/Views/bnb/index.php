@@ -23,13 +23,13 @@ $js = $s['js'] ?? ['days' => 30.4375, 'forfettario' => 0, 'taxRate' => 23, 'coef
     </div>
     <div class="d-flex flex-wrap gap-2">
         <a class="btn btn-outline-light" href="/taxes">Belastingregeling</a>
-        <a class="btn btn-light" href="#bnb-form">Gegevens aanpassen</a>
+        <button type="button" class="btn btn-light" data-bnb-tab="gegevens">Gegevens aanpassen</button>
     </div>
 </div>
 
 <?php if (!$enabled): ?>
     <div class="alert alert-light border mb-4">
-        De cijfers hieronder zijn een <strong>voorproef</strong>. Zet onderaan “B&amp;B meenemen in de projectie” aan om ze op het dashboard te laten meetellen.
+        De cijfers hieronder zijn een <strong>voorproef</strong>. Zet bij Gegevens “B&amp;B meenemen in de projectie” aan om ze op het dashboard te laten meetellen.
     </div>
 <?php endif; ?>
 
@@ -71,6 +71,27 @@ $js = $s['js'] ?? ['days' => 30.4375, 'forfettario' => 0, 'taxRate' => 23, 'coef
         </div>
     </div>
 </div>
+
+<ul class="nav bnb-tabs mb-0" id="bnbTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="tab-btn-overzicht" data-bs-toggle="tab" data-bs-target="#tab-overzicht" data-bnb-hash="overzicht" type="button" role="tab" aria-controls="tab-overzicht" aria-selected="true">
+            Overzicht
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="tab-btn-breakeven" data-bs-toggle="tab" data-bs-target="#tab-breakeven" data-bnb-hash="breakeven" type="button" role="tab" aria-controls="tab-breakeven" aria-selected="false">
+            Break-even
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="tab-btn-gegevens" data-bs-toggle="tab" data-bs-target="#tab-gegevens" data-bnb-hash="bnb-form" type="button" role="tab" aria-controls="tab-gegevens" aria-selected="false">
+            Gegevens
+        </button>
+    </li>
+</ul>
+
+<div class="tab-content bnb-tab-content">
+<div class="tab-pane fade show active" id="tab-overzicht" role="tabpanel" aria-labelledby="tab-btn-overzicht" tabindex="0">
 
 <div class="row g-3 mb-4">
     <div class="col-md-4">
@@ -170,7 +191,10 @@ $js = $s['js'] ?? ['days' => 30.4375, 'forfettario' => 0, 'taxRate' => 23, 'coef
     </div>
 </div>
 
-<div class="card setup-card mb-4" id="breakeven">
+</div>
+<div class="tab-pane fade" id="tab-breakeven" role="tabpanel" aria-labelledby="tab-btn-breakeven" tabindex="0">
+
+<div class="card setup-card mb-0" id="breakeven">
     <div class="card-body">
         <h2 class="h5 mb-2">Break-even</h2>
         <p class="text-muted">Minimale bezetting (gelijk over het jaar) waarbij omzet de kosten én belasting dekt. Streef onder de 60%.</p>
@@ -219,11 +243,14 @@ $js = $s['js'] ?? ['days' => 30.4375, 'forfettario' => 0, 'taxRate' => 23, 'coef
     </div>
 </div>
 
-<form action="/bnb/save" method="post" id="bnb-form" class="card setup-card">
+</div>
+<div class="tab-pane fade" id="tab-gegevens" role="tabpanel" aria-labelledby="tab-btn-gegevens" tabindex="0">
+
+<form action="/bnb/save" method="post" id="bnb-form" class="card setup-card mb-0">
     <?= csrf_field() ?>
     <div class="card-body p-4">
         <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
-            <h2 class="h4 mb-0">Gegevens</h2>
+            <h2 class="h4 mb-0">Kamers, seizoen en kosten</h2>
             <div class="form-check form-switch">
                 <input class="form-check-input" type="checkbox" role="switch" id="enabled" name="enabled" value="1" <?= $enabled ? 'checked' : '' ?>>
                 <label class="form-check-label" for="enabled"><strong>B&amp;B meenemen in de projectie</strong></label>
@@ -322,6 +349,8 @@ $js = $s['js'] ?? ['days' => 30.4375, 'forfettario' => 0, 'taxRate' => 23, 'coef
         </button>
     </div>
 </form>
+</div>
+</div>
 <?= $this->endSection() ?>
 
 <?= $this->section('scripts') ?>
@@ -443,6 +472,39 @@ $js = $s['js'] ?? ['days' => 30.4375, 'forfettario' => 0, 'taxRate' => 23, 'coef
     document.querySelectorAll('.bnb-live').forEach(function (el) {
         el.addEventListener('input', render);
         el.addEventListener('change', render);
+    });
+
+    function tabNameFromHash() {
+        const h = (location.hash || '').replace('#', '');
+        if (h === 'breakeven') return 'breakeven';
+        if (h === 'bnb-form' || h === 'gegevens') return 'gegevens';
+        return 'overzicht';
+    }
+    function showBnbTab(name) {
+        const btn = document.getElementById('tab-btn-' + name);
+        if (btn && window.bootstrap) {
+            bootstrap.Tab.getOrCreateInstance(btn).show();
+        }
+    }
+    document.querySelectorAll('[data-bnb-tab]').forEach(function (el) {
+        el.addEventListener('click', function () {
+            showBnbTab(el.getAttribute('data-bnb-tab'));
+        });
+    });
+    const tabs = document.getElementById('bnbTabs');
+    if (tabs) {
+        tabs.addEventListener('shown.bs.tab', function (e) {
+            const hash = e.target.getAttribute('data-bnb-hash');
+            if (!hash) return;
+            const next = '#' + hash;
+            if (location.hash !== next) {
+                history.replaceState(null, '', next);
+            }
+        });
+    }
+    showBnbTab(tabNameFromHash());
+    window.addEventListener('hashchange', function () {
+        showBnbTab(tabNameFromHash());
     });
 })();
 </script>

@@ -296,7 +296,7 @@
             <!-- B&B Module -->
             <div class="help-section" id="bnb" data-keywords="bed breakfast bnb verhuur bezetting seizoen omzet kosten forfettario">
                 <h2><i class="bi bi-shop"></i> B&amp;B</h2>
-                <p>Op de B&amp;B-pagina reken je kamers, seizoen en kosten door. Zet de switch aan om het nettoresultaat in de jaarprojectie mee te nemen.</p>
+                <p>Op de B&amp;B-pagina zie je bovenaan de kerncijfers, daarna tabs: Overzicht (seizoen en kosten), Break-even, en Gegevens (kamers, seizoen, kosten). Zet de switch aan om het nettoresultaat in de jaarprojectie mee te nemen.</p>
 
                 <h4>Aanbod en seizoen</h4>
                 <ul>
