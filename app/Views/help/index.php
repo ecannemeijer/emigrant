@@ -176,12 +176,12 @@
                         </tr>
                         <tr>
                             <td><strong>AOW partner (toekomstig)</strong></td>
-                            <td>AOW-uitkering partner na pensioen</td>
-                            <td>Start op partner's pensioenleeftijd (vervangt WIA)</td>
+                            <td>Alleenstaandenbedrag; samenwonend telt 50/70 daarvan (niet 2× volledig)</td>
+                            <td>Start op AOW-leeftijd van de partner</td>
                         </tr>
                         <tr>
                             <td><strong>Eigen AOW</strong></td>
-                            <td>Je eigen AOW-uitkering</td>
+                            <td>Alleenstaandenbedrag; zelfde leefvormkorting als je partner</td>
                             <td>Start op jouw pensioenleeftijd</td>
                         </tr>
                         <tr>
@@ -194,7 +194,7 @@
                 </div>
 
                 <div class="alert alert-warning">
-                    <strong>AOW-reductie:</strong> Als je vóór je 67e emigreert, wordt je AOW-uitkering gekort. Hoe eerder je emigreert, hoe lager de uitkering!
+                    <strong>AOW-reductie:</strong> Als je vóór je AOW-leeftijd emigreert, bouw je minder jaren op (2% per ontbrekend jaar). Samenwonenden krijgen daarnaast per persoon 50% van het netto minimumloon, niet 70% zoals een alleenstaande — twee volle alleenstaandenbedragen is te hoog.
                 </div>
 
                 <h4>Voorbeeld berekening</h4>
@@ -244,7 +244,7 @@
                 <ul>
                     <li><strong>Aankoopprijs</strong> — Prijs van de woning</li>
                     <li><strong>Aankoopkosten %</strong> — Notariskosten, belastingen (standaard 10%)</li>
-                    <li><strong>Jaarlijkse vaste lasten</strong> — Vaste kosten (excl. energie/water die bij Uitgaven staan)</li>
+                    <li><strong>Condominio en woningverzekering (jaar)</strong> — Spese condominiali, opstalverzekering, eventueel IMU op de hoofdwoning. Wordt door 12 gedeeld. Energie/water bij Maandlasten; TARI bij Belastingen.</li>
                     <li><strong>Jaarlijks onderhoud</strong> — Reserve voor onderhoud en reparaties</li>
                 </ul>
 
@@ -378,6 +378,9 @@
             <!-- FAQ -->
             <div class="help-section" id="faq" data-keywords="faq veelgesteld vraag antwoord probleem help">
                 <h2><i class="bi bi-patch-question"></i> Veelgestelde Vragen</h2>
+
+                <h4>Hoe werkt de AOW bij samenwonen?</h4>
+                <p>De SVB kijkt naar je leefvorm. Een alleenstaande krijgt 70% van het netto minimumloon; gehuwd of samenwonend krijgt elk 50%. Twee mensen krijgen samen dus 100%, niet 140% (twee keer het alleenstaandentarief). Vul bij Inkomsten het <em>alleenstaandenbedrag</em> in bij volledige opbouw; het dashboard past 50/70 toe als je met een partner rekent.</p>
 
                 <h4>Hoe werkt de AOW-reductie?</h4>
                 <p>AOW (buitenland) wordt opgebouwd vanaf je 18e tot je pensioenleeftijd. Als je vóór je pensioen emigreert, bouw je minder jaren op in Nederland, dus krijg je een lager percentage.</p>

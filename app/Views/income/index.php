@@ -80,7 +80,7 @@ if ((float) $ownOther === 0.0 && (float) $partnerOther === 0.0 && (float) ($inco
                             <span class="input-group-text">€</span>
                             <input type="number" step="0.01" class="form-control" id="own_aow" name="own_aow" value="<?= esc($income['own_aow'] ?? 0) ?>">
                         </div>
-                        <small class="text-muted">Vul het huidige nettobedrag in. In de projectie groeit AOW elk jaar mee met de indexatie, ook ná ingang.</small>
+                        <small class="text-muted">Alleenstaandenbedrag bij volledige opbouw (70% van het netto minimumloon). Samenwonenden krijgen per persoon 50% in plaats van 70%; dat rekenen we automatisch op het dashboard.</small>
                     </div>
                     <div class="mb-3">
                         <label for="own_aow_start_age" class="form-label">AOW start op leeftijd</label>
@@ -140,7 +140,7 @@ if ((float) $ownOther === 0.0 && (float) $partnerOther === 0.0 && (float) ($inco
                             <span class="input-group-text">€</span>
                             <input type="number" step="0.01" class="form-control" id="aow_future" name="aow_future" value="<?= esc($income['aow_future'] ?? 0) ?>">
                         </div>
-                        <small class="text-muted">Huidig nettobedrag; groeit jaarlijks mee met de indexatie.</small>
+                        <small class="text-muted">Ook het alleenstaandenbedrag. Als jullie samenwonen telt elk voor 50/70 daarvan, niet twee keer het volle alleenstaandentarief.</small>
                     </div>
                     <div class="mb-3">
                         <label for="partner_aow_start_age" class="form-label">AOW start op leeftijd</label>

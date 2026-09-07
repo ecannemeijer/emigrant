@@ -99,6 +99,14 @@ if (!empty($profile['emigration_date']) && !empty($profile['partner_date_of_birt
     </div>
 <?php endif; endif; ?>
 
+<?php if (!empty($calculations['has_partner']) && (float) ($calculations['aow_household_factor'] ?? 1) < 1): ?>
+    <div class="alert alert-info">
+        <i class="bi bi-people-fill"></i>
+        <strong>AOW samenwonenden:</strong> Jullie delen een huishouden, dus elk krijgt het tarief van 50% van het netto minimumloon — niet 70% zoals een alleenstaande.
+        Twee keer het volle alleenstaandenbedrag zou te hoog zijn. We rekenen daarom 50/70 van het bedrag dat je bij Inkomsten invult (alleenstaandenbedrag).
+    </div>
+<?php endif; ?>
+
 <?php if (($calculations['bnb_revenue'] ?? 0) > 0): ?>
 <div class="row">
     <div class="col-12 mb-4">
@@ -807,10 +815,12 @@ document.addEventListener('DOMContentLoaded', function() {
             incomeHtml += `<tr><td>Uitkering ${data.partnerName}</td><td class="text-end">€ ${formatNumber(data.partnerIncome)}</td></tr>`;
         }
         if (data.ownAow > 0) {
-            incomeHtml += `<tr><td>AOW ${data.youName} <small class="text-muted">( vanaf AOW-leeftijd, met opbouw )</small></td><td class="text-end text-primary"><strong>€ ${formatNumber(data.ownAow)}</strong></td></tr>`;
+            const aowNote = <?= !empty($calculations['has_partner']) ? json_encode('samenwonendentarief 50%, met opbouw') : json_encode('vanaf AOW-leeftijd, met opbouw') ?>;
+            incomeHtml += `<tr><td>AOW ${data.youName} <small class="text-muted">(${aowNote})</small></td><td class="text-end text-primary"><strong>€ ${formatNumber(data.ownAow)}</strong></td></tr>`;
         }
         if (data.partnerAow > 0) {
-            incomeHtml += `<tr><td>AOW ${data.partnerName} <small class="text-muted">( vanaf AOW-leeftijd, met opbouw )</small></td><td class="text-end text-info"><strong>€ ${formatNumber(data.partnerAow)}</strong></td></tr>`;
+            const aowNoteP = <?= !empty($calculations['has_partner']) ? json_encode('samenwonendentarief 50%, met opbouw') : json_encode('vanaf AOW-leeftijd, met opbouw') ?>;
+            incomeHtml += `<tr><td>AOW ${data.partnerName} <small class="text-muted">(${aowNoteP})</small></td><td class="text-end text-info"><strong>€ ${formatNumber(data.partnerAow)}</strong></td></tr>`;
         }
         if (data.pension > 0) {
             incomeHtml += `<tr><td>Aanvullend pensioen ${data.youName}</td><td class="text-end text-success"><strong>€ ${formatNumber(data.pension)}</strong></td></tr>`;
@@ -866,13 +876,13 @@ document.addEventListener('DOMContentLoaded', function() {
         // Property expenses breakdown
         let propertyHtml = '';
         if (propertyData.main_annual_costs > 0) {
-            propertyHtml += `<tr><td>Hoofdwoning vaste lasten</td><td class=\"text-end\">€ ${formatNumber(propertyData.main_annual_costs)}</td></tr>`;
+            propertyHtml += `<tr><td>Hoofdwoning condominio/verzekering</td><td class=\"text-end\">€ ${formatNumber(propertyData.main_annual_costs)}</td></tr>`;
         }
         if (propertyData.main_maintenance > 0) {
             propertyHtml += `<tr><td>Hoofdwoning onderhoud</td><td class=\"text-end\">€ ${formatNumber(propertyData.main_maintenance)}</td></tr>`;
         }
         if (propertyData.second_annual_costs && propertyData.second_annual_costs > 0) {
-            propertyHtml += `<tr><td>Tweede woning vaste lasten</td><td class=\"text-end\">€ ${formatNumber(propertyData.second_annual_costs)}</td></tr>`;
+            propertyHtml += `<tr><td>Tweede woning condominio/verzekering</td><td class=\"text-end\">€ ${formatNumber(propertyData.second_annual_costs)}</td></tr>`;
         }
         if (propertyData.second_energy && propertyData.second_energy > 0) {
             propertyHtml += `<tr><td>Tweede woning energie</td><td class=\"text-end\">€ ${formatNumber(propertyData.second_energy)}</td></tr>`;
@@ -1106,12 +1116,12 @@ document.addEventListener('DOMContentLoaded', function() {
         <?php if (($calculations['own_aow_amount'] ?? 0) > 0): ?>
         incomeData.push(['AOW jij (geïndexeerd, met opbouw)', '\ ' + formatNumber(<?= $calculations['own_aow_amount'] ?>)]);
         <?php elseif (($income['own_aow'] ?? 0) > 0): ?>
-        incomeData.push(['AOW jij (huidig, groeit met indexatie)', '\ ' + formatNumber(<?= $income['own_aow'] ?>)]);
+        incomeData.push(['AOW jij (huidig, groeit met indexatie)', '\ ' + formatNumber(<?= ($income['own_aow'] ?? 0) * (float) ($calculations['aow_household_factor'] ?? 1) ?>)]);
         <?php endif; ?>
         <?php if (($calculations['partner_aow_amount'] ?? 0) > 0): ?>
         incomeData.push(['AOW partner (geïndexeerd, met opbouw)', '\ ' + formatNumber(<?= $calculations['partner_aow_amount'] ?>)]);
         <?php elseif (($income['aow_future'] ?? 0) > 0): ?>
-        incomeData.push(['AOW partner (huidig, groeit met indexatie)', '\ ' + formatNumber(<?= $income['aow_future'] ?>)]);
+        incomeData.push(['AOW partner (huidig, groeit met indexatie)', '\ ' + formatNumber(<?= ($income['aow_future'] ?? 0) * (float) ($calculations['aow_household_factor'] ?? 1) ?>)]);
         <?php endif; ?>
         <?php if (($income['pension'] ?? 0) > 0): ?>
         incomeData.push(['Aanvullend pensioen (niet geïndexeerd)', '\ ' + formatNumber(<?= $income['pension'] ?>)]);
@@ -1179,7 +1189,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         <?php if (!empty($mainProperty)): ?>
         <?php if (($mainProperty['annual_costs'] ?? 0) > 0): ?>
-        expenseData.push(['Hoofdwoning vaste lasten (jaar)', '\ ' + formatNumber(<?= ($mainProperty['annual_costs'] ?? 0) / 12 ?>)]);
+        expenseData.push(['Hoofdwoning condominio/verzekering', '\ ' + formatNumber(<?= ($mainProperty['annual_costs'] ?? 0) / 12 ?>)]);
         <?php endif; ?>
         <?php if (($mainProperty['maintenance_yearly'] ?? 0) > 0): ?>
         expenseData.push(['Hoofdwoning onderhoud (jaar)', '\ ' + formatNumber(<?= ($mainProperty['maintenance_yearly'] ?? 0) / 12 ?>)]);
@@ -1188,7 +1198,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         <?php if (!empty($secondProperty)): ?>
         <?php if (($secondProperty['annual_costs'] ?? 0) > 0): ?>
-        expenseData.push(['2e woning vaste lasten (jaar)', '\ ' + formatNumber(<?= ($secondProperty['annual_costs'] ?? 0) / 12 ?>)]);
+        expenseData.push(['2e woning condominio/verzekering', '\ ' + formatNumber(<?= ($secondProperty['annual_costs'] ?? 0) / 12 ?>)]);
         <?php endif; ?>
         <?php if (($secondProperty['maintenance_yearly'] ?? 0) > 0): ?>
         expenseData.push(['2e woning onderhoud (jaar)', '\ ' + formatNumber(<?= ($secondProperty['maintenance_yearly'] ?? 0) / 12 ?>)]);

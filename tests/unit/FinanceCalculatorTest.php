@@ -360,6 +360,45 @@ class FinanceCalculatorTest extends TestCase
         $this->assertEquals(0.0, $partnerAowYear['wia_amount']);
     }
 
+    public function testCoupleAowIsLessThanTwoFullSingleAmounts(): void
+    {
+        $result = $this->calc->analyze([
+            'profile' => [
+                'date_of_birth' => '1955-01-01',
+                'partner_date_of_birth' => '1956-01-01',
+                'emigration_date' => '2040-01-01',
+                'has_partner' => 1,
+            ],
+            'start_position' => [
+                'house_sale_price' => 0,
+                'savings' => 0,
+                'interest_rate' => 0,
+                'inflation_rate' => 0,
+            ],
+            'income' => [
+                'has_partner' => 1,
+                'own_aow' => 1400,
+                'aow_future' => 1400,
+                'own_aow_start_age' => 65,
+                'partner_aow_start_age' => 65,
+                'own_benefit_type' => 'none',
+                'partner_benefit_type' => 'none',
+            ],
+            'expenses' => [],
+            'taxes' => [],
+            'bnb_settings' => [],
+            'bnb_expenses' => [],
+        ], 2026);
+
+        $own = $result['yearlyProjections'][0]['own_aow_amount'];
+        $partner = $result['yearlyProjections'][0]['partner_aow_amount'];
+        $coupleEach = 1400 * (50 / 70);
+        $this->assertEqualsWithDelta($coupleEach, $own, 0.05);
+        $this->assertEqualsWithDelta($coupleEach, $partner, 0.05);
+        $this->assertLessThan(2 * 1400, $own + $partner);
+        $this->assertEqualsWithDelta($coupleEach * 2, $own + $partner, 0.1);
+    }
+
     public function testSinglePersonIgnoresPartnerIncome(): void
     {
         $result = $this->calc->analyze([

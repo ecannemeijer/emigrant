@@ -35,13 +35,13 @@
             </div>
             <div class="row">
                 <div class="col-md-12 mb-3">
-                    <label for="main_annual_costs" class="form-label">Jaarlijkse vaste lasten</label>
+                    <label for="main_annual_costs" class="form-label">Condominio en woningverzekering (per jaar)</label>
                     <div class="input-group">
                         <span class="input-group-text">€</span>
-                        <input type="number" step="0.01" class="form-control" id="main_annual_costs" 
+                        <input type="number" step="0.01" class="form-control" id="main_annual_costs"
                                name="main_annual_costs" value="<?= $mainProperty['annual_costs'] ?? 1200 ?>" required>
                     </div>
-                    <small class="text-muted">Gemeentebelasting (energie/verzekeringen bij Maandlasten, TARI bij Belastingen)</small>
+                    <small class="text-muted">Vaste lasten van het huis zelf: spese condominiali, opstalverzekering, eventueel IMU op de hoofdwoning. Energie, water en internet staan bij Maandlasten; TARI (afval) bij Belastingen. We delen dit bedrag door 12 in de projectie.</small>
                 </div>
             </div>
             <div class="row">
@@ -89,12 +89,13 @@
             </div>
             <div class="row">
                 <div class="col-md-4 mb-3">
-                    <label for="second_annual_costs" class="form-label">Jaarlijkse kosten</label>
+                    <label for="second_annual_costs" class="form-label">Condominio / verzekering (jaar)</label>
                     <div class="input-group">
                         <span class="input-group-text">€</span>
                         <input type="number" step="0.01" class="form-control" id="second_annual_costs" 
                                name="second_annual_costs" value="<?= $secondProperty['annual_costs'] ?? 0 ?>">
                     </div>
+                    <small class="text-muted">Niet IMU of TARI: die staan hieronder apart. Energie ook apart.</small>
                 </div>
                 <div class="col-md-4 mb-3">
                     <label for="second_energy_monthly" class="form-label">Energie (maand)</label>

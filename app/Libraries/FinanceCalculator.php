@@ -11,6 +11,10 @@ class FinanceCalculator
     public const DAYS_PER_MONTH = 365.25 / 12;
     public const FORFETTARIO_LIMIT = 85000.0;
     public const BNB_COEFFICIENT = 67.0;
+    /** SVB: alleenstaande AOW = 70% wettelijk netto minimumloon. */
+    public const AOW_SINGLE_SHARE = 0.70;
+    /** SVB: gehuwd/samenwonend = 50% per persoon. */
+    public const AOW_COUPLE_SHARE = 0.50;
 
     /**
      * SVB rule: 2% per insured year in the 50 years before AOW age.
@@ -38,6 +42,18 @@ class FinanceCalculator
         $percentage = ($insured + max(0.0, $voluntaryYears)) * 2.0;
 
         return max(0.0, min(100.0, $percentage));
+    }
+
+    /**
+     * Ingevulde AOW is het alleenstaandenbedrag (70%). Samenwonenden krijgen 50% per persoon.
+     */
+    public function aowHouseholdFactor(bool $livesWithPartner): float
+    {
+        if (!$livesWithPartner) {
+            return 1.0;
+        }
+
+        return self::AOW_COUPLE_SHARE / self::AOW_SINGLE_SHARE;
     }
 
     public function calculateAge(?string $birthdate, ?string $onDate = null): ?int
@@ -240,6 +256,7 @@ class FinanceCalculator
         $stopOwnIncome  = ((int) ($income['income_stops_at_retirement'] ?? 1)) === 1;
         $hasPartner     = $this->resolveHasPartner($profile, $income);
         $income['has_partner'] = $hasPartner ? 1 : 0;
+        $aowHouseholdFactor = $this->aowHouseholdFactor($hasPartner);
 
         $partnerAowPct = $hasPartner ? $this->calculateAowPercentage(
             $profile['emigration_date'] ?? null,
@@ -420,6 +437,7 @@ class FinanceCalculator
                 'nominal_monthly' => $cf['nominal_monthly'],
                 'inflator' => $inflator,
                 'has_partner' => $hasPartner,
+                'aow_household_factor' => $cf['aow_household_factor'] ?? 1.0,
                 'has_partner_retired' => ($hasPartner && $partnerAge && $partnerAge >= $partnerAowAge),
                 'has_user_retired' => ($userAge && $userAge >= $ownAowAge),
                 'has_partner_retired' => ($hasPartner && $partnerAge && $partnerAge >= $partnerAowAge),
@@ -506,6 +524,7 @@ class FinanceCalculator
             'own_aow_start_age' => $ownAowAge,
             'partner_aow_start_age' => $partnerAowAge,
             'has_partner' => $hasPartner,
+            'aow_household_factor' => $aowHouseholdFactor,
             'forfettario_over_limit' => $yearlyBnb > $limit,
             'below_minimum' => $minimum > 0 && $year0['monthly_net'] < $minimum,
             'minimum_monthly_income' => $minimum,
@@ -542,6 +561,7 @@ class FinanceCalculator
         float $inflator
     ): array {
         $hasPartner = !empty($income['has_partner']);
+        $aowHouseholdFactor = $this->aowHouseholdFactor($hasPartner);
         $ownAowDue  = $userAge !== null && $userAge >= $ownAowAge;
         $partnerAowDue = $hasPartner && $partnerAge !== null && $partnerAge >= $partnerAowAge;
 
@@ -573,7 +593,7 @@ class FinanceCalculator
         $hasPartnerAow = false;
         if ($hasPartner) {
             if ($partnerAowDue) {
-                $partnerAowAmount = (float) ($income['aow_future'] ?? 0) * ($partnerAowPct / 100) * $inflator;
+                $partnerAowAmount = (float) ($income['aow_future'] ?? 0) * ($partnerAowPct / 100) * $inflator * $aowHouseholdFactor;
                 $hasPartnerAow = $partnerAowAmount > 0;
             } elseif ($partnerType !== 'none' && $partnerAmt > 0) {
                 if ($partnerType === 'wia') {
@@ -595,7 +615,7 @@ class FinanceCalculator
             $hasOwnPension = $pensionAmount > 0;
         }
         if ($ownAowDue) {
-            $ownAowAmount = (float) ($income['own_aow'] ?? 0) * ($ownAowPct / 100) * $inflator;
+            $ownAowAmount = (float) ($income['own_aow'] ?? 0) * ($ownAowPct / 100) * $inflator * $aowHouseholdFactor;
             $hasOwnAow    = $ownAowAmount > 0;
         }
 
@@ -671,6 +691,7 @@ class FinanceCalculator
             'partner_aow_amount' => $partnerAowAmount,
             'partner_income_amount' => $partnerIncomeAmount,
             'own_aow_amount' => $ownAowAmount,
+            'aow_household_factor' => $aowHouseholdFactor,
             'pension_amount' => $pensionAmount,
             'wia_amount' => $wiaAmount,
             'wia_amount' => $wiaAmount,
