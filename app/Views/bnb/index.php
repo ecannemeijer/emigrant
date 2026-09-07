@@ -1,5 +1,37 @@
 <?= $this->extend('layout') ?>
 
+<?= $this->section('styles') ?>
+<style>
+.bnb-tabbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0 0 1.25rem;
+    padding: 8px;
+    background: #fff;
+    border: 1px solid #e4ddd0;
+    border-radius: 16px;
+}
+.bnb-tabbar .nav-link {
+    flex: 1 1 8rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border: 0;
+    border-radius: 12px;
+    padding: 12px 16px;
+    color: #1b241c;
+    background: transparent;
+    font-weight: 700;
+}
+.bnb-tabbar .nav-link.active {
+    background: #008C45;
+    color: #fff;
+}
+</style>
+<?= $this->endSection() ?>
+
 <?= $this->section('content') ?>
 <?php
 $settings = $settings ?? [];
@@ -32,6 +64,18 @@ $js = $s['js'] ?? ['days' => 30.4375, 'forfettario' => 0, 'taxRate' => 23, 'coef
         De cijfers hieronder zijn een <strong>voorproef</strong>. Zet bij Gegevens “B&amp;B meenemen in de projectie” aan om ze op het dashboard te laten meetellen.
     </div>
 <?php endif; ?>
+
+<div class="bnb-tabbar nav" id="bnbTabs" role="tablist">
+    <button class="nav-link active" id="tab-btn-overzicht" data-bs-toggle="tab" data-bs-target="#tab-overzicht" data-bnb-hash="overzicht" type="button" role="tab" aria-controls="tab-overzicht" aria-selected="true">
+        <i class="bi bi-pie-chart"></i> Overzicht
+    </button>
+    <button class="nav-link" id="tab-btn-breakeven" data-bs-toggle="tab" data-bs-target="#tab-breakeven" data-bnb-hash="breakeven" type="button" role="tab" aria-controls="tab-breakeven" aria-selected="false">
+        <i class="bi bi-graph-up"></i> Break-even
+    </button>
+    <button class="nav-link" id="tab-btn-gegevens" data-bs-toggle="tab" data-bs-target="#tab-gegevens" data-bnb-hash="bnb-form" type="button" role="tab" aria-controls="tab-gegevens" aria-selected="false">
+        <i class="bi bi-sliders"></i> Gegevens
+    </button>
+</div>
 
 <div class="row g-3 mb-4" id="bnbKpis">
     <div class="col-6 col-lg-3">
@@ -71,24 +115,6 @@ $js = $s['js'] ?? ['days' => 30.4375, 'forfettario' => 0, 'taxRate' => 23, 'coef
         </div>
     </div>
 </div>
-
-<ul class="nav bnb-tabs mb-0" id="bnbTabs" role="tablist">
-    <li class="nav-item" role="presentation">
-        <button class="nav-link active" id="tab-btn-overzicht" data-bs-toggle="tab" data-bs-target="#tab-overzicht" data-bnb-hash="overzicht" type="button" role="tab" aria-controls="tab-overzicht" aria-selected="true">
-            Overzicht
-        </button>
-    </li>
-    <li class="nav-item" role="presentation">
-        <button class="nav-link" id="tab-btn-breakeven" data-bs-toggle="tab" data-bs-target="#tab-breakeven" data-bnb-hash="breakeven" type="button" role="tab" aria-controls="tab-breakeven" aria-selected="false">
-            Break-even
-        </button>
-    </li>
-    <li class="nav-item" role="presentation">
-        <button class="nav-link" id="tab-btn-gegevens" data-bs-toggle="tab" data-bs-target="#tab-gegevens" data-bnb-hash="bnb-form" type="button" role="tab" aria-controls="tab-gegevens" aria-selected="false">
-            Gegevens
-        </button>
-    </li>
-</ul>
 
 <div class="tab-content bnb-tab-content">
 <div class="tab-pane fade show active" id="tab-overzicht" role="tabpanel" aria-labelledby="tab-btn-overzicht" tabindex="0">
