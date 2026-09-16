@@ -68,6 +68,7 @@ class AuditFilter implements FilterInterface
         'POST:admin/users/store'    => 'Admin: nieuwe gebruiker aangemaakt',
         'POST:admin/users/update'   => 'Admin: gebruiker bijgewerkt',
         'POST:admin/users/delete'   => 'Admin: gebruiker verwijderd',
+        'POST:impersonation/stop'   => 'Admin: terug naar eigen account',
         'GET:admin/audit-logs'      => 'Admin: audit log bekeken',
         'POST:admin/audit-logs/clear' => 'Admin: audit log gewist',
         'GET:subscription'          => 'Abonnement bekeken',
@@ -105,6 +106,10 @@ class AuditFilter implements FilterInterface
             return;
         }
 
+        if ($method === 'POST' && preg_match('#(?:^|/)admin/users/login/\d+$#', $uri)) {
+            return;
+        }
+
         // Skip internal/asset/AJAX-only paths
         $skipPrefixes = ['assets/', 'debugbar/', 'favicon'];
         foreach ($skipPrefixes as $prefix) {
@@ -132,6 +137,14 @@ class AuditFilter implements FilterInterface
             $action = "{$method}: /{$uri}";
         }
 
+        $extra = null;
+        if ($session->get('impersonatorId')) {
+            $extra = json_encode([
+                'impersonator_id' => $session->get('impersonatorId'),
+                'impersonator' => $session->get('impersonatorUsername'),
+            ]);
+        }
+
         $model = new AuditLogModel();
         $model->log(
             $action,
@@ -139,6 +152,7 @@ class AuditFilter implements FilterInterface
             '/' . $uri,
             $session->get('userId'),
             $session->get('username') ?? $session->get('email') ?? 'onbekend',
+            $extra,
         );
     }
 
@@ -158,6 +172,7 @@ class AuditFilter implements FilterInterface
             '#^GET:admin/users/finance/\d+$#'      => 'Admin: gebruikersprojectie bekeken',
             '#^POST:admin/users/update/\d+$#'      => 'Admin: gebruiker bijgewerkt',
             '#^POST:admin/users/delete/\d+$#'      => 'Admin: gebruiker verwijderd',
+            '#^POST:admin/users/login/\d+$#'       => 'Admin: ingelogd als gebruiker',
             '#^GET:password-reset/reset/[a-z0-9]+$#i' => 'Wachtwoord reset pagina bezocht',
             '#^POST:renovation/appointment/delete/\d+$#' => 'Afspraak verwijderd',
             '#^GET:renovation/appointment/google/\d+$#' => 'Afspraak naar Google Agenda',

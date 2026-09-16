@@ -69,6 +69,7 @@ class Filters extends BaseFilters
                     'subscription', 'subscription/*',
                     'setup', 'setup/*',
                     'admin', 'admin/*',
+                    'impersonation/stop',
                 ],
             ],
         ],

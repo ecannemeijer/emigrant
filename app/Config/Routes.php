@@ -29,6 +29,7 @@ $routes->post('login', 'Auth::attemptLogin');
 $routes->get('register', 'Auth::register');
 $routes->post('register', 'Auth::attemptRegister');
 $routes->post('logout', 'Auth::logout');
+$routes->post('impersonation/stop', 'Auth::stopImpersonation', ['filter' => 'auth']);
 
 // Password Reset (public)
 $routes->get('password-reset/forgot', 'PasswordReset::forgot');
@@ -133,6 +134,7 @@ $routes->group('admin', ['filter' => 'admin'], function ($routes) {
     $routes->get('users/finance/(:num)', 'Admin::userFinance/$1');
     $routes->post('users/update/(:num)', 'Admin::updateUser/$1');
     $routes->post('users/delete/(:num)', 'Admin::deleteUser/$1');
+    $routes->post('users/login/(:num)', 'Admin::loginAsUser/$1');
     $routes->get('audit-logs', 'Admin::auditLogs');
     $routes->post('audit-logs/clear', 'Admin::clearAuditLogs');
     $routes->post('audit-logs/delete-old', 'Admin::deleteOldLogs');

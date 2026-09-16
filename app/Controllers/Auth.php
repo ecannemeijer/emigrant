@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Libraries\BillingService;
+use App\Libraries\Impersonation;
 use App\Libraries\MaintenanceService;
 use App\Libraries\RequestThrottle;
 use App\Libraries\SetupService;
@@ -213,5 +214,21 @@ class Auth extends BaseController
     {
         session()->destroy();
         return redirect()->to('/login')->with('success', 'Je bent uitgelogd.');
+    }
+
+    public function stopImpersonation()
+    {
+        $impersonation = new Impersonation();
+        if (!$impersonation->isActive()) {
+            return redirect()->to('/dashboard');
+        }
+
+        $admin = $impersonation->stop();
+        if ($admin === null) {
+            session()->destroy();
+            return redirect()->to('/login')->with('error', 'Je admin-sessie kon niet worden hersteld. Log opnieuw in.');
+        }
+
+        return redirect()->to('/admin/users')->with('success', 'Je bent terug in je eigen admin-account.');
     }
 }

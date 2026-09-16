@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Libraries\AccountPurge;
+use App\Libraries\Impersonation;
 use App\Libraries\RequestThrottle;
 use App\Models\UserModel;
 use App\Models\UserProfileModel;
@@ -16,10 +17,12 @@ class Profile extends BaseController
         $users = new UserModel();
         $user = $users->find($userId) ?? [];
 
+        $impersonating = (new Impersonation())->isActive();
         $data = [
             'title' => 'Profiel',
             'profile' => $model->where('user_id', $userId)->first() ?? [],
-            'canDeleteAccount' => !$this->purge()->isLastActiveAdmin($user, $users),
+            'isImpersonating' => $impersonating,
+            'canDeleteAccount' => !$impersonating && !$this->purge()->isLastActiveAdmin($user, $users),
         ];
 
         return view('profile/index', $data);
@@ -64,6 +67,10 @@ class Profile extends BaseController
         $userId = (int) session()->get('userId');
         if ($userId < 1) {
             return redirect()->to('/login');
+        }
+
+        if ((new Impersonation())->isActive()) {
+            return redirect()->to('/profile')->with('error', 'Je kunt geen account verwijderen terwijl je als beheerder bent ingelogd als deze gebruiker.');
         }
 
         if (!RequestThrottle::allow('account-delete', 5, HOUR, (string) $userId)) {

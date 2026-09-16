@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Libraries\AccountPurge;
 use App\Libraries\BillingService;
 use App\Libraries\DatabaseBackup;
+use App\Libraries\Impersonation;
 use App\Libraries\MaintenanceService;
 use App\Models\UserModel;
 use App\Models\UserProfileModel;
@@ -259,6 +260,53 @@ class Admin extends BaseController
         }
 
         return redirect()->to('/admin/users')->with('success', 'Gebruiker en alle bijbehorende gegevens verwijderd.');
+    }
+
+    public function loginAsUser($userId)
+    {
+        $impersonation = new Impersonation();
+        if ($impersonation->isActive()) {
+            return redirect()->to('/dashboard')->with('error', 'Je bent al ingelogd als een andere gebruiker.');
+        }
+
+        $userModel = new UserModel();
+        $adminId = (int) session()->get('userId');
+        $admin = $userModel->find($adminId);
+        $target = $userModel->find($userId);
+
+        if (!is_array($admin) || ($admin['role'] ?? '') !== 'admin' || empty($admin['is_active'])) {
+            return redirect()->to('/admin/users')->with('error', 'Alleen een actieve beheerder kan inloggen als een gebruiker.');
+        }
+
+        if (!is_array($target)) {
+            return redirect()->to('/admin/users')->with('error', 'Gebruiker niet gevonden.');
+        }
+
+        if ((int) $target['id'] === $adminId) {
+            return redirect()->to('/admin/users')->with('error', 'Je bent al ingelogd op dit account.');
+        }
+
+        try {
+            (new AuditLogModel())->log(
+                'Admin: ingelogd als gebruiker',
+                'POST',
+                '/admin/users/login/' . (int) $target['id'],
+                $adminId,
+                (string) ($admin['username'] ?? $admin['email'] ?? 'admin'),
+                json_encode([
+                    'target_id' => (int) $target['id'],
+                    'target' => (string) ($target['username'] ?? $target['email'] ?? ''),
+                ])
+            );
+        } catch (\Throwable $e) {
+            log_message('error', 'Impersonation audit log failed: ' . $e->getMessage());
+        }
+
+        $impersonation->start($admin, $target);
+
+        $name = (string) ($target['username'] ?? $target['email'] ?? 'gebruiker');
+
+        return redirect()->to('/dashboard')->with('success', 'Je bent nu ingelogd als ' . $name . '.');
     }
 
     public function auditLogs()

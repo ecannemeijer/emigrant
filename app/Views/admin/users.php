@@ -90,7 +90,7 @@ $sourceLabels = [
                         <?php endif; ?>
                     </td>
                     <td><?= date('d-m-Y', strtotime($user['created_at'])) ?></td>
-                    <td>
+                    <td class="text-nowrap">
                         <a href="/admin/users/finance/<?= $user['id'] ?>" class="btn btn-sm btn-outline-success" title="Financiële projectie">
                             <i class="bi bi-graph-up"></i>
                         </a>
@@ -98,6 +98,13 @@ $sourceLabels = [
                             <i class="bi bi-pencil"></i>
                         </a>
                         <?php if ($user['id'] != session()->get('userId')): ?>
+                        <form action="/admin/users/login/<?= $user['id'] ?>" method="post" class="d-inline"
+                              onsubmit="return confirm('Inloggen als <?= esc($user['username'], 'js') ?>?');">
+                            <?= csrf_field() ?>
+                            <button type="submit" class="btn btn-sm btn-outline-secondary" title="Inloggen als deze gebruiker">
+                                <i class="bi bi-box-arrow-in-right"></i> Inloggen
+                            </button>
+                        </form>
                         <form action="/admin/users/delete/<?= $user['id'] ?>" method="post" class="d-inline"
                               onsubmit="return confirm('Weet je zeker dat je deze gebruiker wilt verwijderen?');">
                             <?= csrf_field() ?>

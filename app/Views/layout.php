@@ -141,7 +141,7 @@ $isLoggedIn = (bool) session()->get('isLoggedIn');
 $homeUri = trim((string) uri_string(), '/');
 $isHome = $homeUri === '';
 ?>
-<body class="<?= (!$isLoggedIn && $isHome) ? 'layout-marketing' : '' ?>">
+<body class="<?= (!$isLoggedIn && $isHome) ? 'layout-marketing' : '' ?><?= ($isLoggedIn && session()->get('impersonatorId')) ? ' is-impersonating' : '' ?>">
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-light app-navbar">
         <div class="container-fluid">
@@ -162,7 +162,17 @@ $isHome = $homeUri === '';
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end">
                                 <li><a class="dropdown-item" href="/profile"><i class="bi bi-person"></i> Profiel</a></li>
-                                <?php if (session()->get('role') === 'admin'): ?>
+                                <?php if (session()->get('impersonatorId')): ?>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <form action="/impersonation/stop" method="post" class="mb-0">
+                                            <?= csrf_field() ?>
+                                            <button type="submit" class="dropdown-item">
+                                                <i class="bi bi-arrow-left"></i> Terug naar admin
+                                            </button>
+                                        </form>
+                                    </li>
+                                <?php elseif (session()->get('role') === 'admin'): ?>
                                     <li><hr class="dropdown-divider"></li>
                                     <li><a class="dropdown-item" href="/admin"><i class="bi bi-shield-lock"></i> Admin</a></li>
                                 <?php endif; ?>
@@ -209,6 +219,24 @@ $isHome = $homeUri === '';
             <?php endif; ?>
         </div>
     </nav>
+
+    <?php if ($isLoggedIn && session()->get('impersonatorId')): ?>
+        <div class="impersonation-bar">
+            <div class="container-fluid d-flex flex-wrap align-items-center justify-content-between gap-2 py-2">
+                <span>
+                    <i class="bi bi-incognito"></i>
+                    Je bent ingelogd als <strong><?= esc(session()->get('username')) ?></strong>
+                    (admin: <?= esc(session()->get('impersonatorUsername')) ?>).
+                </span>
+                <form action="/impersonation/stop" method="post" class="mb-0">
+                    <?= csrf_field() ?>
+                    <button type="submit" class="btn btn-sm btn-light">
+                        <i class="bi bi-arrow-left"></i> Terug naar admin
+                    </button>
+                </form>
+            </div>
+        </div>
+    <?php endif; ?>
 
     <div class="container-fluid px-0">
         <div class="<?= $isLoggedIn ? 'app-shell' : 'row' ?>">

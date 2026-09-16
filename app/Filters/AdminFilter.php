@@ -2,6 +2,7 @@
 
 namespace App\Filters;
 
+use App\Libraries\Impersonation;
 use App\Models\UserModel;
 use CodeIgniter\Filters\FilterInterface;
 use CodeIgniter\HTTP\RequestInterface;
@@ -13,6 +14,10 @@ class AdminFilter implements FilterInterface
     {
         if (!session()->get('isLoggedIn')) {
             return redirect()->to('/login')->with('error', 'Please login first.');
+        }
+
+        if ((new Impersonation())->isActive()) {
+            return redirect()->to('/dashboard')->with('error', 'Je bent ingelogd als een gebruiker. Ga eerst terug naar je admin-account.');
         }
 
         $userId = (int) session()->get('userId');

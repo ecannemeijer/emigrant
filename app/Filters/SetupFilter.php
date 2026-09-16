@@ -2,6 +2,7 @@
 
 namespace App\Filters;
 
+use App\Libraries\Impersonation;
 use App\Libraries\SetupService;
 use CodeIgniter\Filters\FilterInterface;
 use CodeIgniter\HTTP\RequestInterface;
@@ -11,7 +12,7 @@ class SetupFilter implements FilterInterface
 {
     public function before(RequestInterface $request, $arguments = null)
     {
-        if (!session()->get('isLoggedIn')) {
+        if (!session()->get('isLoggedIn') || (new Impersonation())->isActive()) {
             return;
         }
 
@@ -53,7 +54,7 @@ class SetupFilter implements FilterInterface
 
         $exact = [
             'login', 'register', 'logout', 'help', 'contact',
-            'subscription', 'webhooks/paypal',
+            'subscription', 'webhooks/paypal', 'impersonation/stop',
         ];
         if (in_array($path, $exact, true)) {
             return true;
@@ -65,6 +66,7 @@ class SetupFilter implements FilterInterface
             'contact/',
             'webhooks/',
             'admin/',
+            'impersonation/',
         ];
         foreach ($prefixes as $prefix) {
             if (str_starts_with($path, $prefix)) {

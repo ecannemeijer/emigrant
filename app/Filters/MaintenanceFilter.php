@@ -2,6 +2,7 @@
 
 namespace App\Filters;
 
+use App\Libraries\Impersonation;
 use App\Libraries\MaintenanceService;
 use CodeIgniter\Filters\FilterInterface;
 use CodeIgniter\HTTP\RequestInterface;
@@ -15,7 +16,7 @@ class MaintenanceFilter implements FilterInterface
             return;
         }
 
-        if (session()->get('role') === 'admin') {
+        if (session()->get('role') === 'admin' || (new Impersonation())->isActive()) {
             return;
         }
 
@@ -41,6 +42,7 @@ class MaintenanceFilter implements FilterInterface
         $allowed = [
             'login',
             'logout',
+            'impersonation/stop',
             'favicon.ico',
             'favicon.svg',
             'favicon.png',

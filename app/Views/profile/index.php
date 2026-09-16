@@ -260,7 +260,9 @@
     <div class="card-body">
         <h2 class="h5 text-danger mb-2"><i class="bi bi-exclamation-triangle"></i> Account verwijderen</h2>
         <p class="text-muted">Dit wist je inloggegevens en alle bijbehorende data: profiel, financiën, B&amp;B, verbouw, checklist, afspraken, scenario’s, abonnement en logs. Dit kan niet ongedaan worden gemaakt.</p>
-        <?php if (empty($canDeleteAccount)): ?>
+        <?php if (!empty($isImpersonating)): ?>
+            <div class="alert alert-warning mb-0">Je kunt geen account verwijderen terwijl je als beheerder bent ingelogd als deze gebruiker.</div>
+        <?php elseif (empty($canDeleteAccount)): ?>
             <div class="alert alert-warning mb-0">Je bent de laatste beheerder. Maak eerst een andere admin aan voordat je dit account kunt verwijderen.</div>
         <?php else: ?>
             <form action="/profile/delete" method="post" onsubmit="return confirm('Weet je zeker dat je je account en alle gegevens wilt verwijderen? Dit kan niet ongedaan worden gemaakt.');">

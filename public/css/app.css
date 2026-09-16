@@ -1116,3 +1116,16 @@ form > .btn-primary,
 .bnb-tab-content {
     padding-top: 0.25rem;
 }
+
+.impersonation-bar {
+    background: var(--it-red);
+    color: #fff;
+    font-size: 0.95rem;
+    border-bottom: 1px solid rgba(0, 0, 0, .12);
+    position: sticky;
+    top: 0;
+    z-index: 1030;
+}
+.impersonation-bar .btn-light {
+    font-weight: 600;
+}

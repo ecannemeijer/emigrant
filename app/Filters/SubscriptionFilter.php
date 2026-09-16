@@ -3,6 +3,7 @@
 namespace App\Filters;
 
 use App\Libraries\BillingService;
+use App\Libraries\Impersonation;
 use App\Models\UserModel;
 use CodeIgniter\Filters\FilterInterface;
 use CodeIgniter\HTTP\RequestInterface;
@@ -12,6 +13,10 @@ class SubscriptionFilter implements FilterInterface
 {
     public function before(RequestInterface $request, $arguments = null)
     {
+        if ((new Impersonation())->isActive()) {
+            return;
+        }
+
         $userId = (int) session()->get('userId');
         if ($userId < 1) {
             return redirect()->to('/login');
