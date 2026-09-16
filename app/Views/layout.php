@@ -140,8 +140,9 @@
 $isLoggedIn = (bool) session()->get('isLoggedIn');
 $homeUri = trim((string) uri_string(), '/');
 $isHome = $homeUri === '';
+$isImpersonating = $isLoggedIn && (new \App\Libraries\Impersonation())->isActive();
 ?>
-<body class="<?= (!$isLoggedIn && $isHome) ? 'layout-marketing' : '' ?><?= ($isLoggedIn && session()->get('impersonatorId')) ? ' is-impersonating' : '' ?>">
+<body class="<?= (!$isLoggedIn && $isHome) ? 'layout-marketing' : '' ?><?= $isImpersonating ? ' is-impersonating' : '' ?>">
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-light app-navbar">
         <div class="container-fluid">
@@ -162,7 +163,7 @@ $isHome = $homeUri === '';
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end">
                                 <li><a class="dropdown-item" href="/profile"><i class="bi bi-person"></i> Profiel</a></li>
-                                <?php if (session()->get('impersonatorId')): ?>
+                                <?php if ($isImpersonating): ?>
                                     <li><hr class="dropdown-divider"></li>
                                     <li>
                                         <form action="/impersonation/stop" method="post" class="mb-0">
@@ -220,7 +221,7 @@ $isHome = $homeUri === '';
         </div>
     </nav>
 
-    <?php if ($isLoggedIn && session()->get('impersonatorId')): ?>
+    <?php if ($isImpersonating): ?>
         <div class="impersonation-bar">
             <div class="container-fluid d-flex flex-wrap align-items-center justify-content-between gap-2 py-2">
                 <span>

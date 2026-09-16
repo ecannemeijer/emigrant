@@ -219,8 +219,8 @@ class Auth extends BaseController
     public function stopImpersonation()
     {
         $impersonation = new Impersonation();
-        if (!$impersonation->isActive()) {
-            return redirect()->to('/dashboard');
+        if ((int) session()->get(Impersonation::SESSION_ADMIN_ID) < 1) {
+            return redirect()->to(session()->get('role') === 'admin' ? '/admin/users' : '/dashboard');
         }
 
         $admin = $impersonation->stop();

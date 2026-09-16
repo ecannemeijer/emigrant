@@ -34,7 +34,7 @@ $items = [
     <li class="nav-item"><a class="nav-link <?= $uri === 'contact' ? 'active' : '' ?>" href="/contact" title="Contact"><i class="bi bi-envelope"></i> <span class="sidebar-label">Contact</span></a></li>
     <li class="nav-item"><a class="nav-link" href="/export/csv" title="Export CSV"><i class="bi bi-download"></i> <span class="sidebar-label">Export CSV</span></a></li>
     <li class="nav-item"><a class="nav-link" href="/export/pdf" title="Export PDF"><i class="bi bi-file-earmark-pdf"></i> <span class="sidebar-label">Export PDF</span></a></li>
-    <?php if (session()->get('role') === 'admin' && !session()->get('impersonatorId')): ?>
+    <?php if (session()->get('role') === 'admin' && !(new \App\Libraries\Impersonation())->isActive()): ?>
         <li class="nav-item mt-3"><hr><small class="text-muted px-3 sidebar-heading">Admin</small></li>
         <li class="nav-item"><a class="nav-link <?= $uri === 'admin/config' ? 'active' : '' ?>" href="/admin/config" title="Config"><i class="bi bi-sliders"></i> <span class="sidebar-label">Config</span></a></li>
         <li class="nav-item"><a class="nav-link <?= str_starts_with($uri, 'admin/users') ? 'active' : '' ?>" href="/admin/users" title="Gebruikers"><i class="bi bi-people"></i> <span class="sidebar-label">Gebruikers</span></a></li>

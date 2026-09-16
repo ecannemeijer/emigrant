@@ -11,7 +11,12 @@ class Impersonation
 
     public function isActive(): bool
     {
-        return (int) session()->get(self::SESSION_ADMIN_ID) > 0;
+        $adminId = (int) session()->get(self::SESSION_ADMIN_ID);
+        if ($adminId < 1) {
+            return false;
+        }
+
+        return $adminId !== (int) session()->get('userId');
     }
 
     /**
@@ -53,6 +58,7 @@ class Impersonation
     private function applySession(array $user, array $extra = []): void
     {
         session()->regenerate(true);
+        session()->remove([self::SESSION_ADMIN_ID, self::SESSION_ADMIN_NAME]);
         session()->set(array_merge([
             'userId'     => $user['id'],
             'username'   => $user['username'],
