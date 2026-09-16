@@ -684,6 +684,19 @@ const expenseData = {
     unforeseen: <?= $expenses['unforeseen'] ?? 0 ?>,
     other: <?= $expenses['other'] ?? 0 ?>
 };
+<?php
+$aowPctText = static function ($pct): string {
+    $pct = (float) $pct;
+    return abs($pct - round($pct)) < 0.05
+        ? (string) (int) round($pct)
+        : number_format($pct, 1, ',', '');
+};
+$aowCoupleNote = !empty($calculations['has_partner']) && (float) ($calculations['aow_household_factor'] ?? 1) < 1
+    ? ' × 50/70'
+    : ' opbouw';
+?>
+const aowNoteOwn = <?= json_encode($aowPctText($calculations['own_aow_percentage'] ?? 100) . '%' . $aowCoupleNote) ?>;
+const aowNotePartner = <?= json_encode($aowPctText($calculations['partner_aow_percentage'] ?? 100) . '%' . $aowCoupleNote) ?>;
 
 const propertyData = {
     main_annual_costs: <?= ($mainProperty['annual_costs'] ?? 0) / 12 ?>,
@@ -815,12 +828,10 @@ document.addEventListener('DOMContentLoaded', function() {
             incomeHtml += `<tr><td>Uitkering ${data.partnerName}</td><td class="text-end">€ ${formatNumber(data.partnerIncome)}</td></tr>`;
         }
         if (data.ownAow > 0) {
-            const aowNote = <?= !empty($calculations['has_partner']) ? json_encode('samenwonendentarief 50%, met opbouw') : json_encode('vanaf AOW-leeftijd, met opbouw') ?>;
-            incomeHtml += `<tr><td>AOW ${data.youName} <small class="text-muted">(${aowNote})</small></td><td class="text-end text-primary"><strong>€ ${formatNumber(data.ownAow)}</strong></td></tr>`;
+            incomeHtml += `<tr><td class="text-nowrap">AOW ${data.youName} <small class="text-muted">(${aowNoteOwn})</small></td><td class="text-end text-nowrap text-primary"><strong>€ ${formatNumber(data.ownAow)}</strong></td></tr>`;
         }
         if (data.partnerAow > 0) {
-            const aowNoteP = <?= !empty($calculations['has_partner']) ? json_encode('samenwonendentarief 50%, met opbouw') : json_encode('vanaf AOW-leeftijd, met opbouw') ?>;
-            incomeHtml += `<tr><td>AOW ${data.partnerName} <small class="text-muted">(${aowNoteP})</small></td><td class="text-end text-info"><strong>€ ${formatNumber(data.partnerAow)}</strong></td></tr>`;
+            incomeHtml += `<tr><td class="text-nowrap">AOW ${data.partnerName} <small class="text-muted">(${aowNotePartner})</small></td><td class="text-end text-nowrap text-info"><strong>€ ${formatNumber(data.partnerAow)}</strong></td></tr>`;
         }
         if (data.pension > 0) {
             incomeHtml += `<tr><td>Aanvullend pensioen ${data.youName}</td><td class="text-end text-success"><strong>€ ${formatNumber(data.pension)}</strong></td></tr>`;
