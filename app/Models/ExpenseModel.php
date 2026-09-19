@@ -43,7 +43,7 @@ class ExpenseModel extends Model
         $expense = $this->getByUserId($userId);
         
         if (!$expense) {
-            return 0;
+            return (new ExpenseItemModel())->totalForUser((int) $userId);
         }
 
         return ($expense['energy'] ?? 0) +
@@ -56,6 +56,7 @@ class ExpenseModel extends Model
                ($expense['groceries'] ?? 0) +
                ($expense['leisure'] ?? 0) +
                ($expense['unforeseen'] ?? 0) +
-               ($expense['other'] ?? 0);
+               ($expense['other'] ?? 0) +
+               (new ExpenseItemModel())->totalForUser((int) $userId);
     }
 }

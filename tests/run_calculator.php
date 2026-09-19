@@ -173,5 +173,26 @@ check(abs(($reno1['renovation_outlay'] ?? 0) - 20000) < 0.01, 'renovation 20000 
 check(abs(($reno['calculations']['remaining_capital'] ?? 0) - 100000) < 0.01, 'remaining still 100000 before 2027 reno');
 check(abs(($reno1['capital'] ?? 0) - 80000) < 0.01, 'capital after 2027 reno '.$reno1['capital']);
 
+$extraBase = [
+    'profile' => ['date_of_birth' => '1980-01-01', 'retirement_age' => 67],
+    'start_position' => ['house_sale_price' => 0, 'savings' => 0, 'interest_rate' => 0, 'inflation_rate' => 2],
+    'income' => ['own_income' => 0, 'own_benefit_type' => 'none'],
+    'taxes' => [],
+    'bnb_settings' => [],
+    'bnb_expenses' => [],
+];
+$withoutExtra = $calc->analyze($extraBase + ['expenses' => ['energy' => 100]], 2026);
+$withExtra = $calc->analyze($extraBase + ['expenses' => [
+    'energy' => 100,
+    'items' => [
+        ['name' => 'Netflix', 'category' => 'subscription', 'amount' => 30],
+        ['name' => 'Inboedel', 'category' => 'insurance', 'amount' => 20],
+    ],
+]], 2026);
+check(abs(($withoutExtra['calculations']['monthly_expenses'] ?? 0) - 100) < 0.02, 'expenses without extra items 100');
+check(abs(($withExtra['calculations']['monthly_expenses'] ?? 0) - 150) < 0.02, 'expenses with extra items 150');
+$year5exp = ($withExtra['yearlyProjections'][5]['yearly_expenses'] ?? 0) / 12;
+check(abs($year5exp - 150 * pow(1.02, 5)) < 0.1, 'extra items inflate year 5 '.$year5exp);
+
 echo $fail === 0 ? "\nAll good\n" : "\n$fail failed\n";
 exit($fail === 0 ? 0 : 1);

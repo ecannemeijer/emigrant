@@ -658,7 +658,8 @@ class FinanceCalculator
             + (float) ($expenses['groceries'] ?? 0)
             + (float) ($expenses['leisure'] ?? 0)
             + (float) ($expenses['unforeseen'] ?? 0)
-            + (float) ($expenses['other'] ?? 0)) * $inflator;
+            + (float) ($expenses['other'] ?? 0)
+            + self::extraItemsTotal($expenses)) * $inflator;
 
         $mainMonthly = 0.0;
         if ($mainProperty) {
@@ -752,5 +753,25 @@ class FinanceCalculator
         }
 
         return ((float) ($income['wia_wife'] ?? 0)) > 0 ? 'other' : 'none';
+    }
+
+    /**
+     * @param array<string, mixed> $expenses
+     */
+    private static function extraItemsTotal(array $expenses): float
+    {
+        if (array_key_exists('extra_items_total', $expenses) && $expenses['extra_items_total'] !== null && $expenses['extra_items_total'] !== '') {
+            return (float) $expenses['extra_items_total'];
+        }
+
+        $sum = 0.0;
+        foreach ($expenses['items'] ?? [] as $item) {
+            if (!is_array($item)) {
+                continue;
+            }
+            $sum += (float) ($item['amount'] ?? 0);
+        }
+
+        return $sum;
     }
 }

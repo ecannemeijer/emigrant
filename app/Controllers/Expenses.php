@@ -2,18 +2,22 @@
 
 namespace App\Controllers;
 
+use App\Models\ExpenseItemModel;
 use App\Models\ExpenseModel;
 
 class Expenses extends BaseController
 {
     public function index()
     {
-        $userId = session()->get('userId');
+        $userId = (int) session()->get('userId');
         $model = new ExpenseModel();
-        
+        $itemModel = new ExpenseItemModel();
+
         $data = [
             'title' => 'Maandelijkse Lasten',
             'expenses' => $model->getByUserId($userId),
+            'expenseItems' => $itemModel->forUser($userId),
+            'expenseCategories' => ExpenseItemModel::CATEGORIES,
         ];
 
         return view('expenses/index', $data);
@@ -21,7 +25,7 @@ class Expenses extends BaseController
 
     public function save()
     {
-        $userId = session()->get('userId');
+        $userId = (int) session()->get('userId');
         $model = new ExpenseModel();
 
         $postData = [
@@ -46,6 +50,9 @@ class Expenses extends BaseController
         } else {
             $model->insert($postData);
         }
+
+        $rawItems = $this->request->getPost('items');
+        (new ExpenseItemModel())->replaceForUser($userId, is_array($rawItems) ? $rawItems : []);
 
         return redirect()->to('/expenses')->with('success', 'Lasten opgeslagen!');
     }

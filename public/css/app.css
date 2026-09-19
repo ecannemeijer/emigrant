@@ -1129,3 +1129,42 @@ form > .btn-primary,
 .impersonation-bar .btn-light {
     font-weight: 600;
 }
+
+.expense-extra-empty {
+    border: 1px dashed #eadfd0;
+    border-radius: 12px;
+    padding: 16px 18px;
+    color: var(--muted);
+    background: #faf6ef;
+    margin-bottom: 12px;
+}
+.expense-extra-row {
+    display: grid;
+    grid-template-columns: minmax(7.5rem, auto) 1fr minmax(8rem, 9.5rem) auto;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 8px;
+    padding: 8px;
+    background: #fff;
+    border: 1px solid #eadfd0;
+    border-radius: 12px;
+}
+.expense-extra-row .badge {
+    justify-self: start;
+    font-weight: 600;
+}
+@media (max-width: 767.98px) {
+    .expense-extra-row {
+        grid-template-columns: 1fr auto;
+    }
+    .expense-extra-row .badge {
+        grid-column: 1 / 2;
+    }
+    .expense-extra-row .form-control[type="text"],
+    .expense-extra-row input[type="text"] {
+        grid-column: 1 / -1;
+    }
+    .expense-extra-row .input-group {
+        grid-column: 1 / 2;
+    }
+}

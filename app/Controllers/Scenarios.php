@@ -7,6 +7,7 @@ use App\Models\StartPositionModel;
 use App\Models\IncomeModel;
 use App\Models\PropertyModel;
 use App\Models\ExpenseModel;
+use App\Models\ExpenseItemModel;
 use App\Models\TaxModel;
 use App\Models\BnbSettingModel;
 use App\Models\BnbExpenseModel;
@@ -45,6 +46,7 @@ class Scenarios extends BaseController
             'income' => $incomeModel->getByUserId($userId),
             'properties' => $propertyModel->getUserProperties($userId),
             'expenses' => $expenseModel->getByUserId($userId),
+            'expense_items' => (new ExpenseItemModel())->forUser((int) $userId),
             'taxes' => $taxModel->getByUserId($userId),
             'bnb_settings' => $bnbSettingModel->getByUserId($userId),
             'bnb_expenses' => $bnbExpenseModel->getByUserId($userId),
@@ -117,7 +119,12 @@ class Scenarios extends BaseController
         $payload = json_decode($scenario['data'], true) ?? [];
         $this->upsertRow(new StartPositionModel(), $userId, $payload['start_position'] ?? null);
         $this->upsertRow(new IncomeModel(), $userId, $payload['income'] ?? null);
-        $this->upsertRow(new ExpenseModel(), $userId, $payload['expenses'] ?? null);
+        $expenses = $payload['expenses'] ?? null;
+        if (is_array($expenses)) {
+            unset($expenses['items'], $expenses['extra_items_total']);
+        }
+        $this->upsertRow(new ExpenseModel(), $userId, $expenses);
+        $this->replaceExpenseItems((int) $userId, $payload['expense_items'] ?? []);
         $this->upsertRow(new TaxModel(), $userId, $payload['taxes'] ?? null);
         $this->upsertRow(new BnbSettingModel(), $userId, $payload['bnb_settings'] ?? null);
         $this->upsertRow(new BnbExpenseModel(), $userId, $payload['bnb_expenses'] ?? null);
@@ -172,11 +179,18 @@ class Scenarios extends BaseController
                     $main = $property;
                 }
             }
+            $expenses = $payload['expenses'] ?? [];
+            if (!is_array($expenses)) {
+                $expenses = [];
+            }
+            if (empty($expenses['items'])) {
+                $expenses['items'] = $payload['expense_items'] ?? [];
+            }
             $packed = \App\Libraries\FinanceDataMapper::pack(
                 $payload['profile'] ?? [],
                 $payload['start_position'] ?? [],
                 $payload['income'] ?? [],
-                $payload['expenses'] ?? [],
+                $expenses,
                 $payload['taxes'] ?? [],
                 $main,
                 $second,
@@ -196,6 +210,14 @@ class Scenarios extends BaseController
             'comparisons' => $comparisons,
             'selected' => $ids,
         ]);
+    }
+
+    /**
+     * @param list<mixed> $items
+     */
+    private function replaceExpenseItems(int $userId, $items): void
+    {
+        (new ExpenseItemModel())->replaceForUser($userId, is_array($items) ? $items : []);
     }
 
     private function upsertRow($model, int $userId, ?array $row): void

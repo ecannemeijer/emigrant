@@ -682,7 +682,14 @@ const expenseData = {
     groceries: <?= $expenses['groceries'] ?? 0 ?>,
     leisure: <?= $expenses['leisure'] ?? 0 ?>,
     unforeseen: <?= $expenses['unforeseen'] ?? 0 ?>,
-    other: <?= $expenses['other'] ?? 0 ?>
+    other: <?= $expenses['other'] ?? 0 ?>,
+    items: <?= json_encode(array_values(array_map(static function ($item) {
+        return [
+            'name' => (string) ($item['name'] ?? ''),
+            'amount' => (float) ($item['amount'] ?? 0),
+            'label' => \App\Models\ExpenseItemModel::categoryLabel((string) ($item['category'] ?? 'other')),
+        ];
+    }, ($expenses ?? [])['items'] ?? [])), JSON_UNESCAPED_UNICODE) ?>
 };
 <?php
 $aowPctText = static function ($pct): string {
@@ -911,6 +918,16 @@ document.addEventListener('DOMContentLoaded', function() {
         let otherExpHtml = '';
         if (expenseData.other > 0) {
             otherExpHtml += `<tr><td>Overige kosten</td><td class=\"text-end\">€ ${formatNumber(expenseData.other)}</td></tr>`;
+        }
+        if (Array.isArray(expenseData.items)) {
+            expenseData.items.forEach(function (item) {
+                if (!item || !(item.amount > 0)) return;
+                const name = String(item.name || 'Kostenpost')
+                    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                const label = String(item.label || 'overig').toLowerCase()
+                    .replace(/&/g, '&amp;').replace(/</g, '&lt;');
+                otherExpHtml += `<tr><td>${name} <small class="text-muted">(${label})</small></td><td class="text-end">€ ${formatNumber(item.amount)}</td></tr>`;
+            });
         }
         // B&B expenses if applicable
         if (bnbExpenseData.extra_energy_water && bnbExpenseData.extra_energy_water > 0) {
@@ -1196,6 +1213,11 @@ document.addEventListener('DOMContentLoaded', function() {
         <?php if (($expenses['leisure'] ?? 0) > 0): ?>expenseData.push(['Vrije tijd', '\ ' + formatNumber(<?= $expenses['leisure'] ?>)]);<?php endif; ?>
         <?php if (($expenses['unforeseen'] ?? 0) > 0): ?>expenseData.push(['Onvoorzien', '\ ' + formatNumber(<?= $expenses['unforeseen'] ?>)]);<?php endif; ?>
         <?php if (($expenses['other'] ?? 0) > 0): ?>expenseData.push(['Overige kosten', '\ ' + formatNumber(<?= $expenses['other'] ?>)]);<?php endif; ?>
+        <?php foreach ((($expenses ?? [])['items'] ?? []) as $item): ?>
+        <?php if ((float) ($item['amount'] ?? 0) > 0): ?>
+        expenseData.push([<?= json_encode(($item['name'] ?? 'Kostenpost') . ' (' . strtolower(\App\Models\ExpenseItemModel::categoryLabel((string) ($item['category'] ?? 'other'))) . ')', JSON_UNESCAPED_UNICODE) ?>, '\ ' + formatNumber(<?= (float) $item['amount'] ?>)]);
+        <?php endif; ?>
+        <?php endforeach; ?>
         <?php endif; ?>
         
         <?php if (!empty($mainProperty)): ?>

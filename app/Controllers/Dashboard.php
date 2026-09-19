@@ -8,6 +8,7 @@ use App\Models\StartPositionModel;
 use App\Models\IncomeModel;
 use App\Models\PropertyModel;
 use App\Models\ExpenseModel;
+use App\Models\ExpenseItemModel;
 use App\Models\TaxModel;
 use App\Models\BnbSettingModel;
 use App\Models\BnbExpenseModel;
@@ -73,6 +74,8 @@ class Dashboard extends BaseController
         $raw['start_position'] = $raw['start_position'] ?? [];
         $raw['start_position']['renovation_outlay'] = 0;
         $raw['start_position']['renovation_by_year'] = [];
+        $raw['expenses'] = $raw['expenses'] ?? [];
+        $raw['expenses']['items'] = (new ExpenseItemModel())->forUser($userId);
         try {
             $renoSettings = (new RenovationSettingModel())->getByUserId($userId);
             $renoModel = new RenovationItemModel();

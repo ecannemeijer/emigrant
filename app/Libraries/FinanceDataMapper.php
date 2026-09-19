@@ -110,7 +110,29 @@ class FinanceDataMapper
             'leisure' => $row['leisure'] ?? 0,
             'unforeseen' => $row['unforeseen'] ?? 0,
             'other' => $row['other'] ?? 0,
+            'items' => is_array($row['items'] ?? null) ? $row['items'] : [],
+            'extra_items_total' => self::extraItemsTotal($row),
         ];
+    }
+
+    /**
+     * @param array<string, mixed> $row
+     */
+    private static function extraItemsTotal(array $row): float
+    {
+        if (isset($row['extra_items_total']) && $row['extra_items_total'] !== '') {
+            return (float) $row['extra_items_total'];
+        }
+
+        $sum = 0.0;
+        foreach ($row['items'] ?? [] as $item) {
+            if (!is_array($item)) {
+                continue;
+            }
+            $sum += (float) ($item['amount'] ?? 0);
+        }
+
+        return $sum;
     }
 
     public static function taxes(?array $row): array

@@ -81,6 +81,15 @@ class Export extends BaseController
         $csvData[] = ['Boodschappen', number_format($expenses['groceries'] ?? 0, 2, ',', '.')];
         $csvData[] = ['Vrije tijd', number_format($expenses['leisure'] ?? 0, 2, ',', '.')];
         $csvData[] = ['Onvoorzien', number_format($expenses['unforeseen'] ?? 0, 2, ',', '.')];
+        $csvData[] = ['Overige kosten', number_format($expenses['other'] ?? 0, 2, ',', '.')];
+        $expenseItems = (new \App\Models\ExpenseItemModel())->forUser((int) $userId);
+        foreach ($expenseItems as $item) {
+            $label = \App\Models\ExpenseItemModel::categoryLabel((string) ($item['category'] ?? 'other'));
+            $csvData[] = [
+                ($item['name'] ?? 'Kostenpost') . ' (' . $label . ')',
+                number_format((float) ($item['amount'] ?? 0), 2, ',', '.'),
+            ];
+        }
         $csvData[] = [''];
 
         $renoModel = new \App\Models\RenovationItemModel();

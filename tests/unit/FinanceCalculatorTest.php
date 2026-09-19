@@ -440,4 +440,37 @@ class FinanceCalculatorTest extends TestCase
         $this->assertEqualsWithDelta(210.0, $result['calculations']['monthly_taxes'], 0.05);
         $this->assertEqualsWithDelta(1000.0, $result['calculations']['rental_income'], 0.01);
     }
+
+    public function testExtraExpenseItemsIncreaseMonthlyExpensesAndInflate(): void
+    {
+        $input = [
+            'profile' => ['date_of_birth' => '1980-01-01', 'retirement_age' => 67],
+            'start_position' => [
+                'house_sale_price' => 0,
+                'savings' => 0,
+                'interest_rate' => 0,
+                'inflation_rate' => 2,
+            ],
+            'income' => ['own_income' => 0, 'own_benefit_type' => 'none'],
+            'expenses' => [
+                'energy' => 100,
+                'items' => [
+                    ['name' => 'Netflix', 'category' => 'subscription', 'amount' => 30],
+                    ['name' => 'Inboedel', 'category' => 'insurance', 'amount' => 20],
+                ],
+            ],
+            'taxes' => [],
+            'bnb_settings' => [],
+            'bnb_expenses' => [],
+        ];
+
+        $without = $this->calc->analyze(array_merge($input, [
+            'expenses' => ['energy' => 100],
+        ]), 2026);
+        $with = $this->calc->analyze($input, 2026);
+
+        $this->assertEqualsWithDelta(100.0, $without['calculations']['monthly_expenses'], 0.02);
+        $this->assertEqualsWithDelta(150.0, $with['calculations']['monthly_expenses'], 0.02);
+        $this->assertEqualsWithDelta(150 * pow(1.02, 5), $with['yearlyProjections'][5]['yearly_expenses'] / 12, 0.1);
+    }
 }
