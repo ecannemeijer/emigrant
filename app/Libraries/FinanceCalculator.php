@@ -431,12 +431,15 @@ class FinanceCalculator
                 'has_partner_aow' => $cf['has_partner_aow'],
                 'has_partner_income' => $cf['has_partner_income'],
                 'has_own_pension' => $cf['has_own_pension'],
+                'has_partner_pension' => $cf['has_partner_pension'],
                 'has_own_aow' => $cf['has_own_aow'],
                 'has_wia' => $cf['has_wia'],
                 'partner_aow_amount' => $cf['partner_aow_amount'],
                 'partner_income_amount' => $cf['partner_income_amount'],
                 'own_aow_amount' => $cf['own_aow_amount'],
                 'pension_amount' => $cf['pension_amount'],
+                'partner_pension_amount' => $cf['partner_pension_amount'],
+                'irpef_nl_amount' => $cf['irpef_nl_amount'],
                 'wia_amount' => $cf['wia_amount'],
                 'own_wia_amount' => $cf['own_wia_amount'],
                 'own_benefit_amount' => $cf['own_benefit_amount'],
@@ -632,18 +635,39 @@ class FinanceCalculator
             $hasOwnAow    = $ownAowAmount > 0;
         }
 
+        $rawPartnerPensionAge = $income['partner_pension_start_age'] ?? null;
+        $partnerPensionAge = ((int) $rawPartnerPensionAge) > 0 ? (int) $rawPartnerPensionAge : $partnerRetAge;
+        $partnerPensionAmount = 0.0;
+        $hasPartnerPension = false;
+        if ($hasPartner && $partnerAge !== null && $partnerAge >= $partnerPensionAge) {
+            $partnerPensionAmount = (float) ($income['partner_pension'] ?? 0);
+            $hasPartnerPension = $partnerPensionAmount > 0;
+        }
+
         $ownOther = (float) ($income['own_other_income'] ?? 0);
         $partnerOther = $hasPartner ? (float) ($income['partner_other_income'] ?? 0) : 0.0;
         $legacyOther = (float) ($income['other_income'] ?? 0);
-        $otherIncome = ($ownOther > 0 || $partnerOther > 0) ? ($ownOther + $partnerOther) : $legacyOther;
+        $usingSplitSalary = ($ownOther > 0 || $partnerOther > 0);
+        if ($stopOwnIncome) {
+            if ($userAge !== null && $userAge >= $userRetAge) {
+                $ownOther = 0.0;
+            }
+            if ($hasPartner && $partnerAge !== null && $partnerAge >= $partnerRetAge) {
+                $partnerOther = 0.0;
+            }
+            if (!$usingSplitSalary && $userAge !== null && $userAge >= $userRetAge) {
+                $legacyOther = 0.0;
+            }
+        }
+        $otherIncome = $usingSplitSalary ? ($ownOther + $partnerOther) : $legacyOther;
         $rentalIncome = (float) ($secondProperty['rental_income'] ?? 0);
 
         $baseMonthly = $ownIncome + $ownWiaAmount + $wiaAmount + $partnerIncomeAmount + $partnerAowAmount
-            + $ownAowAmount + $pensionAmount + $otherIncome + $rentalIncome;
+            + $ownAowAmount + $pensionAmount + $partnerPensionAmount + $otherIncome + $rentalIncome;
 
         $indexedMonthly = $ownWiaAmount + $ownBenefitAmount + $wiaAmount + $partnerIncomeAmount
             + $partnerAowAmount + $ownAowAmount + ($bnbRevenue - $bnbCosts);
-        $nominalMonthly = $pensionAmount + $otherIncome + $rentalIncome;
+        $nominalMonthly = $pensionAmount + $partnerPensionAmount + $otherIncome + $rentalIncome;
 
         $bnbNet             = $bnbRevenue - $bnbCosts;
         $totalMonthlyIncome = $baseMonthly + $bnbNet + $monthlyInterest;
@@ -684,7 +708,14 @@ class FinanceCalculator
         $social          = (float) ($taxes['social_contributions'] ?? 0) * $inflator;
         $road            = ((float) ($taxes['road_tax_yearly'] ?? 0)) / 12 * $inflator;
         $rentalTax       = $rentalIncome * (((float) ($taxes['rental_tax_rate'] ?? 21)) / 100);
-        $monthlyTaxes    = $tariMain + $secondTari + $social + $road + $secondImu + $bnbTax + $rentalTax;
+        $benefitBase     = $ownWiaAmount + $ownBenefitAmount + $wiaAmount + $partnerIncomeAmount;
+        $aowBase         = $ownAowAmount + $partnerAowAmount;
+        $pensionBase     = $pensionAmount + $partnerPensionAmount;
+        $irpefNl         = $otherIncome * ((float) ($taxes['irpef_salary_percent'] ?? 0)) / 100
+            + $benefitBase * ((float) ($taxes['irpef_benefit_percent'] ?? 0)) / 100
+            + $aowBase * ((float) ($taxes['irpef_aow_percent'] ?? 0)) / 100
+            + $pensionBase * ((float) ($taxes['irpef_pension_percent'] ?? 0)) / 100;
+        $monthlyTaxes    = $tariMain + $secondTari + $social + $road + $secondImu + $bnbTax + $rentalTax + $irpefNl;
         $monthlyNet      = $totalMonthlyIncome - $monthlyExpenses - $monthlyTaxes;
 
         return [
@@ -698,6 +729,7 @@ class FinanceCalculator
             'has_partner_aow' => $hasPartnerAow,
             'has_partner_income' => $hasPartnerIncome,
             'has_own_pension' => $hasOwnPension,
+            'has_partner_pension' => $hasPartnerPension,
             'has_own_aow' => $hasOwnAow,
             'has_wia' => $hasWia,
             'has_own_wia' => $hasOwnWia,
@@ -707,6 +739,8 @@ class FinanceCalculator
             'own_aow_amount' => $ownAowAmount,
             'aow_household_factor' => $aowHouseholdFactor,
             'pension_amount' => $pensionAmount,
+            'partner_pension_amount' => $partnerPensionAmount,
+            'irpef_nl_amount' => $irpefNl,
             'wia_amount' => $wiaAmount,
             'wia_amount' => $wiaAmount,
             'own_wia_amount' => $ownWiaAmount,

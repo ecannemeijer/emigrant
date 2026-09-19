@@ -65,8 +65,14 @@
                     </tr>
                     <?php if (($scenarioData['income']['pension'] ?? 0) > 0): ?>
                     <tr>
-                        <td>Pensioen</td>
+                        <td>Pensioen jij</td>
                         <td class="text-end">€ <?= number_format($scenarioData['income']['pension'], 2, ',', '.') ?></td>
+                    </tr>
+                    <?php endif; ?>
+                    <?php if (($scenarioData['income']['partner_pension'] ?? 0) > 0): ?>
+                    <tr>
+                        <td>Pensioen partner</td>
+                        <td class="text-end">€ <?= number_format($scenarioData['income']['partner_pension'], 2, ',', '.') ?></td>
                     </tr>
                     <?php endif; ?>
                     <tr class="fw-bold">
@@ -76,6 +82,7 @@
                             ($scenarioData['income']['own_income'] ?? 0) +
                             ($scenarioData['income']['aow_future'] ?? 0) +
                             ($scenarioData['income']['pension'] ?? 0) +
+                            ($scenarioData['income']['partner_pension'] ?? 0) +
                             ($scenarioData['income']['other_income'] ?? 0), 2, ',', '.'
                         ) ?></td>
                     </tr>

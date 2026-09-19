@@ -165,7 +165,7 @@
                         <tr>
                             <td><strong>Loon per maand</strong></td>
                             <td>Netto loon of freelance (hoofdinkomen)</td>
-                            <td>Altijd actief</td>
+                            <td>Stopt bij de AOW-leeftijd van die persoon (tenzij je dat uitzet)</td>
                         </tr>
                         <tr>
                             <td><strong>WIA (partner)</strong></td>
@@ -189,24 +189,29 @@
                         </tr>
                         <tr>
                             <td><strong>Pensioen</strong></td>
-                            <td>Je pensioenuitkering</td>
+                            <td>Aanvullend pensioen van jou</td>
                             <td>Start op jouw pensioenleeftijd</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Pensioen partner</strong></td>
+                            <td>Aanvullend pensioen van je partner</td>
+                            <td>Start op de pensioenleeftijd van de partner</td>
                         </tr>
                     </tbody>
                 </table>
                 </div>
 
                 <div class="alert alert-warning">
-                    <strong>AOW-reductie:</strong> Als je vóór je AOW-leeftijd emigreert, bouw je minder jaren op (2% per ontbrekend jaar). Samenwonenden krijgen daarnaast per persoon 50% van het netto minimumloon, niet 70% zoals een alleenstaande — twee volle alleenstaandenbedragen is te hoog.
+                    <strong>AOW-reductie:</strong> De SVB telt 2% per verzekerd jaar in de 50 jaar vóór je AOW-leeftijd. Emigreer je eerder, dan mis je die jaren (tenzij je vrijwillig verzekerd blijft). Samenwonenden krijgen daarnaast per persoon 50% van het netto minimumloon, niet 70% zoals een alleenstaande — twee volle alleenstaandenbedragen is te hoog.
                 </div>
 
                 <h4>Voorbeeld berekening</h4>
-                <p>Partner 60 jaar, emigreert op 62, pensioen op 67:</p>
+                <p>Je emigreert op 62, AOW-leeftijd 67. De opbouwperiode is de 50 jaar vóór AOW (vanaf leeftijd 17):</p>
                 <ul>
-                    <li>Opgebouwd in NL: 62 jaar (vanaf 18) = 44 jaar</li>
-                    <li>Totaal mogelijk: 67 jaar (vanaf 18) = 49 jaar</li>
-                    <li>AOW-percentage: 44/49 = <strong>89,8%</strong></li>
+                    <li>Verzekerde jaren in NL: 62 − 17 = 45 jaar</li>
+                    <li>Opbouw: 45 × 2% = <strong>90%</strong></li>
                 </ul>
+                <p class="text-muted mb-0">Vrijwillige AOW-jaren tellen extra mee (ook 2% per jaar), tot maximaal 100%.</p>
             </div>
 
             <hr class="my-5">
@@ -269,9 +274,9 @@
             <hr class="my-5">
 
             <!-- Taxes -->
-            <div class="help-section" id="taxes" data-keywords="belastingen forfettario imu tari sociale bijdrage motorrijtuigenbelasting">
+            <div class="help-section" id="taxes" data-keywords="belastingen forfettario imu tari sociale bijdrage motorrijtuigenbelasting irpef inkomstenbelasting">
                 <h2><i class="bi bi-receipt"></i> Belastingen</h2>
-                <p>Italiaanse belastingen en heffingen.</p>
+                <p>Italiaanse belastingen en heffingen. De app is een netto-kasstroomplanner, geen complete aangifte.</p>
 
                 <h4>Forfettario regeling</h4>
                 <p>Een voordelige belastingregeling voor ZZP'ers / kleine ondernemers in Italië:</p>
@@ -280,6 +285,9 @@
                     <li><strong>Forfettario percentage</strong> — Standaard 15% over omzet</li>
                     <li><strong>Normaal belastingtarief</strong> — Voor als je géén Forfettario hebt (standaard 23%)</li>
                 </ul>
+
+                <h4>IRPEF-schatting op Nederlands inkomen</h4>
+                <p>Italië mag wereldinkomen belasten. Het belastingverdrag bepaalt of NL of IT heffingsrecht heeft op AOW, WIA, loon of pensioen. Vul per inkomstensoort een eenvoudig percentage in; 0% laat je netto bedragen ongemoeid. Dit is geen IRPEF-aangifte — die blijft bij de commercialista.</p>
 
                 <h4>Overige belastingen</h4>
                 <ul>
@@ -375,8 +383,8 @@
                 <p>De SVB kijkt naar je leefvorm. Een alleenstaande krijgt 70% van het netto minimumloon; gehuwd of samenwonend krijgt elk 50%. Twee mensen krijgen samen dus 100%, niet 140% (twee keer het alleenstaandentarief). Vul bij Inkomsten het <em>alleenstaandenbedrag</em> in bij volledige opbouw; het dashboard past 50/70 toe als je met een partner rekent.</p>
 
                 <h4>Hoe werkt de AOW-reductie?</h4>
-                <p>AOW (buitenland) wordt opgebouwd vanaf je 18e tot je pensioenleeftijd. Als je vóór je pensioen emigreert, bouw je minder jaren op in Nederland, dus krijg je een lager percentage.</p>
-                <p><strong>Voorbeeld:</strong> Emigratie op 60, pensioen op 67 → je bouwt 42 jaar op (van 18 tot 60) van de 49 jaar mogelijk (18-67) = 85,7% AOW.</p>
+                <p>AOW (buitenland) bouw je op met 2% per verzekerd jaar in de 50 jaar vóór je AOW-leeftijd. Als je eerder emigreert, bouw je minder jaren op in Nederland, dus krijg je een lager percentage.</p>
+                <p><strong>Voorbeeld:</strong> Emigratie op 60, AOW op 67 → verzekerde jaren: 60 − (67 − 50) = 43 jaar × 2% = <strong>86%</strong> AOW.</p>
 
                 <h4>Waarom is mijn vermogen negatief?</h4>
                 <p>Dit kan gebeuren als de aankoopprijs van je woning(en) + aankoopkosten hoger is dan je startvermogen. Check je Startpositie Nederland en vastgoedprijzen.</p>

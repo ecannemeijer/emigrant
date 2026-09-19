@@ -194,5 +194,83 @@ check(abs(($withExtra['calculations']['monthly_expenses'] ?? 0) - 150) < 0.02, '
 $year5exp = ($withExtra['yearlyProjections'][5]['yearly_expenses'] ?? 0) / 12;
 check(abs($year5exp - 150 * pow(1.02, 5)) < 0.1, 'extra items inflate year 5 '.$year5exp);
 
+$help86 = $calc->calculateAowPercentage('2020-01-01', '1960-01-01', 67);
+$help90 = $calc->calculateAowPercentage('2022-01-01', '1960-01-01', 67);
+check(abs($help86 - 86) < 0.02, "AOW help 86% got $help86");
+check(abs($help90 - 90) < 0.02, "AOW help 90% got $help90");
+
+$salary = $calc->analyze([
+    'profile' => [
+        'date_of_birth' => '1970-01-01',
+        'emigration_date' => '2015-01-01',
+        'retirement_age' => 67,
+    ],
+    'start_position' => ['house_sale_price' => 0, 'savings' => 0, 'interest_rate' => 0, 'inflation_rate' => 0],
+    'income' => [
+        'has_partner' => 0,
+        'own_benefit_type' => 'none',
+        'own_other_income' => 2000,
+        'income_stops_at_retirement' => 1,
+        'pension' => 400,
+        'pension_start_age' => 67,
+    ],
+    'expenses' => [],
+    'taxes' => [],
+    'bnb_settings' => [],
+    'bnb_expenses' => [],
+], 2026);
+check(abs(($salary['calculations']['own_other_income'] ?? -1) - 2000) < 0.01, 'salary before AOW');
+$retiredSalary = null;
+foreach ($salary['yearlyProjections'] as $row) {
+    if ((int) ($row['user_age'] ?? 0) >= 67) {
+        $retiredSalary = $row;
+        break;
+    }
+}
+check($retiredSalary && abs($retiredSalary['own_other_income'] - 0) < 0.01, 'salary stops at AOW');
+check($retiredSalary && abs($retiredSalary['pension_amount'] - 400) < 0.01, 'pension starts at AOW');
+
+$partnerPen = $calc->analyze([
+    'profile' => [
+        'date_of_birth' => '1970-01-01',
+        'partner_date_of_birth' => '1958-01-01',
+        'emigration_date' => '2040-01-01',
+        'retirement_age' => 67,
+        'partner_retirement_age' => 67,
+        'has_partner' => 1,
+    ],
+    'start_position' => ['house_sale_price' => 0, 'savings' => 0, 'interest_rate' => 0, 'inflation_rate' => 0],
+    'income' => [
+        'has_partner' => 1,
+        'own_benefit_type' => 'none',
+        'partner_benefit_type' => 'none',
+        'pension' => 300,
+        'partner_pension' => 450,
+    ],
+    'expenses' => [],
+    'taxes' => [],
+    'bnb_settings' => [],
+    'bnb_expenses' => [],
+], 2026);
+check(abs(($partnerPen['calculations']['pension_amount'] ?? -1) - 0) < 0.01, 'own pension not yet');
+check(abs(($partnerPen['calculations']['partner_pension_amount'] ?? -1) - 450) < 0.01, 'partner pension at 67');
+
+$irpef = $calc->analyze([
+    'profile' => ['date_of_birth' => '1980-01-01', 'retirement_age' => 67],
+    'start_position' => ['house_sale_price' => 0, 'savings' => 0, 'interest_rate' => 0],
+    'income' => [
+        'has_partner' => 0,
+        'own_benefit_type' => 'none',
+        'own_other_income' => 2000,
+        'income_stops_at_retirement' => 1,
+    ],
+    'expenses' => [],
+    'taxes' => ['irpef_salary_percent' => 15],
+    'bnb_settings' => [],
+    'bnb_expenses' => [],
+], 2026);
+check(abs(($irpef['calculations']['irpef_nl_amount'] ?? -1) - 300) < 0.05, 'IRPEF 15% on salary');
+check(abs(($irpef['calculations']['monthly_taxes'] ?? -1) - 300) < 0.05, 'IRPEF in monthly taxes');
+
 echo $fail === 0 ? "\nAll good\n" : "\n$fail failed\n";
 exit($fail === 0 ? 0 : 1);

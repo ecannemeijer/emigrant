@@ -52,7 +52,7 @@ if ((float) $ownOther === 0.0 && (float) $partnerOther === 0.0 && (float) ($inco
                             <span class="input-group-text">€</span>
                             <input type="number" step="0.01" class="form-control" id="own_other_income" name="own_other_income" value="<?= esc($ownOther) ?>">
                         </div>
-                        <small class="text-muted">Netto loon of freelance. Dit is het hoofdinkomen en stopt niet automatisch bij AOW.</small>
+                        <small class="text-muted">Netto loon of freelance. Stopt bij je AOW-leeftijd als je dat hieronder aanzet.</small>
                     </div>
 
                     <label class="form-label">Soort uitkering tot AOW</label>
@@ -112,7 +112,7 @@ if ((float) $ownOther === 0.0 && (float) $partnerOther === 0.0 && (float) ($inco
                             <span class="input-group-text">€</span>
                             <input type="number" step="0.01" class="form-control" id="partner_other_income" name="partner_other_income" value="<?= esc($partnerOther) ?>">
                         </div>
-                        <small class="text-muted">Netto loon of freelance. Dit is het hoofdinkomen en stopt niet automatisch bij AOW.</small>
+                        <small class="text-muted">Netto loon of freelance. Stopt bij de AOW-leeftijd van <?= esc($partnerName) ?> als je dat hieronder aanzet.</small>
                     </div>
 
                     <label class="form-label">Soort uitkering tot AOW</label>
@@ -147,6 +147,16 @@ if ((float) $ownOther === 0.0 && (float) $partnerOther === 0.0 && (float) ($inco
                         <input type="number" min="60" max="75" class="form-control" id="partner_aow_start_age" name="partner_aow_start_age" value="<?= esc($partnerAowAge) ?>">
                         <small class="text-muted">Telt mee vanaf deze leeftijd van <?= esc($partnerName) ?> (nu <?= (int) $partnerAowAge ?>), dan al geïndexeerd vanaf nu.</small>
                     </div>
+
+                    <div class="mb-0">
+                        <label for="partner_pension" class="form-label">Aanvullend pensioen netto per maand</label>
+                        <div class="input-group">
+                            <span class="input-group-text">€</span>
+                            <input type="number" step="0.01" class="form-control" id="partner_pension" name="partner_pension" value="<?= esc($income['partner_pension'] ?? 0) ?>">
+                        </div>
+                        <small class="text-muted">Start op pensioenleeftijd in het profiel van <?= esc($partnerName) ?> (<?= (int) ($profile['partner_retirement_age'] ?? 67) ?>). Niet geïndexeerd.</small>
+                    </div>
+                    <input type="hidden" name="partner_pension_start_age" value="<?= esc($income['partner_pension_start_age'] ?? ($profile['partner_retirement_age'] ?? 67)) ?>">
                 </div>
             </div>
         </div>
@@ -154,6 +164,11 @@ if ((float) $ownOther === 0.0 && (float) $partnerOther === 0.0 && (float) ($inco
 
     <div class="form-footer mt-4">
         <div>
+            <div class="form-check mb-3">
+                <input class="form-check-input" type="checkbox" id="income_stops_at_retirement" name="income_stops_at_retirement" value="1"
+                       <?= !isset($income['income_stops_at_retirement']) || (int) $income['income_stops_at_retirement'] === 1 ? 'checked' : '' ?>>
+                <label class="form-check-label" for="income_stops_at_retirement">Loon stopt bij AOW-leeftijd van die persoon</label>
+            </div>
             <label for="minimum_monthly_income" class="form-label">Minimum netto per maand (waarschuwing)</label>
             <div class="input-group">
                 <span class="input-group-text">€</span>

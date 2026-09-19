@@ -31,6 +31,8 @@ class IncomeModel extends Model
         'partner_other_income',
         'own_aow_start_age',
         'partner_aow_start_age',
+        'partner_pension',
+        'partner_pension_start_age',
     ];
 
     // Dates

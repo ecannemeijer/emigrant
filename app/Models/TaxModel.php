@@ -24,7 +24,11 @@ class TaxModel extends Model
         'profitability_coefficient',
         'startup_rate_enabled',
         'rental_tax_rate',
-        'forfettario_limit'
+        'forfettario_limit',
+        'irpef_salary_percent',
+        'irpef_benefit_percent',
+        'irpef_aow_percent',
+        'irpef_pension_percent',
     ];
 
     // Dates

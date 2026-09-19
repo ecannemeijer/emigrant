@@ -88,6 +88,8 @@ class FinanceDataMapper
             'own_aow_start_age' => $row['own_aow_start_age'] ?? null,
             'partner_aow_start_age' => $row['partner_aow_start_age'] ?? $row['aow_start_age'] ?? null,
             'pension_start_age' => $row['pension_start_age'] ?? 67,
+            'partner_pension' => $row['partner_pension'] ?? 0,
+            'partner_pension_start_age' => $row['partner_pension_start_age'] ?? null,
             'income_stops_at_retirement' => $row['income_stops_at_retirement'] ?? 1,
             'minimum_monthly_income' => $row['minimum_monthly_income'] ?? 0,
             'has_partner' => $row['has_partner'] ?? null,
@@ -150,6 +152,10 @@ class FinanceDataMapper
             'startup_rate_enabled' => $row['startup_rate_enabled'] ?? 1,
             'rental_tax_rate' => $row['rental_tax_rate'] ?? 21,
             'forfettario_limit' => $row['forfettario_limit'] ?? 85000,
+            'irpef_salary_percent' => $row['irpef_salary_percent'] ?? 0,
+            'irpef_benefit_percent' => $row['irpef_benefit_percent'] ?? 0,
+            'irpef_aow_percent' => $row['irpef_aow_percent'] ?? 0,
+            'irpef_pension_percent' => $row['irpef_pension_percent'] ?? 0,
         ];
     }
 

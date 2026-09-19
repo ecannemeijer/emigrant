@@ -70,6 +70,48 @@
                         <label class="form-check-label" for="startup_rate_enabled">Starttarief 5% eerste 5 jaar na emigratie</label>
                     </div>
 
+                    <h5 class="mb-3 mt-4">IRPEF-schatting op Nederlands inkomen</h5>
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle"></i>
+                        Italië mag wereldinkomen belasten; het belastingverdrag bepaalt of NL of IT heffingsrecht heeft.
+                        Vul hier een <strong>eenvoudig percentage</strong> in over de netto bedragen die je bij Inkomsten hebt ingevuld.
+                        0% laat de projectie ongewijzigd (bewust netto). Dit is geen complete IRPEF-aangifte: stem het af met je commercialista.
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="irpef_salary_percent" class="form-label">Op loon / freelance</label>
+                            <div class="input-group">
+                                <input type="number" step="0.01" min="0" max="100" class="form-control" id="irpef_salary_percent"
+                                       name="irpef_salary_percent" value="<?= esc($taxes['irpef_salary_percent'] ?? 0) ?>">
+                                <span class="input-group-text">%</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="irpef_benefit_percent" class="form-label">Op WIA / uitkering</label>
+                            <div class="input-group">
+                                <input type="number" step="0.01" min="0" max="100" class="form-control" id="irpef_benefit_percent"
+                                       name="irpef_benefit_percent" value="<?= esc($taxes['irpef_benefit_percent'] ?? 0) ?>">
+                                <span class="input-group-text">%</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="irpef_aow_percent" class="form-label">Op AOW</label>
+                            <div class="input-group">
+                                <input type="number" step="0.01" min="0" max="100" class="form-control" id="irpef_aow_percent"
+                                       name="irpef_aow_percent" value="<?= esc($taxes['irpef_aow_percent'] ?? 0) ?>">
+                                <span class="input-group-text">%</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="irpef_pension_percent" class="form-label">Op aanvullend pensioen</label>
+                            <div class="input-group">
+                                <input type="number" step="0.01" min="0" max="100" class="form-control" id="irpef_pension_percent"
+                                       name="irpef_pension_percent" value="<?= esc($taxes['irpef_pension_percent'] ?? 0) ?>">
+                                <span class="input-group-text">%</span>
+                            </div>
+                        </div>
+                    </div>
+
                     <h5 class="mb-3 mt-4">Vastgoedbelastingen</h5>
                     <div class="alert alert-info">
                         <i class="bi bi-info-circle"></i> 
@@ -140,6 +182,9 @@
                 </p>
                 <p class="small">
                     <strong>TARI:</strong> Afvalbelasting, varieert per gemeente en grootte woning.
+                </p>
+                <p class="small mb-0">
+                    <strong>IRPEF-schatting:</strong> optioneel percentage op NL-inkomen. Laat 0 als je al netto invult en Italië niet extra heft.
                 </p>
             </div>
         </div>

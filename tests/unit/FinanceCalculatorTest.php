@@ -473,4 +473,138 @@ class FinanceCalculatorTest extends TestCase
         $this->assertEqualsWithDelta(150.0, $with['calculations']['monthly_expenses'], 0.02);
         $this->assertEqualsWithDelta(150 * pow(1.02, 5), $with['yearlyProjections'][5]['yearly_expenses'] / 12, 0.1);
     }
+
+    public function testAowPercentageMatchesHelpTwoPercentRule(): void
+    {
+        $this->assertEqualsWithDelta(86.0, $this->calc->calculateAowPercentage('2020-01-01', '1960-01-01', 67), 0.02);
+        $this->assertEqualsWithDelta(90.0, $this->calc->calculateAowPercentage('2022-01-01', '1960-01-01', 67), 0.02);
+    }
+
+    public function testSalaryStopsAtRetirementAge(): void
+    {
+        $result = $this->calc->analyze([
+            'profile' => [
+                'date_of_birth' => '1970-01-01',
+                'emigration_date' => '2015-01-01',
+                'retirement_age' => 67,
+            ],
+            'start_position' => [
+                'house_sale_price' => 0,
+                'savings' => 0,
+                'interest_rate' => 0,
+                'inflation_rate' => 0,
+            ],
+            'income' => [
+                'has_partner' => 0,
+                'own_benefit_type' => 'none',
+                'own_other_income' => 2000,
+                'income_stops_at_retirement' => 1,
+                'pension' => 400,
+                'pension_start_age' => 67,
+            ],
+            'expenses' => [],
+            'taxes' => [],
+            'bnb_settings' => [],
+            'bnb_expenses' => [],
+        ], 2026);
+
+        $this->assertEqualsWithDelta(2000.0, $result['calculations']['own_other_income'], 0.01);
+        $this->assertEquals(0.0, $result['calculations']['pension_amount']);
+
+        $retired = null;
+        foreach ($result['yearlyProjections'] as $row) {
+            if ((int) $row['user_age'] >= 67) {
+                $retired = $row;
+                break;
+            }
+        }
+        $this->assertNotNull($retired);
+        $this->assertEqualsWithDelta(0.0, $retired['own_other_income'], 0.01);
+        $this->assertEqualsWithDelta(400.0, $retired['pension_amount'], 0.01);
+        $this->assertEqualsWithDelta(400.0, $retired['monthly_income'], 0.5);
+    }
+
+    public function testPartnerPensionStartsAtPartnerRetirement(): void
+    {
+        $result = $this->calc->analyze([
+            'profile' => [
+                'date_of_birth' => '1970-01-01',
+                'partner_date_of_birth' => '1958-01-01',
+                'emigration_date' => '2040-01-01',
+                'retirement_age' => 67,
+                'partner_retirement_age' => 67,
+                'has_partner' => 1,
+            ],
+            'start_position' => [
+                'house_sale_price' => 0,
+                'savings' => 0,
+                'interest_rate' => 0,
+                'inflation_rate' => 0,
+            ],
+            'income' => [
+                'has_partner' => 1,
+                'own_benefit_type' => 'none',
+                'partner_benefit_type' => 'none',
+                'pension' => 300,
+                'partner_pension' => 450,
+            ],
+            'expenses' => [],
+            'taxes' => [],
+            'bnb_settings' => [],
+            'bnb_expenses' => [],
+        ], 2026);
+
+        $this->assertEquals(56, $result['yearlyProjections'][0]['user_age']);
+        $this->assertEquals(68, $result['yearlyProjections'][0]['partner_age']);
+        $this->assertEqualsWithDelta(0.0, $result['calculations']['pension_amount'], 0.01);
+        $this->assertEqualsWithDelta(450.0, $result['calculations']['partner_pension_amount'], 0.01);
+        $this->assertEqualsWithDelta(450.0, $result['calculations']['monthly_income'], 0.5);
+    }
+
+    public function testIrpefEstimateOnNlIncome(): void
+    {
+        $working = $this->calc->analyze([
+            'profile' => [
+                'date_of_birth' => '1980-01-01',
+                'retirement_age' => 67,
+            ],
+            'start_position' => ['house_sale_price' => 0, 'savings' => 0, 'interest_rate' => 0],
+            'income' => [
+                'has_partner' => 0,
+                'own_benefit_type' => 'none',
+                'own_other_income' => 2000,
+                'income_stops_at_retirement' => 1,
+            ],
+            'expenses' => [],
+            'taxes' => ['irpef_salary_percent' => 15],
+            'bnb_settings' => [],
+            'bnb_expenses' => [],
+        ], 2026);
+        $this->assertEqualsWithDelta(300.0, $working['calculations']['irpef_nl_amount'], 0.05);
+        $this->assertEqualsWithDelta(300.0, $working['calculations']['monthly_taxes'], 0.05);
+
+        $retired = $this->calc->analyze([
+            'profile' => [
+                'date_of_birth' => '1958-01-01',
+                'emigration_date' => '2040-01-01',
+                'retirement_age' => 67,
+            ],
+            'start_position' => ['house_sale_price' => 0, 'savings' => 0, 'interest_rate' => 0, 'inflation_rate' => 0],
+            'income' => [
+                'has_partner' => 0,
+                'own_benefit_type' => 'none',
+                'own_aow' => 1000,
+                'own_aow_start_age' => 67,
+                'pension' => 500,
+                'pension_start_age' => 67,
+            ],
+            'expenses' => [],
+            'taxes' => ['irpef_aow_percent' => 10, 'irpef_pension_percent' => 20],
+            'bnb_settings' => [],
+            'bnb_expenses' => [],
+        ], 2026);
+        $this->assertEqualsWithDelta(100.0, $retired['calculations']['own_aow_amount'] * 0.10, 0.05);
+        $this->assertEqualsWithDelta(100.0 + 100.0, $retired['calculations']['irpef_nl_amount'], 0.05);
+        $this->assertEqualsWithDelta(200.0, $retired['calculations']['monthly_taxes'], 0.05);
+    }
 }

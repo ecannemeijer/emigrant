@@ -260,6 +260,7 @@ class ChecklistGuide
                     'Schrijf je in bij de Agenzia delle Entrate en geef je status als residente fiscale door (vaak via CAF of commercialista).',
                     'Vraag een certificato di residenza fiscale als NL-instellingen dat willen.',
                     'Kies samen met een commercialista de juiste boxes: IRPEF, cedolare secca op verhuur, forfettario op B&B.',
+                    'Op Belastingen kun je een eenvoudige IRPEF-schatting (%) zetten op NL-loon, uitkering, AOW en pensioen; de echte aangifte blijft bij de commercialista.',
                     'IMU, TARI en eventueel IVIE/IVAFE op buitenlands vermogen kunnen spelen; dit hangt van je aangifte af.',
                 ],
                 'where' => [

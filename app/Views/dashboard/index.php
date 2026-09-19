@@ -327,6 +327,8 @@ $partnerNameDash = trim($profile['partner_name'] ?? '') !== '' ? $profile['partn
                             $partnerAowAmount = $projection['partner_aow_amount'] ?? 0;
                             $ownAowAmount = $projection['own_aow_amount'] ?? 0;
                             $pensionAmount = $projection['pension_amount'] ?? 0;
+                            $partnerPensionAmount = $projection['partner_pension_amount'] ?? 0;
+                            $irpefNlAmount = $projection['irpef_nl_amount'] ?? 0;
                             $bnbAmount = $projection['bnb_monthly'] ?? 0;
                             $monthlyInterest = $projection['monthly_interest'] ?? 0;
                             $ownOtherAmount = $projection['own_other_income'] ?? 0;
@@ -348,6 +350,8 @@ $partnerNameDash = trim($profile['partner_name'] ?? '') !== '' ? $profile['partn
                                 data-own-other="<?= $ownOtherAmount ?>"
                                 data-partner-other="<?= $partnerOtherAmount ?>"
                                 data-pension="<?= $pensionAmount ?>"
+                                data-partner-pension="<?= $partnerPensionAmount ?>"
+                                data-irpef="<?= $irpefNlAmount ?>"
                                 data-bnb="<?= $bnbAmount ?>"
                                 data-monthly-interest="<?= $monthlyInterest ?>"
                                 data-monthly-income="<?= $projection['monthly_income'] ?>"
@@ -398,10 +402,13 @@ $partnerNameDash = trim($profile['partner_name'] ?? '') !== '' ? $profile['partn
                                     <?php endif; ?>
                                     <?php if ($projection['has_own_pension']): ?>
                                         <?php if ($pensionAmount > 0): ?>
-                                            <span class="badge bg-success" title="Pensioen: € <?= number_format($pensionAmount, 0, ',', '.') ?>/mnd">Pensioen</span>
+                                            <span class="badge bg-success" title="Pensioen <?= esc($youNameDash) ?>: € <?= number_format($pensionAmount, 0, ',', '.') ?>/mnd">Pensioen <?= esc($youNameDash) ?></span>
                                         <?php else: ?>
-                                            <span class="badge bg-warning text-dark">Pensioen € 0</span>
+                                            <span class="badge bg-warning text-dark">Pensioen <?= esc($youNameDash) ?> € 0</span>
                                         <?php endif; ?>
+                                    <?php endif; ?>
+                                    <?php if (!empty($projection['has_partner_pension']) && $partnerPensionAmount > 0): ?>
+                                        <span class="badge bg-success" title="Pensioen <?= esc($partnerNameDash) ?>: € <?= number_format($partnerPensionAmount, 0, ',', '.') ?>/mnd">Pensioen <?= esc($partnerNameDash) ?></span>
                                     <?php endif; ?>
                                     <?php if ($projection['has_own_aow']): ?>
                                         <span class="badge bg-primary" title="AOW <?= esc($youNameDash) ?>: € <?= number_format($ownAowAmount, 0, ',', '.') ?>/mnd">AOW <?= esc($youNameDash) ?></span>
@@ -770,6 +777,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 partnerAow: parseFloat(this.dataset.partnerAow),
                 ownAow: parseFloat(this.dataset.ownAow),
                 pension: parseFloat(this.dataset.pension),
+                partnerPension: parseFloat(this.dataset.partnerPension || '0'),
+                irpef: parseFloat(this.dataset.irpef || '0'),
                 bnb: parseFloat(this.dataset.bnb),
                 monthlyInterest: parseFloat(this.dataset.monthlyInterest),
                 monthlyIncome: parseFloat(this.dataset.monthlyIncome),
@@ -842,6 +851,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         if (data.pension > 0) {
             incomeHtml += `<tr><td>Aanvullend pensioen ${data.youName}</td><td class="text-end text-success"><strong>€ ${formatNumber(data.pension)}</strong></td></tr>`;
+        }
+        if (data.partnerPension > 0) {
+            incomeHtml += `<tr><td>Aanvullend pensioen ${data.partnerName}</td><td class="text-end text-success"><strong>€ ${formatNumber(data.partnerPension)}</strong></td></tr>`;
         }
         if (data.bnb > 0) {
             incomeHtml += `<tr><td>B&B Netto inkomen</td><td class=\"text-end\">€ ${formatNumber(data.bnb)}</td></tr>`;
@@ -976,6 +988,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         if (taxData.second_tari && taxData.second_tari > 0) {
             taxesHtml += `<tr><td>TARI tweede woning</td><td class=\"text-end\">€ ${formatNumber(taxData.second_tari)}</td></tr>`;
+        }
+        if (data.irpef > 0) {
+            taxesHtml += `<tr><td>IRPEF-schatting op NL-inkomen</td><td class="text-end">€ ${formatNumber(data.irpef)}</td></tr>`;
         }
         if (!taxesHtml) taxesHtml = '<tr><td colspan=\"2\" class=\"text-muted\"><em>Geen belastingen</em></td></tr>';
         document.getElementById('taxes-breakdown').innerHTML = taxesHtml;
@@ -1152,7 +1167,10 @@ document.addEventListener('DOMContentLoaded', function() {
         incomeData.push(['AOW partner (huidig, groeit met indexatie)', '\ ' + formatNumber(<?= ($income['aow_future'] ?? 0) * (float) ($calculations['aow_household_factor'] ?? 1) ?>)]);
         <?php endif; ?>
         <?php if (($income['pension'] ?? 0) > 0): ?>
-        incomeData.push(['Aanvullend pensioen (niet geïndexeerd)', '\ ' + formatNumber(<?= $income['pension'] ?>)]);
+        incomeData.push(['Aanvullend pensioen <?= esc($profile['first_name'] ?? 'jij') ?> (niet geïndexeerd)', '\ ' + formatNumber(<?= $income['pension'] ?>)]);
+        <?php endif; ?>
+        <?php if (($income['partner_pension'] ?? 0) > 0): ?>
+        incomeData.push(['Aanvullend pensioen <?= esc($profile['partner_name'] ?? 'Partner') ?> (niet geïndexeerd)', '\ ' + formatNumber(<?= $income['partner_pension'] ?>)]);
         <?php endif; ?>
         <?php if (($calculations['bnb_net_income'] ?? 0) > 0): ?>
         incomeData.push(['B&B netto inkomen', '\ ' + formatNumber(<?= $calculations['bnb_net_income'] ?>)]);
@@ -1298,6 +1316,9 @@ document.addEventListener('DOMContentLoaded', function() {
         <?php endif; ?>
         <?php if (($calculations['bnb_net_income'] ?? 0) > 0 && !empty($taxes) && ($taxes['forfettario_enabled'] ?? 0)): ?>
         taxData.push(['B&B belasting (Forfettario)', '\ ' + formatNumber((<?= $calculations['bnb_revenue'] ?? 0 ?> * <?= $taxes['forfettario_percentage'] ?? 15 ?>) / 100)]);
+        <?php endif; ?>
+        <?php if (($calculations['irpef_nl_amount'] ?? 0) > 0): ?>
+        taxData.push(['IRPEF-schatting op NL-inkomen', '\ ' + formatNumber(<?= $calculations['irpef_nl_amount'] ?>)]);
         <?php endif; ?>
         
         if (taxData.length > 0) {

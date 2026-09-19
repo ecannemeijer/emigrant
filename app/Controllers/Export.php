@@ -30,7 +30,7 @@ class Export extends BaseController
         $mainProperty = $propertyModel->getMainProperty($userId);
         $secondProperty = $propertyModel->getSecondProperty($userId);
         $expenses = $expenseModel->getByUserId($userId);
-        $taxes = $taxModel->getByUserId($userId);
+        $taxes = $taxModel->getByUserId($userId) ?? [];
         $bnbSettings = $bnbSettingModel->getByUserId($userId);
         $bnbExpenses = $bnbExpenseModel->getByUserId($userId);
 
@@ -58,7 +58,15 @@ class Export extends BaseController
         $csvData[] = ['Uitkering partner', number_format($income['wia_wife'] ?? 0, 2, ',', '.')];
         $csvData[] = ['AOW partner', number_format($income['aow_future'] ?? 0, 2, ',', '.')];
         $csvData[] = ['Loon partner', number_format($income['partner_other_income'] ?? 0, 2, ',', '.')];
-        $csvData[] = ['Aanvullend pensioen', number_format($income['pension'] ?? 0, 2, ',', '.')];
+        $csvData[] = ['Aanvullend pensioen persoon 1', number_format($income['pension'] ?? 0, 2, ',', '.')];
+        $csvData[] = ['Aanvullend pensioen partner', number_format($income['partner_pension'] ?? 0, 2, ',', '.')];
+        $csvData[] = ['Loon stopt bij AOW', ((int) ($income['income_stops_at_retirement'] ?? 1)) === 1 ? 'ja' : 'nee'];
+        $csvData[] = [''];
+        $csvData[] = ['IRPEF-SCHATTING OP NL-INKOMEN (%)'];
+        $csvData[] = ['Op loon', number_format($taxes['irpef_salary_percent'] ?? 0, 2, ',', '.')];
+        $csvData[] = ['Op WIA/uitkering', number_format($taxes['irpef_benefit_percent'] ?? 0, 2, ',', '.')];
+        $csvData[] = ['Op AOW', number_format($taxes['irpef_aow_percent'] ?? 0, 2, ',', '.')];
+        $csvData[] = ['Op pensioen', number_format($taxes['irpef_pension_percent'] ?? 0, 2, ',', '.')];
         $csvData[] = [''];
 
         // Properties

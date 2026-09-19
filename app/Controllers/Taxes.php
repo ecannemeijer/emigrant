@@ -37,6 +37,10 @@ class Taxes extends BaseController
             'startup_rate_enabled' => $this->request->getPost('startup_rate_enabled') ? 1 : 0,
             'rental_tax_rate' => $this->request->getPost('rental_tax_rate') ?? 21,
             'forfettario_limit' => $this->request->getPost('forfettario_limit') ?? 85000,
+            'irpef_salary_percent' => (float) ($this->request->getPost('irpef_salary_percent') ?: 0),
+            'irpef_benefit_percent' => (float) ($this->request->getPost('irpef_benefit_percent') ?: 0),
+            'irpef_aow_percent' => (float) ($this->request->getPost('irpef_aow_percent') ?: 0),
+            'irpef_pension_percent' => (float) ($this->request->getPost('irpef_pension_percent') ?: 0),
         ];
 
         $existing = $model->getByUserId($userId);
