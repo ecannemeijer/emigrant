@@ -143,6 +143,12 @@ $partnerNameAow = trim($profile['partner_name'] ?? '') !== '' ? $profile['partne
 
 <!-- What-If Slider Panel -->
 <?php if (!empty($yearlyProjections)): ?>
+<?php
+$wiInterestRate = (float) ($startPosition['interest_rate'] ?? 2);
+$wiInflationRate = (isset($startPosition['inflation_rate']) && $startPosition['inflation_rate'] !== '' && $startPosition['inflation_rate'] !== null)
+    ? (float) $startPosition['inflation_rate']
+    : 0.0;
+?>
 <div class="row mt-4" id="whatIfSection">
     <div class="col-12">
         <div class="card border-warning">
@@ -186,11 +192,11 @@ $partnerNameAow = trim($profile['partner_name'] ?? '') !== '' ? $profile['partne
                             <div class="mb-3">
                                 <label class="form-label d-flex justify-content-between">
                                     <span><i class="bi bi-percent text-primary"></i> Rente/rendement</span>
-                                    <strong class="text-primary" id="wiInterestVal"><?= $startPosition['interest_rate'] ?? 2 ?>%</strong>
+                                    <strong class="text-primary" id="wiInterestVal"><?= number_format($wiInterestRate, 2, ',', '.') ?>%</strong>
                                 </label>
                                 <input type="range" class="form-range" id="wiInterest"
                                        min="0" max="10" step="0.25"
-                                       value="<?= $startPosition['interest_rate'] ?? 2 ?>"
+                                       value="<?= $wiInterestRate ?>"
                                        oninput="updateWhatIf()">
                                 <div class="d-flex justify-content-between"><small class="text-muted">0%</small><small class="text-muted">10%</small></div>
                             </div>
@@ -198,10 +204,10 @@ $partnerNameAow = trim($profile['partner_name'] ?? '') !== '' ? $profile['partne
                             <div class="mb-3">
                                 <label class="form-label d-flex justify-content-between">
                                     <span><i class="bi bi-graph-up text-warning"></i> Indexatie (lasten, WIA, AOW)</span>
-                                    <strong class="text-warning" id="wiInflationVal"><?= number_format((float) ($startPosition['inflation_rate'] ?? 2), 2, ',', '.') ?>%</strong>
+                                    <strong class="text-warning" id="wiInflationVal"><?= number_format($wiInflationRate, 2, ',', '.') ?>%</strong>
                                 </label>
                                 <input type="range" class="form-range" id="wiInflation"
-                                       min="0" max="6" step="0.25" value="<?= (float) ($startPosition['inflation_rate'] ?? 2) ?>"
+                                       min="0" max="6" step="0.25" value="<?= $wiInflationRate ?>"
                                        oninput="updateWhatIf()">
                                 <div class="d-flex justify-content-between"><small class="text-muted">0%</small><small class="text-muted">6%</small></div>
                             </div>
@@ -255,9 +261,9 @@ $partnerNameAow = trim($profile['partner_name'] ?? '') !== '' ? $profile['partne
                         <!-- Mini projection table -->
                         <div class="col-lg-5">
                             <h6 class="text-muted mb-3"><i class="bi bi-table"></i> Projectie met aanpassingen
-                                <small class="fw-normal">(groen = beter, rood = slechter)</small>
+                                <small class="fw-normal">(zonder sliders gelijk aan de jaartabel)</small>
                             </h6>
-                            <div class="table-responsive">
+                            <div class="table-responsive" style="max-height: 28rem;">
                                 <table class="table table-sm table-bordered mb-0" style="font-size:0.8rem">
                                     <thead class="table-dark">
                                         <tr>
@@ -1480,13 +1486,17 @@ const wiBaseProjections = <?= json_encode(array_map(function($p) {
 }, $yearlyProjections)) ?>;
 
 const wiBaseCapital     = <?= round($calculations['remaining_capital'] ?? 0, 2) ?>;
-const wiBaseInterest    = <?= round($startPosition['interest_rate'] ?? 2, 2) ?>;
-const wiOrigInflation   = <?= round((float) ($startPosition['inflation_rate'] ?? 2), 2) ?>;
+const wiBaseInterest    = <?= json_encode($wiInterestRate) ?>;
+const wiOrigInflation   = <?= json_encode($wiInflationRate) ?>;
 
 function wiFormat(val) {
     const abs = Math.abs(val);
     const str = '€\u00a0' + abs.toLocaleString('nl-NL', {minimumFractionDigits: 0, maximumFractionDigits: 0});
     return val < 0 ? '-' + str : str;
+}
+
+function wiNear(a, b) {
+    return Math.abs(Number(a) - Number(b)) < 0.005;
 }
 
 function updateWhatIf() {
@@ -1495,7 +1505,6 @@ function updateWhatIf() {
     const interestRate  = parseFloat(document.getElementById('wiInterest').value);
     const inflation     = parseFloat(document.getElementById('wiInflation').value);
 
-    // Update labels
     const fmtInc = (extraIncome >= 0 ? '+€ ' : '-€ ') + Math.abs(extraIncome).toLocaleString('nl-NL');
     document.getElementById('wiExtraIncomeVal').textContent = fmtInc;
     const fmtExp = (extraExpenses >= 0 ? '+€ ' : '-€ ') + Math.abs(extraExpenses).toLocaleString('nl-NL');
@@ -1503,7 +1512,10 @@ function updateWhatIf() {
     document.getElementById('wiInterestVal').textContent = interestRate.toFixed(2).replace('.', ',') + '%';
     document.getElementById('wiInflationVal').textContent = inflation.toFixed(2).replace('.', ',') + '%';
 
-    // Recalculate projections. At default sliders this must match the echte jaartabel.
+    const passthrough = extraIncome === 0 && extraExpenses === 0
+        && wiNear(interestRate, wiBaseInterest)
+        && wiNear(inflation, wiOrigInflation);
+
     let capital = wiBaseCapital;
     const results = [];
     let bankruptYear = null;
@@ -1512,25 +1524,35 @@ function updateWhatIf() {
         const base = wiBaseProjections[i];
         const origFactor = (Number(base.inflator) > 0) ? Number(base.inflator) : 1;
         const inflationFactor = Math.pow(1 + inflation / 100, i);
-
+        const scale = origFactor > 0 ? inflationFactor / origFactor : 1;
         const origInterest = Number(base.monthly_interest) || 0;
         const newInterest = capital > 0 ? (capital * (interestRate / 100)) / 12 : 0;
 
-        const indexedNow = Number(base.indexed_monthly) || 0;
-        const nominalNow = Number(base.nominal_monthly) || 0;
-        const uninflatedIndexed = indexedNow / origFactor;
-        const reconstructedOrig = indexedNow + nominalNow + origInterest;
-        const incomeGap = (Number(base.monthly_income) || 0) - reconstructedOrig;
+        let monthlyIncome;
+        let monthlyExpenses;
+        let monthlyTaxes;
+        let monthlyNet;
+        let endCapital;
 
-        const monthlyIncome = uninflatedIndexed * inflationFactor + nominalNow + newInterest + extraIncome + incomeGap;
-        const monthlyExpenses = ((Number(base.yearly_expenses) / 12) / origFactor) * inflationFactor + extraExpenses;
-        const monthlyTaxes = ((Number(base.yearly_taxes) / 12) / origFactor) * inflationFactor;
-        const monthlyNet = monthlyIncome - monthlyExpenses - monthlyTaxes;
-        const yearlyNet = monthlyNet * 12 - (Number(base.renovation_outlay) || 0);
+        if (passthrough) {
+            monthlyIncome = Number(base.monthly_income) || 0;
+            monthlyExpenses = (Number(base.yearly_expenses) || 0) / 12;
+            monthlyTaxes = (Number(base.yearly_taxes) || 0) / 12;
+            monthlyNet = Number(base.monthly_net) || 0;
+            endCapital = Number(base.capital) || 0;
+            capital = endCapital;
+        } else {
+            const nominalNow = Number(base.nominal_monthly) || 0;
+            const inflatableIncome = (Number(base.monthly_income) || 0) - origInterest - nominalNow;
+            monthlyIncome = inflatableIncome * scale + nominalNow + newInterest + extraIncome;
+            monthlyExpenses = ((Number(base.yearly_expenses) || 0) / 12) * scale + extraExpenses;
+            monthlyTaxes = ((Number(base.yearly_taxes) || 0) / 12) * scale;
+            monthlyNet = monthlyIncome - monthlyExpenses - monthlyTaxes;
+            capital += monthlyNet * 12 - (Number(base.renovation_outlay) || 0);
+            endCapital = capital;
+        }
 
-        capital += yearlyNet;
-
-        if (!bankruptYear && capital < 0) {
+        if (!bankruptYear && endCapital < 0) {
             bankruptYear = base.year;
         }
 
@@ -1541,13 +1563,12 @@ function updateWhatIf() {
             monthly_expenses: monthlyExpenses,
             monthly_taxes:    monthlyTaxes,
             monthly_net:   monthlyNet,
-            capital:       capital,
+            capital:       endCapital,
             base_net:      base.monthly_net,
             base_capital:  base.capital,
         });
     }
 
-    // Update summary cards (year 1)
     const r0 = results[0];
     if (r0) {
         document.getElementById('wi-income-1').textContent    = wiFormat(r0.monthly_income);
@@ -1561,7 +1582,7 @@ function updateWhatIf() {
         const delta1 = r0.monthly_net - r0.base_net;
         const deltaEl = document.getElementById('wi-net-delta-1');
         deltaEl.textContent = (delta1 >= 0 ? '+' : '') + wiFormat(delta1) + '/mnd';
-        deltaEl.className   = 'small fw-bold ' + (delta1 >= 0 ? 'text-success' : 'text-danger');
+        deltaEl.className   = 'small fw-bold ' + (Math.abs(delta1) < 0.5 ? 'text-muted' : (delta1 >= 0 ? 'text-success' : 'text-danger'));
 
         document.getElementById('wi-capital-1').textContent  = wiFormat(r0.capital);
 
@@ -1569,7 +1590,6 @@ function updateWhatIf() {
         document.getElementById('wi-capital-10').textContent = r9 ? wiFormat(r9.capital) : '—';
     }
 
-    // Bankrupt alert
     const alertEl = document.getElementById('wi-bankrupt-alert');
     if (bankruptYear) {
         document.getElementById('wi-bankrupt-msg').textContent = 'Vermogen raakt op in ' + bankruptYear + '!';
@@ -1578,15 +1598,13 @@ function updateWhatIf() {
         alertEl.classList.add('d-none');
     }
 
-    // Build mini table (max 15 rows for readability)
-    const displayRows = results.slice(0, 15);
     let html = '';
-    for (const r of displayRows) {
+    for (const r of results) {
         const netDelta    = r.monthly_net - r.base_net;
         const capDelta    = r.capital - r.base_capital;
         const netClass    = r.monthly_net >= 0 ? 'text-success' : 'text-danger';
-        const deltaClass  = netDelta >= 0 ? 'text-success' : 'text-danger';
-        const capClass    = r.capital < 0 ? 'text-danger fw-bold' : (capDelta >= 0 ? 'text-success' : 'text-danger');
+        const deltaClass  = Math.abs(netDelta) < 0.5 ? 'text-muted' : (netDelta >= 0 ? 'text-success' : 'text-danger');
+        const capClass    = r.capital < 0 ? 'text-danger fw-bold' : (Math.abs(capDelta) < 0.5 ? '' : (capDelta >= 0 ? 'text-success' : 'text-danger'));
         const deltaStr    = (netDelta >= 0 ? '+' : '') + wiFormat(netDelta);
 
         html += `<tr>
