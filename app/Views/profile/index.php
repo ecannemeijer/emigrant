@@ -190,6 +190,7 @@
         <?php endif; ?>
         
         <?php if (!empty($profile['emigration_date']) && (!empty($profile['partner_date_of_birth']) || !empty($profile['date_of_birth']))): ?>
+        <?php $voluntaryAowYears = (float) ($profile['voluntary_aow_years'] ?? 0); ?>
         <div class="card mt-3 border-info">
             <div class="card-body">
                 <h5><i class="bi bi-percent"></i> AOW Percentages</h5>
@@ -199,10 +200,11 @@
                 <hr class="my-3">
                 <h6><?= esc($profile['partner_name'] ?? 'Partner') ?> AOW</h6>
                 <?php
-                $partnerAowPercentage = calculate_AOW_percentage(
+                $partnerAowPercentage = calculate_aow_percentage(
                     $profile['emigration_date'],
                     $profile['partner_date_of_birth'],
-                    $profile['partner_retirement_age'] ?? 67
+                    $profile['partner_retirement_age'] ?? 67,
+                    $voluntaryAowYears
                 );
                 ?>
                 <div class="progress mb-2" style="height: 25px;">
@@ -216,7 +218,7 @@
                     </div>
                 </div>
                 <small class="text-muted">
-                    AOW-rechten: 2% per verzekerd jaar in de 50 jaar vóór AOW-leeftijd
+                    AOW-rechten: 2% per verzekerd jaar in de 50 jaar vóór AOW-leeftijd<?= $voluntaryAowYears > 0 ? ', inclusief ' . number_format($voluntaryAowYears, 1, ',', '') . ' vrijwillige jaren' : '' ?>
                 </small>
                 <?php endif; ?>
                 
@@ -224,10 +226,11 @@
                 <hr class="my-3">
                 <h6>Jouw AOW</h6>
                 <?php
-                $ownAowPercentage = calculate_AOW_percentage(
+                $ownAowPercentage = calculate_aow_percentage(
                     $profile['emigration_date'],
                     $profile['date_of_birth'],
-                    $profile['retirement_age'] ?? 67
+                    $profile['retirement_age'] ?? 67,
+                    $voluntaryAowYears
                 );
                 ?>
                 <div class="progress mb-2" style="height: 25px;">
@@ -241,7 +244,7 @@
                     </div>
                 </div>
                 <small class="text-muted">
-                    AOW-rechten: 2% per verzekerd jaar in de 50 jaar vóór AOW-leeftijd
+                    AOW-rechten: 2% per verzekerd jaar in de 50 jaar vóór AOW-leeftijd<?= $voluntaryAowYears > 0 ? ', inclusief ' . number_format($voluntaryAowYears, 1, ',', '') . ' vrijwillige jaren' : '' ?>
                 </small>
                 <?php endif; ?>
                 

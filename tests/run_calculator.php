@@ -272,5 +272,37 @@ $irpef = $calc->analyze([
 check(abs(($irpef['calculations']['irpef_nl_amount'] ?? -1) - 300) < 0.05, 'IRPEF 15% on salary');
 check(abs(($irpef['calculations']['monthly_taxes'] ?? -1) - 300) < 0.05, 'IRPEF in monthly taxes');
 
+$coupleAow = $calc->analyze([
+    'profile' => [
+        'date_of_birth' => '1958-01-01',
+        'partner_date_of_birth' => '1958-01-01',
+        'emigration_date' => '2018-01-01',
+        'retirement_age' => 67,
+        'partner_retirement_age' => 67,
+        'has_partner' => 1,
+    ],
+    'start_position' => ['house_sale_price' => 0, 'savings' => 0, 'interest_rate' => 0, 'inflation_rate' => 0],
+    'income' => [
+        'has_partner' => 1,
+        'own_aow' => 1400,
+        'aow_future' => 1400,
+        'own_aow_start_age' => 67,
+        'partner_aow_start_age' => 67,
+        'own_benefit_type' => 'none',
+        'partner_benefit_type' => 'none',
+    ],
+    'expenses' => [],
+    'taxes' => [],
+    'bnb_settings' => [],
+    'bnb_expenses' => [],
+], 2026);
+$expectedCouple = 1400 * 0.86 * (50 / 70);
+$ownGot = $coupleAow['yearlyProjections'][0]['own_aow_amount'] ?? -1;
+$partnerGot = $coupleAow['yearlyProjections'][0]['partner_aow_amount'] ?? -1;
+check(abs(($coupleAow['calculations']['own_aow_percentage'] ?? 0) - 86) < 0.02, 'couple own AOW 86%');
+check(abs(($coupleAow['calculations']['partner_aow_percentage'] ?? 0) - 86) < 0.02, 'couple partner AOW 86%');
+check(abs($ownGot - $expectedCouple) < 0.05, "couple own AOW {$expectedCouple} got {$ownGot}");
+check(abs($partnerGot - $expectedCouple) < 0.05, "couple partner AOW {$expectedCouple} got {$partnerGot}");
+
 echo $fail === 0 ? "\nAll good\n" : "\n$fail failed\n";
 exit($fail === 0 ? 0 : 1);

@@ -399,6 +399,46 @@ class FinanceCalculatorTest extends TestCase
         $this->assertEqualsWithDelta($coupleEach * 2, $own + $partner, 0.1);
     }
 
+    public function testCoupleAowAppliesEmigrationAndHouseholdTogether(): void
+    {
+        $result = $this->calc->analyze([
+            'profile' => [
+                'date_of_birth' => '1958-01-01',
+                'partner_date_of_birth' => '1958-01-01',
+                'emigration_date' => '2018-01-01',
+                'retirement_age' => 67,
+                'partner_retirement_age' => 67,
+                'has_partner' => 1,
+            ],
+            'start_position' => [
+                'house_sale_price' => 0,
+                'savings' => 0,
+                'interest_rate' => 0,
+                'inflation_rate' => 0,
+            ],
+            'income' => [
+                'has_partner' => 1,
+                'own_aow' => 1400,
+                'aow_future' => 1400,
+                'own_aow_start_age' => 67,
+                'partner_aow_start_age' => 67,
+                'own_benefit_type' => 'none',
+                'partner_benefit_type' => 'none',
+            ],
+            'expenses' => [],
+            'taxes' => [],
+            'bnb_settings' => [],
+            'bnb_expenses' => [],
+        ], 2026);
+
+        $expected = 1400 * 0.86 * (50 / 70);
+        $this->assertEqualsWithDelta(86.0, $result['calculations']['own_aow_percentage'], 0.02);
+        $this->assertEqualsWithDelta(86.0, $result['calculations']['partner_aow_percentage'], 0.02);
+        $this->assertEqualsWithDelta($expected, $result['yearlyProjections'][0]['own_aow_amount'], 0.05);
+        $this->assertEqualsWithDelta($expected, $result['yearlyProjections'][0]['partner_aow_amount'], 0.05);
+        $this->assertEqualsWithDelta($expected * 2, $result['yearlyProjections'][0]['own_aow_amount'] + $result['yearlyProjections'][0]['partner_aow_amount'], 0.1);
+    }
+
     public function testSinglePersonIgnoresPartnerIncome(): void
     {
         $result = $this->calc->analyze([

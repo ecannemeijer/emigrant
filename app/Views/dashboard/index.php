@@ -81,29 +81,32 @@
     <?php endforeach; ?>
 <?php endif; ?>
 
-<?php 
-// Show AOW reduction notice if emigration date affects AOW
-if (!empty($profile['emigration_date']) && !empty($profile['partner_date_of_birth'])): 
-    $AOWPercentage = calculate_AOW_percentage(
-        $profile['emigration_date'],
-        $profile['partner_date_of_birth'],
-        $profile['partner_retirement_age'] ?? 67
-    );
-    if ($AOWPercentage < 100):
+<?php
+$ownAowPctDash = (float) ($calculations['own_aow_percentage'] ?? 100);
+$partnerAowPctDash = (float) ($calculations['partner_aow_percentage'] ?? 100);
+$isCoupleAow = !empty($calculations['has_partner']) && (float) ($calculations['aow_household_factor'] ?? 1) < 1;
+$aowPctFmt = static function (float $pct): string {
+    return abs($pct - round($pct)) < 0.05
+        ? (string) (int) round($pct)
+        : number_format($pct, 1, ',', '');
+};
+$showAowAccrual = $ownAowPctDash < 99.95 || ($isCoupleAow && $partnerAowPctDash < 99.95);
+$youNameAow = trim($profile['first_name'] ?? '') !== '' ? $profile['first_name'] : 'jij';
+$partnerNameAow = trim($profile['partner_name'] ?? '') !== '' ? $profile['partner_name'] : 'je partner';
 ?>
+<?php if ($showAowAccrual || $isCoupleAow): ?>
     <div class="alert alert-info">
-        <i class="bi bi-info-circle-fill"></i> 
-        <strong>AOW Reductie:</strong> Op basis van je emigratiedatum (<?= date('d-m-Y', strtotime($profile['emigration_date'])) ?>) 
-        ontvang je <?= number_format($AOWPercentage, 1) ?>% van de volledige AOW. 
-        Dit is verwerkt in alle berekeningen.
-    </div>
-<?php endif; endif; ?>
-
-<?php if (!empty($calculations['has_partner']) && (float) ($calculations['aow_household_factor'] ?? 1) < 1): ?>
-    <div class="alert alert-info">
-        <i class="bi bi-people-fill"></i>
-        <strong>AOW samenwonenden:</strong> Jullie delen een huishouden, dus elk krijgt het tarief van 50% van het netto minimumloon — niet 70% zoals een alleenstaande.
-        Twee keer het volle alleenstaandenbedrag zou te hoog zijn. We rekenen daarom 50/70 van het bedrag dat je bij Inkomsten invult (alleenstaandenbedrag).
+        <i class="bi bi-info-circle-fill"></i>
+        <?php if ($isCoupleAow): ?>
+            <strong>AOW samenwonenden:</strong>
+            <?= esc($youNameAow) ?> <?= $aowPctFmt($ownAowPctDash) ?>% opbouw,
+            <?= esc($partnerNameAow) ?> <?= $aowPctFmt($partnerAowPctDash) ?>%.
+            Omdat jullie samenwonen krijgt elk 50/70 van het alleenstaandenbedrag bij Inkomsten — niet twee keer het tarief van 70%.
+        <?php else: ?>
+            <strong>AOW-reductie:</strong>
+            Door emigratie vóór AOW-leeftijd krijg je <?= $aowPctFmt($ownAowPctDash) ?>% van de volledige AOW (2% per verzekerd jaar in de 50 jaar vóór AOW).
+            Dat is verwerkt in de projectie.
+        <?php endif; ?>
     </div>
 <?php endif; ?>
 
